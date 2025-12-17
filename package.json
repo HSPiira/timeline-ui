@@ -9,7 +9,8 @@
     "test": "vitest run",
     "format": "biome format",
     "lint": "biome lint",
-    "check": "biome check"
+    "check": "biome check",
+    "generate:api": "openapi-typescript http://localhost:8000/openapi.json -o src/lib/timeline-api.ts"
   },
   "dependencies": {
     "@faker-js/faker": "^10.0.0",
@@ -44,6 +45,8 @@
     "highlight.js": "^11.11.1",
     "lucide-react": "^0.544.0",
     "nitro": "latest",
+    "openapi-fetch": "^0.15.0",
+    "openapi-typescript": "^7.10.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "streamdown": "^1.6.5",
