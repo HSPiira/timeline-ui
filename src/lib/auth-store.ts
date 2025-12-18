@@ -67,7 +67,7 @@ export const authActions = {
     username: string
     email: string
     password: string
-    tenant_id: string
+    tenant_code: string
   }) {
     authStore.setState((state) => ({ ...state, isLoading: true, error: null }))
 

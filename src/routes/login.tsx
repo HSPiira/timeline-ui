@@ -71,7 +71,7 @@ function LoginPage() {
                 onChange={(e) => setTenantCode(e.target.value)}
                 required
                 className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100"
-                placeholder="acme-corp"
+                placeholder="e.g. acme-corp"
               />
             </div>
 

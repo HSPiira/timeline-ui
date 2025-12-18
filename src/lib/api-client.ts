@@ -46,22 +46,19 @@ export const timelineApi = {
   // Auth
   auth: {
     login: async (username: string, password: string, tenant_code: string) => {
-      const formData = new URLSearchParams()
-      formData.append('username', username)
-      formData.append('password', password)
-      formData.append('tenant_code', tenant_code)
-
       return client.POST('/auth/token', {
-        body: formData as any,
-        bodySerializer: () => formData.toString(),
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: {
+          username,
+          password,
+          tenant_code,
+        },
       })
     },
     register: (data: {
       username: string
       email: string
       password: string
-      tenant_id: string
+      tenant_code: string
     }) => client.POST('/users/register', { body: data }),
   },
 

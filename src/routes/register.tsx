@@ -13,7 +13,7 @@ function RegisterPage() {
   const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [tenantId, setTenantId] = useState('')
+  const [tenantCode, setTenantCode] = useState('')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -24,7 +24,7 @@ function RegisterPage() {
         username,
         email,
         password,
-        tenant_id: tenantId,
+        tenant_code: tenantCode,
       })
 
       // Redirect to login after successful registration
@@ -67,19 +67,19 @@ function RegisterPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label
-                htmlFor="tenant-id"
+                htmlFor="tenant-code"
                 className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5"
               >
-                Tenant ID
+                Tenant Code
               </label>
               <input
-                id="tenant-id"
+                id="tenant-code"
                 type="text"
-                value={tenantId}
-                onChange={(e) => setTenantId(e.target.value)}
+                value={tenantCode}
+                onChange={(e) => setTenantCode(e.target.value)}
                 required
                 className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100"
-                placeholder="Organization ID"
+                placeholder="acme-corp"
               />
             </div>
 
