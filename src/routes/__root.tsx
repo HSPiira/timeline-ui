@@ -4,6 +4,7 @@ import {
   createRootRouteWithContext,
   Link,
   useRouterState,
+  useNavigate,
 } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
@@ -11,10 +12,10 @@ import { useStore } from '@tanstack/react-store'
 import { useEffect } from 'react'
 import { LogOut, LayoutDashboard, Users, Calendar } from 'lucide-react'
 
-import TanStackQueryDevtools from '../integrations/tanstack-query/devtools'
-import { authStore, authActions } from '../lib/auth-store'
+import TanStackQueryDevtools from '@/integrations/tanstack-query/devtools'
+import { authStore, authActions } from '@/lib/auth-store'
 
-import appCss from '../styles.css?url'
+import appCss from '@/styles.css?url'
 
 import type { QueryClient } from '@tanstack/react-query'
 
@@ -52,10 +53,37 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
   shellComponent: RootDocument,
 })
 
-function RootDocument({ children }: { children: React.ReactNode }) {
-  const authState = useStore(authStore)
+function NavLink({
+  to,
+  icon: Icon,
+  children,
+}: {
+  to: string
+  icon: React.ElementType
+  children: React.ReactNode
+}) {
   const router = useRouterState()
   const pathname = router.location.pathname
+  const isActive = to === '/' ? pathname === '/' : pathname.startsWith(to)
+
+  return (
+    <Link
+      to={to}
+      className={`flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-sm transition-all ${
+        isActive
+          ? 'bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900'
+          : 'text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800'
+      }`}
+    >
+      <Icon className="w-4 h-4" />
+      {children}
+    </Link>
+  )
+}
+
+function RootDocument({ children }: { children: React.ReactNode }) {
+  const authState = useStore(authStore)
+  const navigate = useNavigate()
 
   // Initialize auth on mount
   useEffect(() => {
@@ -64,11 +92,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 
   const handleLogout = () => {
     authActions.logout()
-  }
-
-  const isActive = (path: string) => {
-    if (path === '/') return pathname === '/'
-    return pathname.startsWith(path)
+    navigate({ to: '/login' })
   }
 
   return (
@@ -91,39 +115,15 @@ function RootDocument({ children }: { children: React.ReactNode }) {
                   </Link>
 
                   <nav className="hidden md:flex gap-1">
-                    <Link
-                      to="/"
-                      className={`flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-sm transition-all ${
-                        isActive('/')
-                          ? 'bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900'
-                          : 'text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800'
-                      }`}
-                    >
-                      <LayoutDashboard className="w-4 h-4" />
+                    <NavLink to="/" icon={LayoutDashboard}>
                       Dashboard
-                    </Link>
-                    <Link
-                      to="/subjects"
-                      className={`flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-sm transition-all ${
-                        isActive('/subjects')
-                          ? 'bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900'
-                          : 'text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800'
-                      }`}
-                    >
-                      <Users className="w-4 h-4" />
+                    </NavLink>
+                    <NavLink to="/subjects" icon={Users}>
                       Subjects
-                    </Link>
-                    <Link
-                      to="/events"
-                      className={`flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-sm transition-all ${
-                        isActive('/events')
-                          ? 'bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900'
-                          : 'text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800'
-                      }`}
-                    >
-                      <Calendar className="w-4 h-4" />
+                    </NavLink>
+                    <NavLink to="/events" icon={Calendar}>
                       Events
-                    </Link>
+                    </NavLink>
                   </nav>
                 </div>
 

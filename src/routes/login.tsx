@@ -1,7 +1,8 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, useNavigate, Link } from '@tanstack/react-router'
 import { useState } from 'react'
 import { useStore } from '@tanstack/react-store'
-import { authStore, authActions } from '../lib/auth-store'
+import { authStore, authActions } from '@/lib/auth-store'
+import { useRedirectIfAuthenticated } from '@/lib/hooks'
 
 export const Route = createFileRoute('/login')({
   component: LoginPage,
@@ -13,6 +14,9 @@ function LoginPage() {
   const [tenantCode, setTenantCode] = useState('')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+
+  // Redirect if already logged in
+  const isAuthenticated = useRedirectIfAuthenticated()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -26,9 +30,8 @@ function LoginPage() {
     }
   }
 
-  // Redirect if already logged in
-  if (authState.user) {
-    navigate({ to: '/' })
+  // Show nothing while redirecting
+  if (isAuthenticated) {
     return null
   }
 
@@ -124,12 +127,12 @@ function LoginPage() {
           <div className="mt-6 text-center">
             <p className="text-sm text-slate-600 dark:text-slate-400">
               Don't have an account?{' '}
-              <a
-                href="/register"
+              <Link
+                to="/register"
                 className="text-slate-900 dark:text-slate-100 font-semibold hover:underline"
               >
                 Create one
-              </a>
+              </Link>
             </p>
           </div>
         </div>

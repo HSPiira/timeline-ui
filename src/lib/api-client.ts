@@ -1,5 +1,5 @@
 import createClient from 'openapi-fetch'
-import type { paths } from './timeline-api'
+import type { paths, components } from './timeline-api'
 
 // Create API client
 const client = createClient<paths>({
@@ -54,12 +54,8 @@ export const timelineApi = {
         },
       })
     },
-    register: (data: {
-      username: string
-      email: string
-      password: string
-      tenant_code: string
-    }) => client.POST('/users/register', { body: data }),
+    register: (data: components['schemas']['UserCreate']) =>
+      client.POST('/users/register', { body: data }),
   },
 
   // Users
@@ -70,21 +66,43 @@ export const timelineApi = {
   // Tenants
   tenants: {
     list: () => client.GET('/tenants/'),
-    get: (id: string) => client.GET('/tenants/{id}', { params: { path: { id } } }),
-    create: (data: { code: string; name: string }) =>
+    get: (id: string) =>
+      client.GET('/tenants/{tenant_id}', {
+        params: { path: { tenant_id: id } },
+      }),
+    create: (data: components['schemas']['TenantCreate']) =>
       client.POST('/tenants/', { body: data }),
   },
 
   // Subjects
   subjects: {
-    list: () => client.GET('/subjects/'),
-    get: (id: string) => client.GET('/subjects/{id}', { params: { path: { id } } }),
-    create: (data: { subject_type: string; external_ref?: string }) =>
+    list: (params?: { skip?: number; limit?: number; subject_type?: string }) =>
+      client.GET('/subjects/', {
+        params: { query: params },
+      }),
+    get: (id: string) =>
+      client.GET('/subjects/{subject_id}', {
+        params: { path: { subject_id: id } },
+      }),
+    create: (data: components['schemas']['SubjectCreate']) =>
       client.POST('/subjects/', { body: data }),
+    update: (id: string, data: components['schemas']['SubjectUpdate']) =>
+      client.PUT('/subjects/{subject_id}', {
+        params: { path: { subject_id: id } },
+        body: data,
+      }),
+    delete: (id: string) =>
+      client.DELETE('/subjects/{subject_id}', {
+        params: { path: { subject_id: id } },
+      }),
   },
 
   // Events
   events: {
+    listAll: (params?: { event_type?: string; skip?: number; limit?: number }) =>
+      client.GET('/events/', {
+        params: { query: params },
+      }),
     list: (
       subjectId: string,
       params?: { event_type?: string; skip?: number; limit?: number }
@@ -95,13 +113,12 @@ export const timelineApi = {
           query: params,
         },
       }),
-    get: (id: string) => client.GET('/events/{id}', { params: { path: { id } } }),
-    create: (data: {
-      subject_id: string
-      event_type: string
-      event_time: string
-      payload: any
-    }) => client.POST('/events/', { body: data }),
+    get: (id: string) =>
+      client.GET('/events/{event_id}', {
+        params: { path: { event_id: id } },
+      }),
+    create: (data: components['schemas']['EventCreate']) =>
+      client.POST('/events/', { body: data }),
   },
 
   // Event Schemas
@@ -111,48 +128,45 @@ export const timelineApi = {
       client.GET('/event-schemas/event-type/{event_type}/active', {
         params: { path: { event_type: eventType } },
       }),
-    create: (data: {
-      event_type: string
-      schema_json: any
-      version: number
-      is_active: boolean
-    }) => client.POST('/event-schemas/', { body: data }),
+    create: (data: components['schemas']['EventSchemaCreate']) =>
+      client.POST('/event-schemas/', { body: data }),
   },
 
   // Documents
   documents: {
-    list: (subjectId?: string) =>
-      client.GET('/documents/', {
-        params: { query: { subject_id: subjectId } },
+    listBySubject: (subjectId: string) =>
+      client.GET('/documents/subject/{subject_id}', {
+        params: { path: { subject_id: subjectId } },
       }),
-    get: (id: string) => client.GET('/documents/{id}', { params: { path: { id } } }),
+    listByEvent: (eventId: string) =>
+      client.GET('/documents/event/{event_id}', {
+        params: { path: { event_id: eventId } },
+      }),
+    get: (id: string) =>
+      client.GET('/documents/{document_id}', {
+        params: { path: { document_id: id } },
+      }),
   },
 
   // Workflows
   workflows: {
     list: () => client.GET('/workflows/'),
-    create: (data: {
-      name: string
-      trigger_event_type: string
-      trigger_conditions?: any
-      actions: any[]
-    }) => client.POST('/workflows/', { body: data }),
+    create: (data: components['schemas']['WorkflowCreate']) =>
+      client.POST('/workflows/', { body: data }),
   },
 
   // Email Accounts
   emailAccounts: {
     list: () => client.GET('/email-accounts/'),
     get: (id: string) =>
-      client.GET('/email-accounts/{id}', { params: { path: { id } } }),
-    create: (data: {
-      provider_type: string
-      email_address: string
-      credentials: any
-      connection_params?: any
-    }) => client.POST('/email-accounts/', { body: data }),
+      client.GET('/email-accounts/{account_id}', {
+        params: { path: { account_id: id } },
+      }),
+    create: (data: components['schemas']['EmailAccountCreate']) =>
+      client.POST('/email-accounts/', { body: data }),
     sync: (id: string, incremental: boolean = true) =>
-      client.POST('/email-accounts/{id}/sync', {
-        params: { path: { id } },
+      client.POST('/email-accounts/{account_id}/sync', {
+        params: { path: { account_id: id } },
         body: { incremental },
       }),
   },

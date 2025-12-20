@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useStore } from '@tanstack/react-store'
 import { useEffect, useState } from 'react'
-import { authStore } from '../lib/auth-store'
+import { authStore } from '@/lib/auth-store'
 import { Users, Calendar, Workflow, Plus, FileText, TrendingUp, Activity, ChevronDown, ChevronRight, Upload } from 'lucide-react'
 
 export const Route = createFileRoute('/')({

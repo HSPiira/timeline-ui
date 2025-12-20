@@ -1,10 +1,10 @@
 import { Store } from '@tanstack/store'
 import { timelineApi, setAuthToken, getAuthToken } from './api-client'
-import type { User } from './timeline-api'
+import type { UserResponse } from '@/lib/types'
 
 // Auth state interface
 interface AuthState {
-  user: User | null
+  user: UserResponse | null
   token: string | null
   isLoading: boolean
   error: string | null
@@ -34,12 +34,15 @@ export const authActions = {
       }
 
       const { access_token } = response.data
+      // Temporarily set token for the user fetch request
       setAuthToken(access_token)
 
       // Fetch user info
       const userResponse = await timelineApi.users.me()
 
       if (userResponse.error) {
+        // Clear token if user fetch fails to prevent inconsistent state
+        setAuthToken(null)
         throw new Error('Failed to fetch user info')
       }
 
@@ -52,13 +55,16 @@ export const authActions = {
 
       return userResponse.data
     } catch (error) {
+      // Ensure token is cleared on any error to prevent inconsistent state
+      setAuthToken(null)
       const errorMessage =
         error instanceof Error ? error.message : 'Login failed'
-      authStore.setState((state) => ({
-        ...state,
+      authStore.setState({
+        user: null,
+        token: null,
         isLoading: false,
         error: errorMessage,
-      }))
+      })
       throw error
     }
   },
@@ -92,7 +98,7 @@ export const authActions = {
     }
   },
 
-  async logout() {
+  logout() {
     setAuthToken(null)
     authStore.setState({
       user: null,
