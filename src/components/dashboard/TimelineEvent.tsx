@@ -1,4 +1,12 @@
-import { FileText, Upload } from 'lucide-react'
+import type { EventResponse } from '@/lib/types'
+
+interface TimelineEventProps {
+  event: EventResponse
+  isExpanded: boolean
+  isHovered: boolean
+  onToggle: () => void
+  onHover: (eventId: string | null) => void
+}
 
 export function TimelineEvent({
   event,
@@ -6,7 +14,7 @@ export function TimelineEvent({
   isHovered,
   onToggle,
   onHover
-}: any) {
+}: TimelineEventProps) {
   const showPayload = isExpanded || isHovered
 
   return (
@@ -34,14 +42,6 @@ export function TimelineEvent({
             </span>
             <span className="text-sm font-medium">{event.event_type}</span>
           </div>
-
-          {event.requires_document && (
-            event.has_document ? (
-              <FileText className="w-4 h-4" />
-            ) : (
-              <Upload className="w-4 h-4" />
-            )
-          )}
         </div>
 
         {showPayload && event.payload && (

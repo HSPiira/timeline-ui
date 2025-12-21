@@ -1,13 +1,41 @@
-import { ChevronDown, ChevronRight } from 'lucide-react'
+import { ChevronDown, ChevronRight, Calendar } from 'lucide-react'
 import { TimelineEvent } from './TimelineEvent'
+import type { EventResponse } from '@/lib/types'
+
+interface RecentActivityProps {
+  eventsByDate: Record<string, EventResponse[]>
+  timeline: {
+    collapsedDates: Set<string>
+    expandedEvents: Set<string>
+    hoveredEvent: string | null
+    toggleDate: (date: string) => void
+    toggleEvent: (eventId: string) => void
+    setHoveredEvent: (eventId: string | null) => void
+  }
+}
 
 export function RecentActivity({
   eventsByDate,
   timeline
-}: any) {
+}: RecentActivityProps) {
+  const hasEvents = Object.keys(eventsByDate).length > 0
+
+  if (!hasEvents) {
+    return (
+      <div className="bg-card/80 backdrop-blur-sm rounded-sm p-12 border border-border/50 text-center">
+        <Calendar className="w-12 h-12 text-muted-foreground/50 mx-auto mb-3" />
+        <h3 className="text-lg font-semibold text-foreground mb-2">
+          No recent activity
+        </h3>
+        <p className="text-muted-foreground">
+          Events will appear here as they occur
+        </p>
+      </div>
+    )
+  }
   return (
     <div className="space-y-6">
-      {Object.entries(eventsByDate).map(([date, events]: any) => {
+      {Object.entries(eventsByDate).map(([date, events]) => {
         const collapsed = timeline.collapsedDates.has(date)
 
         return (
@@ -25,7 +53,7 @@ export function RecentActivity({
 
             {!collapsed && (
               <div className="ml-6 space-y-3 max-h-96 overflow-y-auto">
-                {events.map((event: any) => (
+                {events.map((event) => (
                   <TimelineEvent
                     key={event.id}
                     event={event}
