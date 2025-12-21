@@ -36,23 +36,23 @@ function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900">
+    <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="w-full max-w-md">
-        <div className="bg-white dark:bg-slate-800 shadow-xl rounded-2xl p-8">
+        <div className="bg-card shadow-xl rounded-2xl p-8 border">
           {/* Logo */}
           <div className="flex justify-center mb-6">
             <img src="/logo.svg" alt="Timeline" className="w-16 h-16" />
           </div>
 
           {/* Title */}
-          <h1 className="text-2xl font-bold text-center mb-6 text-slate-900 dark:text-slate-100">
+          <h1 className="text-2xl font-bold text-center mb-6 text-foreground">
             Sign In
           </h1>
 
           {/* Error Message */}
           {authState.error && (
-            <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-              <p className="text-sm text-red-600 dark:text-red-400">
+            <div className="mb-4 p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
+              <p className="text-sm text-destructive">
                 {authState.error}
               </p>
             </div>
@@ -63,7 +63,7 @@ function LoginPage() {
             <div>
               <label
                 htmlFor="tenant-code"
-                className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5"
+                className="block text-sm font-medium text-foreground mb-1.5"
               >
                 Tenant Code
               </label>
@@ -73,7 +73,7 @@ function LoginPage() {
                 value={tenantCode}
                 onChange={(e) => setTenantCode(e.target.value)}
                 required
-                className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100"
+                className="w-full px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-background text-foreground"
                 placeholder="e.g. acme-corp"
               />
             </div>
@@ -81,7 +81,7 @@ function LoginPage() {
             <div>
               <label
                 htmlFor="username"
-                className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5"
+                className="block text-sm font-medium text-foreground mb-1.5"
               >
                 Username
               </label>
@@ -91,7 +91,7 @@ function LoginPage() {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
-                className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100"
+                className="w-full px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-background text-foreground"
                 placeholder="username"
               />
             </div>
@@ -99,7 +99,7 @@ function LoginPage() {
             <div>
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5"
+                className="block text-sm font-medium text-foreground mb-1.5"
               >
                 Password
               </label>
@@ -109,7 +109,7 @@ function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-transparent bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100"
+                className="w-full px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-background text-foreground"
                 placeholder="••••••••"
               />
             </div>
@@ -117,7 +117,7 @@ function LoginPage() {
             <button
               type="submit"
               disabled={authState.isLoading}
-              className="w-full px-4 py-2.5 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 rounded-lg font-semibold hover:bg-slate-800 dark:hover:bg-slate-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full px-4 py-2.5 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {authState.isLoading ? 'Signing in...' : 'Sign In'}
             </button>
@@ -125,11 +125,11 @@ function LoginPage() {
 
           {/* Register Link */}
           <div className="mt-6 text-center">
-            <p className="text-sm text-slate-600 dark:text-slate-400">
+            <p className="text-sm text-muted-foreground">
               Don't have an account?{' '}
               <Link
                 to="/register"
-                className="text-slate-900 dark:text-slate-100 font-semibold hover:underline"
+                className="text-foreground font-semibold hover:underline"
               >
                 Create one
               </Link>

@@ -111,9 +111,9 @@ export function ThemeToggle({
         </Button>
       </DropdownMenuTrigger>
       
-      <DropdownMenuContent 
-        align={align} 
-        className="w-56 p-2 bg-popover/95 backdrop-blur-sm border border-border/50 shadow-lg"
+      <DropdownMenuContent
+        align={align}
+        className="w-56 p-2"
       >
         <div className="grid gap-1">
           {themeOptions.map((option) => {
@@ -127,35 +127,24 @@ export function ThemeToggle({
                 className={`
                   flex items-center gap-3 px-3 py-2.5 cursor-pointer
                   transition-all duration-200 ease-in-out
-                  hover:bg-accent/80 focus:bg-accent/80
                   rounded-md group
-                  ${isSelected ? 'bg-accent/60 text-accent-foreground' : ''}
                 `}
               >
                 <div className="flex items-center justify-center w-5 h-5">
-                  <Icon 
-                    className={`
-                      h-4 w-4 transition-all duration-200
-                      ${isSelected ? 'text-accent-foreground scale-110' : 'text-muted-foreground'}
-                      group-hover:scale-105
-                    `}
-                  />
+                  <Icon className="h-4 w-4 transition-all duration-200 group-hover:scale-105" />
                 </div>
-                
+
                 <div className="flex flex-col flex-1 min-w-0">
-                  <span className={`
-                    text-sm font-medium leading-none
-                    ${isSelected ? 'text-accent-foreground' : 'text-foreground'}
-                  `}>
+                  <span className="text-sm font-medium leading-none">
                     {option.label}
                   </span>
                   <span className="text-xs text-muted-foreground mt-0.5 leading-none">
                     {option.description}
                   </span>
                 </div>
-                
+
                 {isSelected && (
-                  <Check className="h-4 w-4 text-accent-foreground animate-in fade-in-0 zoom-in-75 duration-150" />
+                  <Check className="h-4 w-4 animate-in fade-in-0 zoom-in-75 duration-150" />
                 )}
               </DropdownMenuItem>
             );
@@ -163,11 +152,11 @@ export function ThemeToggle({
         </div>
         
         {resolvedTheme && (
-          <div className="border-t border-border/50 mt-2 pt-2">
+          <div className="border-t mt-2 pt-2">
             <div className="flex items-center gap-2 px-3 py-1.5 text-xs text-muted-foreground">
               <div className={`
                 w-2 h-2 rounded-full transition-colors duration-200
-                ${resolvedTheme === 'dark' ? 'bg-blue-500' : 'bg-amber-500'}
+                ${resolvedTheme === 'dark' ? 'bg-chart-1' : 'bg-chart-5'}
               `} />
               Currently using {resolvedTheme} theme
             </div>

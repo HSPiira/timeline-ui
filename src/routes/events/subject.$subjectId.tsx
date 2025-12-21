@@ -116,8 +116,8 @@ function SubjectEventsPage() {
 
   if (authState.isLoading) {
     return (
-      <div className="min-h-[calc(100vh-4rem)] bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 flex items-center justify-center">
-        <div className="flex items-center gap-3 text-slate-600 dark:text-slate-400">
+      <div className="min-h-[calc(100vh-4rem)] bg-background flex items-center justify-center">
+        <div className="flex items-center gap-3 text-muted-foreground">
           <Activity className="w-5 h-5 animate-pulse" />
           <span>Loading...</span>
         </div>
@@ -131,8 +131,8 @@ function SubjectEventsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-[calc(100vh-4rem)] bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 flex items-center justify-center">
-        <div className="flex items-center gap-3 text-slate-600 dark:text-slate-400">
+      <div className="min-h-[calc(100vh-4rem)] bg-background flex items-center justify-center">
+        <div className="flex items-center gap-3 text-muted-foreground">
           <Loader2 className="w-5 h-5 animate-spin" />
           <span>Loading timeline...</span>
         </div>
@@ -142,15 +142,15 @@ function SubjectEventsPage() {
 
   if (error || !subject) {
     return (
-      <div className="min-h-[calc(100vh-4rem)] bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 flex items-center justify-center">
+      <div className="min-h-[calc(100vh-4rem)] bg-background flex items-center justify-center">
         <div className="text-center max-w-md px-4">
           <div className="w-16 h-16 rounded-sm bg-red-100 dark:bg-red-900/20 flex items-center justify-center mx-auto mb-4">
             <AlertCircle className="w-8 h-8 text-red-600 dark:text-red-400" />
           </div>
-          <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">
+          <h3 className="text-lg font-semibold text-foreground mb-2">
             Unable to Load Subject
           </h3>
-          <p className="text-slate-600 dark:text-slate-400 mb-6">
+          <p className="text-muted-foreground mb-6">
             {error || 'Subject not found'}. Please check your connection and try again.
           </p>
           <div className="flex items-center justify-center gap-3">
@@ -163,7 +163,7 @@ function SubjectEventsPage() {
             </button>
             <button
               onClick={() => navigate({ to: '/subjects' })}
-              className="px-4 py-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors"
+              className="px-4 py-2 text-muted-foreground hover:text-foreground transition-colors"
             >
               Back to Subjects
             </button>
@@ -174,25 +174,25 @@ function SubjectEventsPage() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900">
+    <div className="min-h-[calc(100vh-4rem)] bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Back Button */}
         <button
           onClick={() => navigate({ to: '/subjects' })}
-          className="flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 mb-6 transition-colors"
+          className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           <span className="text-sm font-medium">Back to Subjects</span>
         </button>
 
         {/* Subject Header */}
-        <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-sm p-6 border border-slate-200/50 dark:border-slate-700/50 mb-8">
+        <div className="bg-card/80 backdrop-blur-sm rounded-sm p-6 border border-border/50 mb-8">
           <div className="flex items-start justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2">
+              <h1 className="text-2xl font-bold text-foreground mb-2">
                 {subject.id}
               </h1>
-              <div className="flex items-center gap-4 text-sm text-slate-600 dark:text-slate-400">
+              <div className="flex items-center gap-4 text-sm text-muted-foreground">
                 <div className="flex items-center gap-2">
                   <Tag className="w-4 h-4" />
                   <span className="font-medium">{subject.subject_type}</span>
@@ -210,8 +210,8 @@ function SubjectEventsPage() {
               </div>
             </div>
             <div className="text-right">
-              <p className="text-sm text-slate-600 dark:text-slate-400 mb-1">Total Events</p>
-              <p className="text-3xl font-bold text-slate-900 dark:text-slate-100">
+              <p className="text-sm text-muted-foreground mb-1">Total Events</p>
+              <p className="text-3xl font-bold text-foreground">
                 {events.length}
               </p>
             </div>
@@ -219,14 +219,14 @@ function SubjectEventsPage() {
         </div>
 
         {/* Timeline */}
-        <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-sm p-6 border border-slate-200/50 dark:border-slate-700/50">
-          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-6">
+        <div className="bg-card/80 backdrop-blur-sm rounded-sm p-6 border border-border/50">
+          <h2 className="text-lg font-semibold text-foreground mb-6">
             Event Timeline
           </h2>
 
           {events.length === 0 ? (
             <div className="text-center py-12">
-              <Calendar className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
+              <Calendar className="w-12 h-12 text-muted-foreground/50 mx-auto mb-3" />
               <p className="text-sm text-slate-500 dark:text-slate-400">
                 No events recorded for this subject yet
               </p>
@@ -248,10 +248,10 @@ function SubjectEventsPage() {
                       ) : (
                         <ChevronDown className="w-4 h-4 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300" />
                       )}
-                      <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                      <span className="text-sm font-semibold text-foreground/90">
                         {date}
                       </span>
-                      <span className="text-xs text-slate-400 dark:text-slate-500">
+                      <span className="text-xs text-muted-foreground/70">
                         ({dateEvents.length} {dateEvents.length === 1 ? 'event' : 'events'})
                       </span>
                     </button>
@@ -266,9 +266,9 @@ function SubjectEventsPage() {
                             <div key={event.id} className="flex gap-4">
                               {/* Timeline dot and line */}
                               <div className="flex flex-col items-center pt-1">
-                                <div className="w-2 h-2 rounded-full bg-blue-500 dark:bg-blue-400" />
+                                <div className="w-2 h-2 rounded-full bg-foreground/60" />
                                 {index < dateEvents.length - 1 && (
-                                  <div className="w-0.5 flex-1 bg-slate-200 dark:bg-slate-700 mt-2 min-h-[60px]" />
+                                  <div className="w-0.5 flex-1 bg-secondary mt-2 min-h-[60px]" />
                                 )}
                               </div>
 
@@ -276,7 +276,7 @@ function SubjectEventsPage() {
                               <div className="flex-1 pb-4">
                                 <div
                                   onClick={() => toggleEvent(event.id)}
-                                  className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-sm border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors cursor-pointer"
+                                  className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-sm border border-slate-200 dark:border-slate-700 hover:border-border transition-colors cursor-pointer"
                                 >
                                   <div className="flex items-start justify-between mb-2">
                                     <div className="flex items-center gap-3">
@@ -287,11 +287,11 @@ function SubjectEventsPage() {
                                           second: '2-digit',
                                         })}
                                       </span>
-                                      <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                                      <span className="text-sm font-semibold text-foreground">
                                         {event.event_type}
                                       </span>
                                     </div>
-                                    <span className="text-xs px-2 py-1 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400 rounded-sm font-mono">
+                                    <span className="text-xs px-2 py-1 bg-secondary text-muted-foreground rounded-sm font-mono">
                                       {event.id.slice(0, 8)}
                                     </span>
                                   </div>
@@ -299,16 +299,16 @@ function SubjectEventsPage() {
                                   {/* Payload - shown when expanded */}
                                   {isExpanded && event.payload && (
                                     <div className="mt-3 p-3 bg-white dark:bg-slate-800 rounded-sm border border-slate-200 dark:border-slate-700">
-                                      <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 mb-2">
+                                      <p className="text-xs font-semibold text-muted-foreground mb-2">
                                         Event Data
                                       </p>
-                                      <pre className="text-xs text-slate-700 dark:text-slate-300 overflow-x-auto">
+                                      <pre className="text-xs text-foreground/90 overflow-x-auto">
                                         {JSON.stringify(event.payload, null, 2)}
                                       </pre>
                                     </div>
                                   )}
 
-                                  <div className="mt-2 text-xs text-slate-500 dark:text-slate-500">
+                                  <div className="mt-2 text-xs text-muted-foreground">
                                     Click to {isExpanded ? 'collapse' : 'expand'} details
                                   </div>
                                 </div>

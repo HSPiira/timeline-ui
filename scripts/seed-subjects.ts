@@ -7,7 +7,7 @@
  * 3. Run: npx tsx scripts/seed-subjects.ts <AUTH_TOKEN>
  */
 
-const API_URL = process.env.VITE_API_URL || 'http://localhost:8000'
+const API_URL = process.env.API_URL || 'http://localhost:8000'
 
 interface SubjectData {
   subject_type: string

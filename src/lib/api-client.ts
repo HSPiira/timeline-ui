@@ -146,6 +146,9 @@ export const timelineApi = {
       client.GET('/documents/{document_id}', {
         params: { path: { document_id: id } },
       }),
+      upload: (data: components['schemas']['Body_upload_document_documents_upload_post']) => {
+        return client.POST('/documents/upload', { body: data })
+      }
   },
 
   // Workflows
