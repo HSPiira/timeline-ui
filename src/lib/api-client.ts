@@ -76,7 +76,14 @@ export const timelineApi = {
 
   // Subjects
   subjects: {
-    list: (params?: { skip?: number; limit?: number; subject_type?: string }) =>
+    list: (
+      params?: {
+        skip?: number
+        limit?: number
+        subject_type?: string
+        q?: string
+      }
+    ) =>
       client.GET('/subjects/', {
         params: { query: params },
       }),
