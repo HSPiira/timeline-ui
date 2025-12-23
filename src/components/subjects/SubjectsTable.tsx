@@ -75,7 +75,7 @@ import {
       cell: ({ row }) => {
           const subject = row.original
           return (
-              <span className="text-xs font-medium text-foreground/90">
+              <span className="text-sm font-medium text-foreground/90">
                   {subject.subject_type}
               </span>
           )
@@ -87,7 +87,7 @@ import {
       cell: ({ row }) => {
           const subject = row.original
           return (
-              <span className="text-xs font-medium text-foreground">{subject.eventCount}</span>
+              <span className="text-sm font-medium text-foreground">{subject.eventCount}</span>
           )
       }
     },
@@ -97,7 +97,7 @@ import {
       cell: ({ row }) => {
           const subject = row.original
           return (
-              <span className="text-xs text-muted-foreground">
+              <span className="text-sm text-muted-foreground">
                   {subject.lastEventDate
                     ? new Date(subject.lastEventDate).toLocaleDateString('en-US', {
                         month: 'short',
@@ -114,7 +114,7 @@ import {
       cell: ({ row }) => {
           const subject = row.original
           return (
-              <span className="text-xs text-muted-foreground">
+              <span className="text-sm text-muted-foreground">
                   {new Date(subject.created_at).toLocaleDateString('en-US', {
                     month: 'short',
                     day: 'numeric',
@@ -150,7 +150,7 @@ import {
                 {headerGroup.headers.map((header) => (
                   <th
                     key={header.id}
-                    className="px-4 py-1.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider"
+                    className="px-4 py-2.5 text-left text-sm font-semibold text-muted-foreground uppercase tracking-wider"
                   >
                     {header.isPlaceholder
                       ? null
@@ -167,7 +167,7 @@ import {
             {table.getRowModel().rows.map((row) => (
               <tr key={row.id} onClick={() => handleSubjectClick(row.original.id)} className="hover:bg-muted/30 transition-colors cursor-pointer">
                 {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id} className="px-4 py-2">
+                  <td key={cell.id} className="px-4 py-3">
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </td>
                 ))}

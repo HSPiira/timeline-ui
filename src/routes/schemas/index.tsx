@@ -166,44 +166,44 @@ function SchemasPage() {
         </div>
       ) : (
         <div className="overflow-x-auto bg-card/80 rounded-sm border border-border/50">
-          <table className="w-full text-xs">
+          <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border">
-                <th className="text-left py-1 px-2.5 font-medium text-muted-foreground text-xs">Event Type</th>
-                <th className="text-left py-1 px-2.5 font-medium text-muted-foreground text-xs">Version</th>
-                <th className="text-left py-1 px-2.5 font-medium text-muted-foreground text-xs">Status</th>
-                <th className="text-left py-1 px-2.5 font-medium text-muted-foreground text-xs">Created</th>
-                <th className="text-right py-1 px-2.5 font-medium text-muted-foreground text-xs">Actions</th>
+                <th className="text-left py-2 px-2.5 font-medium text-muted-foreground text-sm">Event Type</th>
+                <th className="text-left py-2 px-2.5 font-medium text-muted-foreground text-sm">Version</th>
+                <th className="text-left py-2 px-2.5 font-medium text-muted-foreground text-sm">Status</th>
+                <th className="text-left py-2 px-2.5 font-medium text-muted-foreground text-sm">Created</th>
+                <th className="text-right py-2 px-2.5 font-medium text-muted-foreground text-sm">Actions</th>
               </tr>
             </thead>
             <tbody>
               {schemas.map((schema) => (
                 <tr key={schema.id} className="border-b border-border hover:bg-muted/50 transition-colors">
-                  <td className="py-1 px-2.5">
-                    <span className="font-medium text-foreground text-xs">{schema.event_type}</span>
+                  <td className="py-2 px-2.5">
+                    <span className="font-medium text-foreground text-sm">{schema.event_type}</span>
                   </td>
-                  <td className="py-1 px-2.5">
-                    <span className="text-muted-foreground text-xs">v{schema.version}</span>
+                  <td className="py-2 px-2.5">
+                    <span className="text-muted-foreground text-sm">v{schema.version}</span>
                   </td>
-                  <td className="py-1 px-2.5">
+                  <td className="py-2 px-2.5">
                     <div className="flex items-center gap-0.5">
                       {schema.is_active ? (
                         <>
                           <CheckCircle className="w-3 h-3 text-green-500" />
-                          <span className="text-green-600 dark:text-green-400 text-xs">Active</span>
+                          <span className="text-green-600 dark:text-green-400 text-sm">Active</span>
                         </>
                       ) : (
-                        <span className="text-muted-foreground text-xs">Inactive</span>
+                        <span className="text-muted-foreground text-sm">Inactive</span>
                       )}
                     </div>
                   </td>
-                  <td className="py-1 px-2.5 text-muted-foreground text-xs">
+                  <td className="py-2 px-2.5 text-muted-foreground text-sm">
                     {new Date(schema.created_at).toLocaleDateString('en-US', {
                       month: 'short',
                       day: 'numeric',
                     })}
                   </td>
-                  <td className="py-1 px-2.5">
+                  <td className="py-2 px-2.5">
                     <div className="flex items-center justify-end gap-0.5">
                       <button
                         onClick={() => setViewingSchema(schema)}
