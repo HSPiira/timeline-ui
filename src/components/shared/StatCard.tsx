@@ -1,4 +1,4 @@
-import { LucideIcon, TrendingUp } from "lucide-react"
+import { type LucideIcon, TrendingUp } from "lucide-react"
 
 type StatCardProps = {
     label: string

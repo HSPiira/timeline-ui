@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { X } from 'lucide-react'
 import type { components } from '@/lib/timeline-api'
+import { Modal } from '@/components/ui/Modal'
 
 type Schema = components['schemas']['EventSchemaResponse']
 
@@ -11,13 +11,22 @@ interface SchemaViewModalProps {
 
 type ViewMode = 'simplified' | 'json'
 
+type FieldSchema = {
+  enum?: string[]
+  format?: string
+  type?: string
+  minimum?: number
+  maximum?: number
+  description?: string
+}
+
 export function SchemaViewModal({ schema, onClose }: SchemaViewModalProps) {
   const [viewMode, setViewMode] = useState<ViewMode>('simplified')
 
-  const properties = schema.schema_definition.properties as Record<string, any> || {}
-  const required = schema.schema_definition.required as string[] || []
+  const properties = (schema.schema_definition.properties as Record<string, FieldSchema> | undefined) || {}
+  const required = (schema.schema_definition.required as string[] | undefined) || []
 
-  const getFieldType = (fieldSchema: any): string => {
+  const getFieldType = (fieldSchema: FieldSchema): string => {
     if (fieldSchema.enum) {
       return `Dropdown (${fieldSchema.enum.length} options)`
     }
@@ -34,20 +43,11 @@ export function SchemaViewModal({ schema, onClose }: SchemaViewModalProps) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-card rounded-sm max-w-2xl w-full max-h-[90vh] overflow-auto p-6 shadow-xl">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h2 className="text-xl font-semibold text-foreground">{schema.event_type}</h2>
-            <p className="text-xs text-muted-foreground mt-0.5">Version {schema.version}</p>
-          </div>
-          <button
-            onClick={onClose}
-            className="text-muted-foreground/70 hover:text-foreground transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
+    <Modal isOpen={true} onClose={onClose} maxWidth="max-w-2xl">
+      <div className="mb-4">
+        <div className="mb-4">
+          <h2 className="text-xl font-semibold text-foreground">{schema.event_type}</h2>
+          <p className="text-xs text-muted-foreground mt-0.5">Version {schema.version}</p>
         </div>
 
         {/* Meta Info */}
@@ -146,7 +146,10 @@ export function SchemaViewModal({ schema, onClose }: SchemaViewModalProps) {
           </p>
         </div>
 
-        {/* Close Button */}
+      </div>
+
+      {/* Close Button */}
+      <div className="pt-4 border-t border-border">
         <button
           onClick={onClose}
           className="w-full px-4 py-2 border border-input text-foreground/90 rounded-sm font-medium hover:bg-muted/30 transition-colors text-sm"
@@ -154,6 +157,6 @@ export function SchemaViewModal({ schema, onClose }: SchemaViewModalProps) {
           Close
         </button>
       </div>
-    </div>
+    </Modal>
   )
 }

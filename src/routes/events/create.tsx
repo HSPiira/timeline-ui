@@ -5,6 +5,7 @@ import { timelineApi } from '@/lib/api-client'
 import SubjectSelector from '@/components/subjects/SubjectSelector'
 import EventTypeSelector from '@/components/events/EventTypeSelector'
 import { JsonSchemaForm } from '@/components/shared/JsonSchemaForm'
+import { EventDocumentUpload } from '@/components/documents/EventDocumentUpload'
 import { Loader2, AlertCircle } from 'lucide-react'
 import type { components } from '@/lib/timeline-api'
 
@@ -18,6 +19,7 @@ interface CreateEventState {
   eventTime: string
   payload: Record<string, any>
   fieldErrors: Record<string, string>
+  documentIds: string[]
 }
 
 function CreateEventPage() {
@@ -30,8 +32,10 @@ function CreateEventPage() {
     eventTime: new Date().toISOString().slice(0, 16),
     payload: {},
     fieldErrors: {},
+    documentIds: [],
   })
   const [schema, setSchema] = useState<Record<string, any> | null>(null)
+  const [schemaVersion, setSchemaVersion] = useState<number | null>(null)
   const [schemaLoading, setSchemaLoading] = useState(false)
   const [loading, setLoading] = useState(false)
   const [apiError, setApiError] = useState<string | null>(null)
@@ -40,6 +44,7 @@ function CreateEventPage() {
   useEffect(() => {
     if (!state.eventType) {
       setSchema(null)
+      setSchemaVersion(null)
       return
     }
 
@@ -52,12 +57,15 @@ function CreateEventPage() {
 
         if (res.data) {
           setSchema(res.data.schema_definition || null)
+          setSchemaVersion(res.data.version)
         } else {
           setSchema(null)
+          setSchemaVersion(null)
         }
       } catch (err) {
         console.error('Failed to fetch schema:', err)
         setSchema(null)
+        setSchemaVersion(null)
       } finally {
         setSchemaLoading(false)
       }
@@ -68,6 +76,46 @@ function CreateEventPage() {
       mounted = false
     }
   }, [state.eventType])
+
+  // Detect document field in schema
+  const documentFieldName = useMemo(() => {
+    if (!schema?.properties) return null
+
+    const requiredFields = (schema.required as string[]) ?? []
+
+    // First, check for explicitly named document fields
+    for (const field of requiredFields) {
+      const fieldName = field.toLowerCase()
+      if (['documents', 'document_ids', 'attachments', 'evidence', 'supporting_documents'].includes(fieldName)) {
+        return field
+      }
+    }
+
+    // If no explicit match, look for array fields in required that could be documents
+    for (const field of requiredFields) {
+      const fieldSchema = schema.properties[field]
+      // Check if it's an array of strings (likely IDs)
+      if (fieldSchema?.type === 'array' && fieldSchema?.items?.type === 'string') {
+        const fieldNameLower = field.toLowerCase()
+        // Check if name or description suggests documents
+        if (
+          fieldNameLower.includes('doc') ||
+          fieldNameLower.includes('attach') ||
+          fieldNameLower.includes('evidence') ||
+          fieldNameLower.includes('file') ||
+          fieldSchema.description?.toLowerCase().includes('document') ||
+          fieldSchema.description?.toLowerCase().includes('attachment')
+        ) {
+          return field
+        }
+      }
+    }
+
+    return null
+  }, [schema])
+
+  // Check if schema requires documents
+  const schemaRequiresDocuments = documentFieldName !== null
 
   // Validate payload against schema
   const validatePayload = useMemo(() => {
@@ -85,6 +133,14 @@ function CreateEventPage() {
 
     return errors
   }, [schema, state.payload])
+
+  // Validate documents if required
+  const validateDocuments = useMemo(() => {
+    if (schemaRequiresDocuments && state.documentIds.length === 0) {
+      return 'At least one document is required for this event type'
+    }
+    return null
+  }, [schemaRequiresDocuments, state.documentIds])
 
   const handlePayloadChange = (newPayload: Record<string, any>) => {
     setState((prev) => ({
@@ -112,6 +168,12 @@ function CreateEventPage() {
       return
     }
 
+    // Validate documents if required
+    if (validateDocuments) {
+      setApiError(validateDocuments)
+      return
+    }
+
     if (Object.keys(errors).length > 0) {
       setState((prev) => ({
         ...prev,
@@ -122,11 +184,25 @@ function CreateEventPage() {
 
     setLoading(true)
     try {
+      // Validate schema version is available
+      if (!schemaVersion) {
+        setApiError('Schema version not available. Please select an event type.')
+        setLoading(false)
+        return
+      }
+
+      // Include document IDs in payload if documents were uploaded
+      const payload = { ...state.payload }
+      if (state.documentIds.length > 0 && documentFieldName) {
+        payload[documentFieldName] = state.documentIds
+      }
+
       const eventCreateData: components['schemas']['EventCreate'] = {
         subject_id: state.subjectId,
         event_type: state.eventType,
+        schema_version: schemaVersion,
         event_time: new Date(state.eventTime).toISOString(),
-        payload: state.payload,
+        payload,
       }
 
       const { data, error: createError } = await timelineApi.events.create(eventCreateData)
@@ -191,7 +267,16 @@ function CreateEventPage() {
             <label className="block text-sm font-medium mb-1">
               Event Type <span className="text-red-500">*</span>
             </label>
-            <EventTypeSelector value={state.eventType} onChange={(value) => setState((prev) => ({ ...prev, eventType: value }))} />
+            <div className="flex items-end gap-2">
+              <div className="flex-1">
+                <EventTypeSelector value={state.eventType} onChange={(value) => setState((prev) => ({ ...prev, eventType: value }))} />
+              </div>
+              {schemaVersion && (
+                <div className="px-2.5 py-1.5 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-sm text-xs">
+                  <span className="text-blue-900 dark:text-blue-200 font-medium">Schema v{schemaVersion}</span>
+                </div>
+              )}
+            </div>
             {state.fieldErrors.eventType && <p className="text-sm text-red-500 mt-0.5">{state.fieldErrors.eventType}</p>}
           </div>
 
@@ -206,6 +291,26 @@ function CreateEventPage() {
             />
             <p className="text-sm text-muted-foreground mt-0.5">Defaults to current time</p>
           </div>
+
+          {/* Document Upload - if schema requires documents */}
+          {state.subjectId && schemaRequiresDocuments && (
+            <div>
+              <label className="block text-sm font-medium mb-1.5">
+                Supporting Documents {schemaRequiresDocuments && <span className="text-red-500">*</span>}
+              </label>
+              <div className="p-3 bg-background/50 rounded-sm border border-border/50">
+                <EventDocumentUpload
+                  subjectId={state.subjectId}
+                  onDocumentsAdded={(docIds) => setState((prev) => ({ ...prev, documentIds: docIds }))}
+                  onError={(error) => setApiError(error)}
+                  required={schemaRequiresDocuments}
+                />
+              </div>
+              {validateDocuments && (
+                <p className="text-sm text-red-500 mt-1">{validateDocuments}</p>
+              )}
+            </div>
+          )}
 
           {/* Payload / Dynamic Form */}
           <div>

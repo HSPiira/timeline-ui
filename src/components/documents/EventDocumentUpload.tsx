@@ -2,20 +2,20 @@ import { useState, useRef } from 'react'
 import { Upload, X, AlertCircle, CheckCircle, Loader2 } from 'lucide-react'
 import { timelineApi } from '@/lib/api-client'
 
-export interface DocumentUploadProps {
-  subjectId?: string
-  eventId?: string
-  onUploadComplete?: (documentId: string) => void
+export interface EventDocumentUploadProps {
+  subjectId: string
+  onDocumentsAdded: (documentIds: string[]) => void
   onError?: (error: string) => void
+  required?: boolean
 }
 
 interface UploadingFile {
   id: string
   file: File
-  documentType: string
   progress: number
   status: 'uploading' | 'success' | 'error'
   error?: string
+  documentId?: string
 }
 
 const MAX_FILE_SIZE = 100 * 1024 * 1024 // 100MB
@@ -32,12 +32,12 @@ const ALLOWED_TYPES = [
   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
 ]
 
-export function DocumentUpload({
+export function EventDocumentUpload({
   subjectId,
-  eventId,
-  onUploadComplete,
+  onDocumentsAdded,
   onError,
-}: DocumentUploadProps) {
+  required = false,
+}: EventDocumentUploadProps) {
   const [files, setFiles] = useState<UploadingFile[]>([])
   const [isDragging, setIsDragging] = useState(false)
   const [documentType, setDocumentType] = useState('evidence')
@@ -55,41 +55,13 @@ export function DocumentUpload({
 
   const uploadFile = async (file: File, uploadingFile: UploadingFile) => {
     try {
-      // Validate required fields
-      if (!subjectId) {
-        const error = 'Subject ID is required to upload documents'
-        onError?.(error)
-        setFiles((prev) => prev.map((f) => (f.id === uploadingFile.id ? { ...f, status: 'error', error, progress: 0 } : f)))
-        return
-      }
-
-      if (!uploadingFile.documentType) {
-        const error = 'Document type is required'
-        onError?.(error)
-        setFiles((prev) => prev.map((f) => (f.id === uploadingFile.id ? { ...f, status: 'error', error, progress: 0 } : f)))
-        return
-      }
-
       setFiles((prev) => prev.map((f) => (f.id === uploadingFile.id ? { ...f, status: 'uploading' } : f)))
 
-      // Create FormData for multipart upload
       const formData = new FormData()
       formData.append('file', file)
       formData.append('subject_id', subjectId)
-      formData.append('document_type', uploadingFile.documentType)
-      if (eventId) formData.append('event_id', eventId)
+      formData.append('document_type', documentType)
 
-      // Log form data being sent for debugging
-      console.log('Uploading document with:', {
-        fileName: file.name,
-        fileSize: file.size,
-        filetype: file.type,
-        subjectId,
-        documentType: uploadingFile.documentType,
-        eventId: eventId || 'none',
-      })
-
-      // Mock progress updates (real implementation would use XMLHttpRequest for progress)
       const progressInterval = setInterval(() => {
         setFiles((prev) =>
           prev.map((f) =>
@@ -103,26 +75,22 @@ export function DocumentUpload({
       clearInterval(progressInterval)
 
       if (error) {
-        // Log detailed error information for debugging
-        console.error('Document upload error:', {
-          error,
-          formDataEntries: Array.from((formData as any).entries?.() || []),
-          file: { name: file.name, size: file.size, type: file.type },
-          subjectId,
-          documentType: uploadingFile.documentType,
-        })
-
-        const errorMessage = typeof error === 'object' && 'message' in error
-          ? (error as any).message
-          : typeof error === 'object' && 'detail' in error
-          ? (error as any).detail
-          : 'Upload failed'
+        const errorMessage =
+          typeof error === 'object' && 'message' in error
+            ? (error as any).message
+            : typeof error === 'object' && 'detail' in error
+              ? (error as any).detail
+              : 'Upload failed'
 
         setFiles((prev) => prev.map((f) => (f.id === uploadingFile.id ? { ...f, status: 'error', error: errorMessage, progress: 0 } : f)))
         onError?.(errorMessage)
       } else if (data) {
-        setFiles((prev) => prev.map((f) => (f.id === uploadingFile.id ? { ...f, status: 'success', progress: 100 } : f)))
-        onUploadComplete?.(data.id)
+        setFiles((prev) => prev.map((f) => (f.id === uploadingFile.id ? { ...f, status: 'success', progress: 100, documentId: data.id } : f)))
+        // Notify parent of successful upload
+        const successfulDocs = files.filter((f) => f.status === 'success' || f.id === uploadingFile.id).map((f) => f.documentId || data.id).filter(Boolean) as string[]
+        if (successfulDocs.length > 0) {
+          onDocumentsAdded(successfulDocs)
+        }
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unexpected error during upload'
@@ -145,7 +113,6 @@ export function DocumentUpload({
       const uploadingFile: UploadingFile = {
         id: `${Date.now()}-${Math.random()}`,
         file,
-        documentType,
         progress: 0,
         status: 'uploading',
       }
@@ -182,21 +149,19 @@ export function DocumentUpload({
     setFiles((prev) => prev.filter((f) => f.id !== id))
   }
 
-  const clearCompleted = () => {
-    setFiles((prev) => prev.filter((f) => f.status !== 'success'))
-  }
+  const successCount = files.filter((f) => f.status === 'success').length
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2.5">
       {/* Document Type Selector */}
       <div>
-        <label className="block text-sm font-medium text-foreground/90 mb-2">
-          Document Type
+        <label className="block text-xs font-medium text-foreground/90 mb-1">
+          Document Type {required && <span className="text-red-500">*</span>}
         </label>
         <select
           value={documentType}
           onChange={(e) => setDocumentType(e.target.value)}
-          className="w-full px-3 py-2 bg-background border border-input rounded-sm text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+          className="w-full px-2.5 py-1.5 bg-background border border-input rounded-sm text-foreground text-xs focus:outline-none focus:ring-2 focus:ring-ring"
         >
           <option value="evidence">Evidence</option>
           <option value="invoice">Invoice</option>
@@ -213,7 +178,7 @@ export function DocumentUpload({
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        className={`relative border-2 border-dashed rounded-sm p-8 text-center transition-colors ${
+        className={`relative border-2 border-dashed rounded-sm p-5 text-center transition-colors ${
           isDragging ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'
         }`}
       >
@@ -226,11 +191,11 @@ export function DocumentUpload({
           accept={ALLOWED_TYPES.join(',')}
         />
 
-        <div className="space-y-3">
-          <Upload className="w-10 h-10 mx-auto text-muted-foreground" />
+        <div className="space-y-2">
+          <Upload className="w-8 h-8 mx-auto text-muted-foreground" />
           <div>
-            <p className="font-medium text-foreground">Drag and drop files here</p>
-            <p className="text-sm text-muted-foreground">or click to select files</p>
+            <p className="font-medium text-foreground text-sm">Drag and drop files here</p>
+            <p className="text-xs text-muted-foreground">or click to select files</p>
           </div>
           <p className="text-xs text-muted-foreground">Max 100MB per file. Supported: PDF, images, Word, Excel</p>
         </div>
@@ -245,34 +210,31 @@ export function DocumentUpload({
 
       {/* File List */}
       {files.length > 0 && (
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           {files.map((uploadingFile) => (
-            <div key={uploadingFile.id} className="flex items-center gap-3 p-3 bg-card rounded-sm border border-border/50">
+            <div key={uploadingFile.id} className="flex items-center gap-2.5 p-2.5 bg-card rounded-sm border border-border/50">
               {/* Status Icon */}
               <div className="flex-shrink-0">
-                {uploadingFile.status === 'uploading' && <Loader2 className="w-5 h-5 text-primary animate-spin" />}
-                {uploadingFile.status === 'success' && <CheckCircle className="w-5 h-5 text-green-500" />}
-                {uploadingFile.status === 'error' && <AlertCircle className="w-5 h-5 text-red-500" />}
+                {uploadingFile.status === 'uploading' && <Loader2 className="w-4 h-4 text-primary animate-spin" />}
+                {uploadingFile.status === 'success' && <CheckCircle className="w-4 h-4 text-green-500" />}
+                {uploadingFile.status === 'error' && <AlertCircle className="w-4 h-4 text-red-500" />}
               </div>
 
               {/* File Info */}
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">{uploadingFile.file.name}</p>
+                <p className="text-xs font-medium truncate">{uploadingFile.file.name}</p>
                 <p className="text-xs text-muted-foreground">{(uploadingFile.file.size / 1024 / 1024).toFixed(2)}MB</p>
 
                 {/* Progress Bar */}
                 {uploadingFile.status === 'uploading' && (
-                  <div className="mt-2 w-full bg-background rounded-full h-1 overflow-hidden">
-                    <div
-                      className="h-full bg-primary transition-all duration-300"
-                      style={{ width: `${uploadingFile.progress}%` }}
-                    />
+                  <div className="mt-1 w-full bg-background rounded-full h-0.5 overflow-hidden">
+                    <div className="h-full bg-primary transition-all duration-300" style={{ width: `${uploadingFile.progress}%` }} />
                   </div>
                 )}
 
                 {/* Error Message */}
                 {uploadingFile.status === 'error' && uploadingFile.error && (
-                  <p className="text-xs text-red-500 mt-1">{uploadingFile.error}</p>
+                  <p className="text-xs text-red-500 mt-0.5">{uploadingFile.error}</p>
                 )}
               </div>
 
@@ -283,17 +245,17 @@ export function DocumentUpload({
                   className="flex-shrink-0 p-1 hover:bg-muted rounded-sm transition-colors"
                   aria-label="Remove file"
                 >
-                  <X className="w-4 h-4 text-muted-foreground" />
+                  <X className="w-3 h-3 text-muted-foreground" />
                 </button>
               )}
             </div>
           ))}
 
-          {/* Clear Completed */}
-          {files.some((f) => f.status === 'success') && (
-            <button onClick={clearCompleted} className="text-xs text-muted-foreground hover:text-foreground">
-              Clear completed
-            </button>
+          {/* Status Summary */}
+          {successCount > 0 && (
+            <p className="text-xs text-green-600 dark:text-green-400 font-medium">
+              {successCount} document{successCount !== 1 ? 's' : ''} uploaded
+            </p>
           )}
         </div>
       )}

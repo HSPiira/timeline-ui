@@ -12,11 +12,14 @@ import {
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useStore } from '@tanstack/react-store'
+import { useQueryClient } from '@tanstack/react-query'
 import { timelineApi } from '@/lib/api-client'
 import { authStore } from '@/lib/auth-store'
 import { useSubjects } from '@/hooks/useSubjects'
 import { SubjectsTable } from '@/components/subjects/SubjectsTable'
 import { SubjectsGrid } from '@/components/subjects/SubjectsGrid'
+import { EditSubjectModal } from '@/components/subjects/EditSubjectModal'
+import type { SubjectWithMetadata } from '@/hooks/useSubjects'
 
 export const Route = createFileRoute('/subjects/')({
   component: SubjectsPage,
@@ -25,7 +28,10 @@ export const Route = createFileRoute('/subjects/')({
 type ViewMode = 'grid' | 'table'
 
 function SubjectsPage() {
+  const queryClient = useQueryClient()
   const [showCreateModal, setShowCreateModal] = useState(false)
+  const [showEditModal, setShowEditModal] = useState(false)
+  const [editingSubject, setEditingSubject] = useState<SubjectWithMetadata | null>(null)
   const [filterType, setFilterType] = useState<string>('')
   const [search, setSearch] = useState('')
   const [allSubjectTypes, setAllSubjectTypes] = useState<string[]>([])
@@ -76,16 +82,44 @@ function SubjectsPage() {
         return false
       }
 
-      // Invalidate the query to refetch the subjects
-      // This is handled automatically by react-query, but we can be explicit
-      // by using queryClient.invalidateQueries(['subjects'])
-      // For now, the hook will refetch on filterType or search change
+      // Invalidate the subjects query to automatically refetch the latest data
+      queryClient.invalidateQueries({ queryKey: ['subjects'] })
       setShowCreateModal(false)
       return true
     } catch (err) {
       console.error('Error creating subject:', err)
       return false
     }
+  }
+
+  const handleUpdateSubject = async (
+    subjectId: string,
+    externalRef?: string
+  ) => {
+    try {
+      const { error: apiError } = await timelineApi.subjects.update(subjectId, {
+        external_ref: externalRef || null,
+      })
+
+      if (apiError) {
+        console.error('Failed to update subject:', apiError)
+        return false
+      }
+
+      // Invalidate the subjects query to automatically refetch the latest data
+      queryClient.invalidateQueries({ queryKey: ['subjects'] })
+      setShowEditModal(false)
+      setEditingSubject(null)
+      return true
+    } catch (err) {
+      console.error('Error updating subject:', err)
+      return false
+    }
+  }
+
+  const handleOpenEditModal = (subject: SubjectWithMetadata) => {
+    setEditingSubject(subject)
+    setShowEditModal(true)
   }
 
   const authState = useStore(authStore)
@@ -247,7 +281,7 @@ function SubjectsPage() {
         )}
 
         {!isLoading && !isError && subjects.length > 0 && (
-          viewMode === 'grid' ? <SubjectsGrid data={subjects} /> : <SubjectsTable data={subjects} />
+          viewMode === 'grid' ? <SubjectsGrid data={subjects} onEdit={handleOpenEditModal} /> : <SubjectsTable data={subjects} onEdit={handleOpenEditModal} />
         )}
 
         {/* Create Subject Modal */}
@@ -255,6 +289,19 @@ function SubjectsPage() {
           <CreateSubjectModal
             onClose={() => setShowCreateModal(false)}
             onCreate={handleCreateSubject}
+          />
+        )}
+
+        {/* Edit Subject Modal */}
+        {showEditModal && editingSubject && (
+          <EditSubjectModal
+            isOpen={showEditModal}
+            onClose={() => {
+              setShowEditModal(false)
+              setEditingSubject(null)
+            }}
+            subject={editingSubject}
+            onUpdate={handleUpdateSubject}
           />
         )}
     </>
@@ -299,7 +346,7 @@ function CreateSubjectModal({
   
     return (
       <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-        <div className="bg-card rounded-sm max-w-md w-full p-6 shadow-xl">
+        <div className="bg-background border border-border rounded-sm max-w-md w-full p-6 shadow-xl">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-semibold text-foreground">
               Create Subject

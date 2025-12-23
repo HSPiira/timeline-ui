@@ -59,7 +59,7 @@ function UsersPage() {
           errorStr.includes('403')
         setHasNoAccess(isNoAccess)
         const errorMsg =
-          // @ts-ignore
+          // @ts-expect-error
           rolesError?.message || 'Unable to load roles'
         setError(errorMsg)
       } else if (rolesData) {

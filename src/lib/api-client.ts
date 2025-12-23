@@ -4,9 +4,6 @@ import type { paths, components } from './timeline-api'
 // Create API client
 const client = createClient<paths>({
   baseUrl: import.meta.env.VITE_API_URL || 'http://localhost:8000',
-  headers: {
-    'Content-Type': 'application/json',
-  },
 })
 
 // Auth token management
@@ -31,11 +28,15 @@ export function getAuthToken(): string | null {
   return authToken
 }
 
-// Add auth header interceptor
+// Add auth and content-type interceptor
 client.use({
   onRequest({ request }) {
     if (authToken) {
       request.headers.set('Authorization', `Bearer ${authToken}`)
+    }
+    // Set Content-Type for non-FormData requests
+    if (request.body && !(request.body instanceof FormData)) {
+      request.headers.set('Content-Type', 'application/json')
     }
     return request
   },
@@ -199,12 +200,29 @@ export const timelineApi = {
   // Event Schemas
   eventSchemas: {
     list: () => client.GET('/event-schemas/'),
+    get: (id: string) =>
+      client.GET('/event-schemas/{schema_id}', {
+        params: { path: { schema_id: id } },
+      }),
     getActive: (eventType: string) =>
       client.GET('/event-schemas/event-type/{event_type}/active', {
         params: { path: { event_type: eventType } },
       }),
+    getByVersion: (eventType: string, version: number) =>
+      client.GET('/event-schemas/event-type/{event_type}/version/{version}', {
+        params: { path: { event_type: eventType, version } },
+      }),
     create: (data: components['schemas']['EventSchemaCreate']) =>
       client.POST('/event-schemas/', { body: data }),
+    update: (id: string, data: components['schemas']['EventSchemaUpdate']) =>
+      client.PATCH('/event-schemas/{schema_id}', {
+        params: { path: { schema_id: id } },
+        body: data,
+      }),
+    delete: (id: string) =>
+      client.DELETE('/event-schemas/{schema_id}', {
+        params: { path: { schema_id: id } },
+      }),
   },
 
   // Documents

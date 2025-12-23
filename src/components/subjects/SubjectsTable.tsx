@@ -7,7 +7,6 @@ import {
   import type { SubjectWithMetadata } from '@/hooks/useSubjects'
   import {
       Users,
-      Calendar,
       Tag,
       ShoppingCart,
       FolderKanban,
@@ -15,8 +14,8 @@ import {
       Package,
       Building2,
       User,
-      LucideIcon,
-      Activity,
+      type LucideIcon,
+      SquarePen,
     } from 'lucide-react'
   import { useNavigate } from '@tanstack/react-router'
   
@@ -43,94 +42,115 @@ import {
       return iconMap[type] || { icon: Tag, bgColor: 'bg-gray-100 dark:bg-gray-900/20', textColor: 'text-gray-600 dark:text-gray-400' }
     }
   
-  const columns: ColumnDef<SubjectWithMetadata>[] = [
-    {
-      accessorKey: 'id',
-      header: 'Subject',
-      cell: ({ row }) => {
-        const subject = row.original
-        const { icon: Icon, bgColor, textColor } = getSubjectIcon(subject.subject_type)
-        return (
-          <div className="flex items-center gap-2">
-            <div
-              className={`w-8 h-8 rounded-sm ${bgColor} flex items-center justify-center shrink-0`}
-            >
-              <Icon className={`w-4 h-4 ${textColor}`} />
-            </div>
-            <div className="min-w-0">
-              <p className="font-medium text-foreground truncate text-sm">{subject.id}</p>
-              {subject.external_ref && (
-                <p className="text-xs text-muted-foreground truncate">
-                  {subject.external_ref}
-                </p>
-              )}
-            </div>
-          </div>
-        )
-      },
-    },
-    {
-      accessorKey: 'subject_type',
-      header: 'Type',
-      cell: ({ row }) => {
-          const subject = row.original
-          return (
-              <span className="text-sm font-medium text-foreground/90">
-                  {subject.subject_type}
-              </span>
-          )
-      }
-    },
-    {
-      accessorKey: 'eventCount',
-      header: 'Events',
-      cell: ({ row }) => {
-          const subject = row.original
-          return (
-              <span className="text-sm font-medium text-foreground">{subject.eventCount}</span>
-          )
-      }
-    },
-    {
-      accessorKey: 'lastEventDate',
-      header: 'Last Event',
-      cell: ({ row }) => {
-          const subject = row.original
-          return (
-              <span className="text-sm text-muted-foreground">
-                  {subject.lastEventDate
-                    ? new Date(subject.lastEventDate).toLocaleDateString('en-US', {
-                        month: 'short',
-                        day: 'numeric',
-                      })
-                    : '—'}
-              </span>
-          )
-      }
-    },
-    {
-      accessorKey: 'created_at',
-      header: 'Created',
-      cell: ({ row }) => {
-          const subject = row.original
-          return (
-              <span className="text-sm text-muted-foreground">
-                  {new Date(subject.created_at).toLocaleDateString('en-US', {
-                    month: 'short',
-                    day: 'numeric',
-                  })}
-              </span>
-          )
-      }
-    },
-  ]
-  
   interface SubjectsTableProps {
     data: SubjectWithMetadata[]
+    onEdit?: (subject: SubjectWithMetadata) => void
   }
-  
-  export function SubjectsTable({ data }: SubjectsTableProps) {
-      const navigate = useNavigate()
+
+  export function SubjectsTable({ data, onEdit }: SubjectsTableProps) {
+    const navigate = useNavigate()
+
+    const columns: ColumnDef<SubjectWithMetadata>[] = [
+      {
+        accessorKey: 'id',
+        header: 'Subject',
+        cell: ({ row }) => {
+          const subject = row.original
+          const { icon: Icon, bgColor, textColor } = getSubjectIcon(subject.subject_type)
+          return (
+            <div className="flex items-center gap-2">
+              <div
+                className={`w-8 h-8 rounded-sm ${bgColor} flex items-center justify-center shrink-0`}
+              >
+                <Icon className={`w-4 h-4 ${textColor}`} />
+              </div>
+              <div className="min-w-0">
+                <p className="font-medium text-foreground truncate text-sm">{subject.id}</p>
+                {subject.external_ref && (
+                  <p className="text-xs text-muted-foreground truncate">
+                    {subject.external_ref}
+                  </p>
+                )}
+              </div>
+            </div>
+          )
+        },
+      },
+      {
+        accessorKey: 'subject_type',
+        header: 'Type',
+        cell: ({ row }) => {
+            const subject = row.original
+            return (
+                <span className="text-sm font-medium text-foreground/90">
+                    {subject.subject_type}
+                </span>
+            )
+        }
+      },
+      {
+        accessorKey: 'eventCount',
+        header: 'Events',
+        cell: ({ row }) => {
+            const subject = row.original
+            return (
+                <span className="text-sm font-medium text-foreground">{subject.eventCount}</span>
+            )
+        }
+      },
+      {
+        accessorKey: 'lastEventDate',
+        header: 'Last Event',
+        cell: ({ row }) => {
+            const subject = row.original
+            return (
+                <span className="text-sm text-muted-foreground">
+                    {subject.lastEventDate
+                      ? new Date(subject.lastEventDate).toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                        })
+                      : '—'}
+                </span>
+            )
+        }
+      },
+      {
+        accessorKey: 'created_at',
+        header: 'Created',
+        cell: ({ row }) => {
+            const subject = row.original
+            return (
+                <span className="text-sm text-muted-foreground">
+                    {new Date(subject.created_at).toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                    })}
+                </span>
+            )
+        }
+      },
+      {
+        id: 'actions',
+        header: 'Actions',
+        cell: ({ row }) => {
+          const subject = row.original
+          return (
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                onEdit?.(subject)
+              }}
+              className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded transition-colors"
+              title="Edit subject"
+            >
+              <SquarePen className="w-4 h-4" />
+            </button>
+          )
+        }
+      },
+    ]
+
     const table = useReactTable({
       data,
       columns,

@@ -38,13 +38,13 @@ function SettingsLayout() {
       description: 'Manage user permissions and roles',
     },
     {
-      path: '/schemas',
+      path: '/settings/schemas',
       label: 'Event Schemas',
       icon: Database,
       description: 'Manage JSON schemas',
     },
     {
-      path: '/workflows',
+      path: '/settings/workflows',
       label: 'Workflows',
       icon: Zap,
       description: 'Automation & triggers',
@@ -55,8 +55,8 @@ function SettingsLayout() {
     <div className="flex gap-6 items-start">
       {/* Sidebar */}
       <div className="w-64 flex-shrink-0">
-        <div className="bg-card/80 backdrop-blur-sm rounded-sm border border-border/50 p-4 sticky top-24 h-fit">
-          <h2 className="text-sm font-semibold text-foreground mb-4">Settings</h2>
+        <div className="p-4 sticky top-16 h-fit">
+          <h2 className="text-md font-semibold text-foreground mb-4">Settings</h2>
           <nav className="space-y-1">
             {menuItems.map((item) => {
               const Icon = item.icon
@@ -76,9 +76,9 @@ function SettingsLayout() {
                     <div className={`text-sm font-medium ${active ? 'text-foreground' : 'text-foreground/80'}`}>
                       {item.label}
                     </div>
-                    <div className="text-xs text-muted-foreground truncate">
+                    {/* <div className="text-xs text-muted-foreground truncate">
                       {item.description}
-                    </div>
+                    </div> */}
                   </div>
                 </button>
               )

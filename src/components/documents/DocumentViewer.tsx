@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { X, Download, Printer, AlertCircle, Loader2, File as FileIcon } from 'lucide-react'
+import { Download, Printer, AlertCircle, Loader2, File as FileIcon, X } from 'lucide-react'
 import { timelineApi } from '@/lib/api-client'
 
 export interface DocumentViewerProps {
@@ -25,7 +25,7 @@ export function DocumentViewer({ documentId, filename, fileType, onClose }: Docu
         const { data, error: fetchError } = await timelineApi.documents.download(documentId)
 
         if (fetchError) {
-          const errorMsg = typeof fetchError === 'object' && 'message' in fetchError ? (fetchError as any).message : 'Failed to load document'
+          const errorMsg = typeof fetchError === 'object' && 'message' in fetchError ? (fetchError as { message: string }).message : 'Failed to load document'
           setError(errorMsg)
           setState('error')
           return
@@ -57,7 +57,7 @@ export function DocumentViewer({ documentId, filename, fileType, onClose }: Docu
       const { data, error: downloadError } = await timelineApi.documents.download(documentId)
 
       if (downloadError) {
-        const errorMsg = typeof downloadError === 'object' && 'message' in downloadError ? (downloadError as any).message : 'Failed to download'
+        const errorMsg = typeof downloadError === 'object' && 'message' in downloadError ? (downloadError as { message: string }).message : 'Failed to download'
         setError(errorMsg)
         return
       }
@@ -90,9 +90,14 @@ export function DocumentViewer({ documentId, filename, fileType, onClose }: Docu
     }
   }
 
+  // Note: DocumentViewer doesn't use the standard Modal since it needs custom header layout
+  // We keep the direct DOM structure for better control over the flex layout
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-      <div className="bg-background rounded-sm shadow-xl max-w-4xl w-full max-h-[90vh] flex flex-col">
+    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" onClick={onClose} role="presentation">
+      <div
+        className="bg-background border border-border rounded-sm shadow-xl max-w-4xl w-full max-h-[90vh] flex flex-col"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-border">
           <div className="flex-1 min-w-0">
@@ -109,7 +114,7 @@ export function DocumentViewer({ documentId, filename, fileType, onClose }: Docu
             <button onClick={handleDownload} className="p-2 hover:bg-muted rounded-sm transition-colors" title="Download">
               <Download className="w-4 h-4 text-muted-foreground" />
             </button>
-            <button onClick={onClose} className="p-2 hover:bg-muted rounded-sm transition-colors" title="Close">
+            <button onClick={onClose} className="p-2 hover:bg-muted rounded-sm transition-colors" title="Close" aria-label="Close modal">
               <X className="w-4 h-4 text-muted-foreground" />
             </button>
           </div>

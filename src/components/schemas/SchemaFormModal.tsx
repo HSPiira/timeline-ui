@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { X, Loader2, AlertCircle, Plus, Trash2, Eye, EyeOff } from 'lucide-react'
+import { Loader2, AlertCircle, Plus, Trash2, Eye, EyeOff } from 'lucide-react'
+import { Modal } from '@/components/ui/Modal'
 
 interface SchemaField {
   id: string
@@ -50,6 +51,8 @@ export function SchemaFormModal({ onClose, onSubmit, title }: SchemaFormModalPro
   const [loading, setLoading] = useState(false)
   const [showJsonPreview, setShowJsonPreview] = useState(false)
   const [editingField, setEditingField] = useState<EditingField | null>(null)
+  const [editMode, setEditMode] = useState<'form' | 'json'>('form')
+  const [jsonEdit, setJsonEdit] = useState('')
 
   const validateEventType = (value: string): string | null => {
     if (!value.trim()) {
@@ -131,6 +134,82 @@ export function SchemaFormModal({ onClose, onSubmit, title }: SchemaFormModalPro
     }
   }
 
+  const parseJsonSchema = (jsonStr: string): boolean => {
+    try {
+      const schema = JSON.parse(jsonStr)
+
+      if (!schema.properties || typeof schema.properties !== 'object') {
+        setError('JSON must have a "properties" object')
+        return false
+      }
+
+      const parsedFields: SchemaField[] = []
+      const requiredFields = schema.required || []
+
+      Object.entries(schema.properties).forEach(([name, propSchema]: [string, any]) => {
+        const field: SchemaField = {
+          id: Date.now().toString() + Math.random(),
+          name,
+          type: 'string',
+          required: requiredFields.includes(name),
+          description: propSchema.description || '',
+        }
+
+        // Determine type from schema
+        if (propSchema.enum) {
+          field.type = 'enum'
+          field.enum = propSchema.enum
+        } else if (propSchema.format === 'email') {
+          field.type = 'email'
+        } else if (propSchema.format === 'date') {
+          field.type = 'date'
+        } else if (propSchema.format === 'date-time') {
+          field.type = 'datetime'
+        } else if (propSchema.format === 'uri') {
+          field.type = 'url'
+        } else if (propSchema.type === 'string') {
+          if (propSchema.pattern === '^\\+?[1-9]\\d{1,14}$') {
+            field.type = 'phone'
+          } else {
+            field.type = 'string'
+            if (propSchema.format) field.format = propSchema.format
+            if (propSchema.pattern) field.pattern = propSchema.pattern
+          }
+        } else if (propSchema.type === 'number') {
+          field.type = 'number'
+          if (propSchema.minimum !== undefined) field.minimum = propSchema.minimum
+          if (propSchema.maximum !== undefined) field.maximum = propSchema.maximum
+        } else if (propSchema.type === 'integer') {
+          field.type = 'integer'
+          if (propSchema.minimum !== undefined) field.minimum = propSchema.minimum
+          if (propSchema.maximum !== undefined) field.maximum = propSchema.maximum
+        } else if (propSchema.type) {
+          field.type = propSchema.type
+        }
+
+        parsedFields.push(field)
+      })
+
+      setFields(parsedFields)
+      setError(null)
+      return true
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Invalid JSON')
+      return false
+    }
+  }
+
+  const switchToJsonMode = () => {
+    setJsonEdit(JSON.stringify(generateJsonSchema(), null, 2))
+    setEditMode('json')
+  }
+
+  const switchToFormMode = () => {
+    if (parseJsonSchema(jsonEdit)) {
+      setEditMode('form')
+    }
+  }
+
   const startAddingField = () => {
     const newField: EditingField = {
       id: Date.now().toString(),
@@ -180,34 +259,55 @@ export function SchemaFormModal({ onClose, onSubmit, title }: SchemaFormModalPro
       return
     }
 
-    // Validate fields
-    if (fields.length === 0) {
-      setError('Add at least one field to create a schema')
-      return
-    }
+    let schema: Record<string, any>
 
-    // Validate field names
-    for (const field of fields) {
-      if (!field.name.trim()) {
-        setError('All field names are required')
+    if (editMode === 'json') {
+      // Parse and validate JSON
+      try {
+        schema = JSON.parse(jsonEdit)
+        if (!schema.properties || typeof schema.properties !== 'object') {
+          setError('JSON must have a "properties" object')
+          return
+        }
+        if (Object.keys(schema.properties).length === 0) {
+          setError('Schema must have at least one property')
+          return
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Invalid JSON')
         return
       }
-      if (!/^[a-zA-Z0-9_]+$/.test(field.name)) {
-        setError(`Field name "${field.name}" must contain only alphanumeric characters and underscores`)
+    } else {
+      // Validate fields
+      if (fields.length === 0) {
+        setError('Add at least one field to create a schema')
         return
       }
-    }
 
-    // Check for duplicate field names
-    const fieldNames = fields.map((f) => f.name)
-    if (new Set(fieldNames).size !== fieldNames.length) {
-      setError('Field names must be unique')
-      return
+      // Validate field names
+      for (const field of fields) {
+        if (!field.name.trim()) {
+          setError('All field names are required')
+          return
+        }
+        if (!/^[a-zA-Z0-9_]+$/.test(field.name)) {
+          setError(`Field name "${field.name}" must contain only alphanumeric characters and underscores`)
+          return
+        }
+      }
+
+      // Check for duplicate field names
+      const fieldNames = fields.map((f) => f.name)
+      if (new Set(fieldNames).size !== fieldNames.length) {
+        setError('Field names must be unique')
+        return
+      }
+
+      schema = generateJsonSchema()
     }
 
     setLoading(true)
     try {
-      const schema = generateJsonSchema()
       const success = await onSubmit(eventType.toLowerCase(), schema)
       if (!success) {
         setError('Failed to create schema. Please try again.')
@@ -222,20 +322,9 @@ export function SchemaFormModal({ onClose, onSubmit, title }: SchemaFormModalPro
   const jsonSchema = generateJsonSchema()
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-card rounded-sm max-w-3xl w-full max-h-[90vh] overflow-auto p-6 shadow-xl">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold text-foreground">{title}</h2>
-          <button
-            onClick={onClose}
-            disabled={loading}
-            className="text-muted-foreground/70 hover:text-foreground transition-colors disabled:opacity-50"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-6">
+    <>
+      <Modal isOpen={true} onClose={onClose} title={title} maxWidth="max-w-3xl" closeButton={!loading}>
+      <form onSubmit={handleSubmit} className="space-y-6">
           {/* Error Alert */}
           {error && (
             <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-sm flex items-center gap-2">
@@ -244,26 +333,56 @@ export function SchemaFormModal({ onClose, onSubmit, title }: SchemaFormModalPro
             </div>
           )}
 
-          {/* Event Type Input */}
-          <div>
-            <label className="block text-sm font-medium text-foreground/90 mb-2">
-              Event Type <span className="text-destructive">*</span>
-            </label>
-            <input
-              type="text"
-              value={eventType}
-              onChange={(e) => setEventType(e.target.value)}
-              placeholder="e.g., user_created, order_placed, payment_received"
-              className="w-full px-3 py-2 bg-background border border-input rounded-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
-              disabled={loading}
-            />
-            <p className="mt-1 text-xs text-muted-foreground">
-              Alphanumeric characters and underscores only (will be lowercase)
-            </p>
+          {/* Mode Toggle */}
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => editMode === 'json' ? switchToFormMode() : null}
+              className={`px-3 py-1.5 text-xs rounded-sm font-medium transition-colors ${
+                editMode === 'form'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-muted text-foreground/70 hover:text-foreground'
+              }`}
+              disabled={editMode === 'form'}
+            >
+              Form
+            </button>
+            <button
+              type="button"
+              onClick={() => editMode === 'form' ? switchToJsonMode() : null}
+              className={`px-3 py-1.5 text-xs rounded-sm font-medium transition-colors ${
+                editMode === 'json'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-muted text-foreground/70 hover:text-foreground'
+              }`}
+              disabled={editMode === 'json'}
+            >
+              JSON
+            </button>
           </div>
 
-          {/* Fields Summary */}
-          <div>
+          {editMode === 'form' ? (
+            <>
+              {/* Event Type Input */}
+              <div>
+                <label className="block text-sm font-medium text-foreground/90 mb-2">
+                  Event Type <span className="text-destructive">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={eventType}
+                  onChange={(e) => setEventType(e.target.value)}
+                  placeholder="e.g., user_created, order_placed, payment_received"
+                  className="w-full px-3 py-2 bg-background border border-input rounded-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
+                  disabled={loading}
+                />
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Alphanumeric characters and underscores only (will be lowercase)
+                </p>
+              </div>
+
+              {/* Fields Summary */}
+              <div>
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-semibold text-foreground/90">Event Fields</h3>
               <button
@@ -355,37 +474,76 @@ export function SchemaFormModal({ onClose, onSubmit, title }: SchemaFormModalPro
             )}
           </div>
 
-          {/* JSON Preview */}
-          {fields.length > 0 && (
-            <div>
-              <button
-                type="button"
-                onClick={() => setShowJsonPreview(!showJsonPreview)}
-                className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-2"
-              >
-                {showJsonPreview ? (
-                  <EyeOff className="w-4 h-4" />
-                ) : (
-                  <Eye className="w-4 h-4" />
-                )}
-                {showJsonPreview ? 'Hide' : 'Preview'} Generated JSON
-              </button>
+              {/* JSON Preview */}
+              {fields.length > 0 && (
+                <div>
+                  <button
+                    type="button"
+                    onClick={() => setShowJsonPreview(!showJsonPreview)}
+                    className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-2"
+                  >
+                    {showJsonPreview ? (
+                      <EyeOff className="w-4 h-4" />
+                    ) : (
+                      <Eye className="w-4 h-4" />
+                    )}
+                    {showJsonPreview ? 'Hide' : 'Preview'} Generated JSON
+                  </button>
 
-              {showJsonPreview && (
-                <div className="p-3 bg-background/50 border border-border rounded-sm overflow-auto max-h-40">
-                  <pre className="text-xs font-mono text-muted-foreground whitespace-pre-wrap break-words">
-                    {JSON.stringify(jsonSchema, null, 2)}
-                  </pre>
+                  {showJsonPreview && (
+                    <div className="p-3 bg-background/50 border border-border rounded-sm overflow-auto max-h-40">
+                      <pre className="text-xs font-mono text-muted-foreground whitespace-pre-wrap break-words">
+                        {JSON.stringify(jsonSchema, null, 2)}
+                      </pre>
+                    </div>
+                  )}
                 </div>
               )}
-            </div>
+            </>
+          ) : (
+            <>
+              {/* JSON Editor */}
+              <div>
+                <label className="block text-sm font-medium text-foreground/90 mb-2">
+                  Event Type <span className="text-destructive">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={eventType}
+                  onChange={(e) => setEventType(e.target.value)}
+                  placeholder="e.g., user_created, order_placed, payment_received"
+                  className="w-full px-3 py-2 bg-background border border-input rounded-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
+                  disabled={loading}
+                />
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Alphanumeric characters and underscores only (will be lowercase)
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-foreground/90 mb-2">
+                  JSON Schema <span className="text-destructive">*</span>
+                </label>
+                <textarea
+                  value={jsonEdit}
+                  onChange={(e) => setJsonEdit(e.target.value)}
+                  placeholder='{\n  "type": "object",\n  "properties": {\n    "email": {\n      "type": "string",\n      "format": "email"\n    }\n  },\n  "required": ["email"]\n}'
+                  className="w-full px-3 py-2 bg-background border border-input rounded-sm text-foreground font-mono text-xs placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50 resize-none"
+                  rows={12}
+                  disabled={loading}
+                />
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Edit the JSON schema directly. Changes will be reflected when you switch back to form mode.
+                </p>
+              </div>
+            </>
           )}
 
           {/* Actions */}
           <div className="flex items-center gap-3 pt-4 border-t border-border">
             <button
               type="submit"
-              disabled={loading || fields.length === 0}
+              disabled={loading || (editMode === 'form' ? fields.length === 0 : !jsonEdit.trim())}
               className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
@@ -407,237 +565,231 @@ export function SchemaFormModal({ onClose, onSubmit, title }: SchemaFormModalPro
             </button>
           </div>
         </form>
-      </div>
+      </Modal>
 
       {/* Field Editor Modal */}
-      {editingField && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[60] p-4">
-          <div className="bg-card rounded-sm max-w-md w-full p-6 shadow-xl">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-foreground">
-                {fields.some((f) => f.id === editingField.id) ? 'Edit Field' : 'Add Field'}
-              </h3>
+      <Modal
+        isOpen={!!editingField}
+        onClose={() => setEditingField(null)}
+        title={
+          editingField && fields.some((f) => f.id === editingField.id) ? 'Edit Field' : 'Add Field'
+        }
+        maxWidth="max-w-md"
+        zIndex={60}
+      >
+        {editingField && (
+          <div className="space-y-4">
+            {/* Field Name */}
+            <div>
+              <label className="block text-sm font-medium text-foreground/90 mb-2">
+                Field Name <span className="text-destructive">*</span>
+              </label>
+              <input
+                type="text"
+                value={editingField.name}
+                onChange={(e) => setEditingField({ ...editingField, name: e.target.value })}
+                placeholder="e.g., user_email"
+                className="w-full px-3 py-2 bg-background border border-input rounded-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+            </div>
+
+          {/* Type */}
+          <div>
+            <label className="block text-sm font-medium text-foreground/90 mb-2">Type</label>
+            <select
+              value={editingField.type}
+              onChange={(e) => setEditingField({ ...editingField, type: e.target.value })}
+              className="w-full px-3 py-2 bg-background border border-input rounded-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+            >
+              {FIELD_TYPES.map((t) => (
+                <option key={t.value} value={t.value}>
+                  {t.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Description */}
+          <div>
+            <label className="block text-sm font-medium text-foreground/90 mb-2">
+              Description (optional)
+            </label>
+            <input
+              type="text"
+              value={editingField.description}
+              onChange={(e) => setEditingField({ ...editingField, description: e.target.value })}
+              placeholder="What does this field represent?"
+              className="w-full px-3 py-2 bg-background border border-input rounded-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+            />
+          </div>
+
+          {/* Required */}
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={editingField.required}
+              onChange={(e) => setEditingField({ ...editingField, required: e.target.checked })}
+              className="rounded"
+            />
+            <span className="text-sm font-medium text-foreground/90">Required field</span>
+          </label>
+
+          {/* Enum Values - for enum type */}
+          {editingField.type === 'enum' && (
+            <div>
+              <label className="block text-sm font-medium text-foreground/90 mb-2">
+                Enum Values <span className="text-destructive">*</span>
+              </label>
+              <div className="space-y-2 mb-2">
+                {(editingField.enum || []).map((value, idx) => (
+                  <div key={idx} className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={value}
+                      onChange={(e) => {
+                        const newEnum = [...(editingField.enum || [])]
+                        newEnum[idx] = e.target.value
+                        setEditingField({ ...editingField, enum: newEnum })
+                      }}
+                      className="flex-1 px-3 py-2 bg-background border border-input rounded-sm text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newEnum = (editingField.enum || []).filter((_, i) => i !== idx)
+                        setEditingField({ ...editingField, enum: newEnum })
+                      }}
+                      className="p-1 hover:bg-red-100 dark:hover:bg-red-900/20 rounded transition-colors"
+                    >
+                      <Trash2 className="w-4 h-4 text-red-500" />
+                    </button>
+                  </div>
+                ))}
+              </div>
               <button
-                onClick={() => setEditingField(null)}
-                className="text-muted-foreground/70 hover:text-foreground transition-colors"
+                type="button"
+                onClick={() => {
+                  setEditingField({
+                    ...editingField,
+                    enum: [...(editingField.enum || []), ''],
+                  })
+                }}
+                className="flex items-center gap-1 px-2 py-1 text-xs bg-primary text-primary-foreground rounded-sm hover:bg-primary/90 transition-colors"
               >
-                <X className="w-5 h-5" />
+                <Plus className="w-3 h-3" />
+                Add Value
               </button>
             </div>
+          )}
 
-            <div className="space-y-4">
-              {/* Field Name */}
+          {/* Number Constraints - for number/integer types */}
+          {(editingField.type === 'number' || editingField.type === 'integer') && (
+            <div className="space-y-3">
               <div>
                 <label className="block text-sm font-medium text-foreground/90 mb-2">
-                  Field Name <span className="text-destructive">*</span>
+                  Minimum (optional)
                 </label>
                 <input
-                  type="text"
-                  value={editingField.name}
-                  onChange={(e) => setEditingField({ ...editingField, name: e.target.value })}
-                  placeholder="e.g., user_email"
+                  type="number"
+                  value={editingField.minimum !== undefined ? editingField.minimum : ''}
+                  onChange={(e) =>
+                    setEditingField({
+                      ...editingField,
+                      minimum: e.target.value === '' ? undefined : Number(e.target.value),
+                    })
+                  }
+                  placeholder="e.g., 0"
                   className="w-full px-3 py-2 bg-background border border-input rounded-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                 />
               </div>
-
-              {/* Type */}
-              <div>
-                <label className="block text-sm font-medium text-foreground/90 mb-2">Type</label>
-                <select
-                  value={editingField.type}
-                  onChange={(e) => setEditingField({ ...editingField, type: e.target.value })}
-                  className="w-full px-3 py-2 bg-background border border-input rounded-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                >
-                  {FIELD_TYPES.map((t) => (
-                    <option key={t.value} value={t.value}>
-                      {t.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Description */}
               <div>
                 <label className="block text-sm font-medium text-foreground/90 mb-2">
-                  Description (optional)
+                  Maximum (optional)
                 </label>
                 <input
-                  type="text"
-                  value={editingField.description}
-                  onChange={(e) => setEditingField({ ...editingField, description: e.target.value })}
-                  placeholder="What does this field represent?"
+                  type="number"
+                  value={editingField.maximum !== undefined ? editingField.maximum : ''}
+                  onChange={(e) =>
+                    setEditingField({
+                      ...editingField,
+                      maximum: e.target.value === '' ? undefined : Number(e.target.value),
+                    })
+                  }
+                  placeholder="e.g., 100"
                   className="w-full px-3 py-2 bg-background border border-input rounded-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                 />
-              </div>
-
-              {/* Required */}
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={editingField.required}
-                  onChange={(e) => setEditingField({ ...editingField, required: e.target.checked })}
-                  className="rounded"
-                />
-                <span className="text-sm font-medium text-foreground/90">Required field</span>
-              </label>
-
-              {/* Enum Values - for enum type */}
-              {editingField.type === 'enum' && (
-                <div>
-                  <label className="block text-sm font-medium text-foreground/90 mb-2">
-                    Enum Values <span className="text-destructive">*</span>
-                  </label>
-                  <div className="space-y-2 mb-2">
-                    {(editingField.enum || []).map((value, idx) => (
-                      <div key={idx} className="flex items-center gap-2">
-                        <input
-                          type="text"
-                          value={value}
-                          onChange={(e) => {
-                            const newEnum = [...(editingField.enum || [])]
-                            newEnum[idx] = e.target.value
-                            setEditingField({ ...editingField, enum: newEnum })
-                          }}
-                          className="flex-1 px-3 py-2 bg-background border border-input rounded-sm text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const newEnum = (editingField.enum || []).filter((_, i) => i !== idx)
-                            setEditingField({ ...editingField, enum: newEnum })
-                          }}
-                          className="p-1 hover:bg-red-100 dark:hover:bg-red-900/20 rounded transition-colors"
-                        >
-                          <Trash2 className="w-4 h-4 text-red-500" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setEditingField({
-                        ...editingField,
-                        enum: [...(editingField.enum || []), ''],
-                      })
-                    }}
-                    className="flex items-center gap-1 px-2 py-1 text-xs bg-primary text-primary-foreground rounded-sm hover:bg-primary/90 transition-colors"
-                  >
-                    <Plus className="w-3 h-3" />
-                    Add Value
-                  </button>
-                </div>
-              )}
-
-              {/* Number Constraints - for number/integer types */}
-              {(editingField.type === 'number' || editingField.type === 'integer') && (
-                <div className="space-y-3">
-                  <div>
-                    <label className="block text-sm font-medium text-foreground/90 mb-2">
-                      Minimum (optional)
-                    </label>
-                    <input
-                      type="number"
-                      value={editingField.minimum !== undefined ? editingField.minimum : ''}
-                      onChange={(e) =>
-                        setEditingField({
-                          ...editingField,
-                          minimum: e.target.value === '' ? undefined : Number(e.target.value),
-                        })
-                      }
-                      placeholder="e.g., 0"
-                      className="w-full px-3 py-2 bg-background border border-input rounded-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-foreground/90 mb-2">
-                      Maximum (optional)
-                    </label>
-                    <input
-                      type="number"
-                      value={editingField.maximum !== undefined ? editingField.maximum : ''}
-                      onChange={(e) =>
-                        setEditingField({
-                          ...editingField,
-                          maximum: e.target.value === '' ? undefined : Number(e.target.value),
-                        })
-                      }
-                      placeholder="e.g., 100"
-                      className="w-full px-3 py-2 bg-background border border-input rounded-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                    />
-                  </div>
-                </div>
-              )}
-
-              {/* Format - for string types */}
-              {editingField.type === 'string' && (
-                <div>
-                  <label className="block text-sm font-medium text-foreground/90 mb-2">
-                    Format (optional)
-                  </label>
-                  <select
-                    value={editingField.format || ''}
-                    onChange={(e) =>
-                      setEditingField({
-                        ...editingField,
-                        format: e.target.value || undefined,
-                      })
-                    }
-                    className="w-full px-3 py-2 bg-background border border-input rounded-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                  >
-                    <option value="">None</option>
-                    {STRING_FORMATS.map((f) => (
-                      <option key={f.value} value={f.value}>
-                        {f.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
-
-              {/* Pattern - for string types */}
-              {editingField.type === 'string' && (
-                <div>
-                  <label className="block text-sm font-medium text-foreground/90 mb-2">
-                    Regex Pattern (optional)
-                  </label>
-                  <input
-                    type="text"
-                    value={editingField.pattern || ''}
-                    onChange={(e) =>
-                      setEditingField({
-                        ...editingField,
-                        pattern: e.target.value || undefined,
-                      })
-                    }
-                    placeholder="e.g., ^[A-Z]{2}\\d{3}$"
-                    className="w-full px-3 py-2 bg-background border border-input rounded-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                  />
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    For custom validation patterns. Examples: email regex, zipcode format, etc.
-                  </p>
-                </div>
-              )}
-
-              {/* Actions */}
-              <div className="flex items-center gap-3 pt-4 border-t border-border">
-                <button
-                  onClick={saveField}
-                  className="flex-1 px-4 py-2 bg-primary text-primary-foreground rounded-sm font-medium hover:bg-primary/90 transition-colors"
-                >
-                  Save Field
-                </button>
-                <button
-                  onClick={() => setEditingField(null)}
-                  className="px-4 py-2 border border-input text-foreground/90 rounded-sm font-medium hover:bg-muted/30 transition-colors"
-                >
-                  Cancel
-                </button>
               </div>
             </div>
+          )}
+
+          {/* Format - for string types */}
+          {editingField.type === 'string' && (
+            <div>
+              <label className="block text-sm font-medium text-foreground/90 mb-2">
+                Format (optional)
+              </label>
+              <select
+                value={editingField.format || ''}
+                onChange={(e) =>
+                  setEditingField({
+                    ...editingField,
+                    format: e.target.value || undefined,
+                  })
+                }
+                className="w-full px-3 py-2 bg-background border border-input rounded-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+              >
+                <option value="">None</option>
+                {STRING_FORMATS.map((f) => (
+                  <option key={f.value} value={f.value}>
+                    {f.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {/* Pattern - for string types */}
+          {editingField.type === 'string' && (
+            <div>
+              <label className="block text-sm font-medium text-foreground/90 mb-2">
+                Regex Pattern (optional)
+              </label>
+              <input
+                type="text"
+                value={editingField.pattern || ''}
+                onChange={(e) =>
+                  setEditingField({
+                    ...editingField,
+                    pattern: e.target.value || undefined,
+                  })
+                }
+                placeholder="e.g., ^[A-Z]{2}\\d{3}$"
+                className="w-full px-3 py-2 bg-background border border-input rounded-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+              <p className="mt-1 text-xs text-muted-foreground">
+                For custom validation patterns. Examples: email regex, zipcode format, etc.
+              </p>
+            </div>
+          )}
+
+          {/* Actions */}
+          <div className="flex items-center gap-3 pt-4 border-t border-border">
+            <button
+              onClick={saveField}
+              className="flex-1 px-4 py-2 bg-primary text-primary-foreground rounded-sm font-medium hover:bg-primary/90 transition-colors"
+            >
+              Save Field
+            </button>
+            <button
+              onClick={() => setEditingField(null)}
+              className="px-4 py-2 border border-input text-foreground/90 rounded-sm font-medium hover:bg-muted/30 transition-colors"
+            >
+              Cancel
+            </button>
           </div>
         </div>
       )}
-    </div>
+      </Modal>
+    </>
   )
 }

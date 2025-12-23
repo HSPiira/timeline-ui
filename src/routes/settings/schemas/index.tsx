@@ -5,6 +5,7 @@ import { timelineApi } from '@/lib/api-client'
 import { Plus, Eye, Trash2, AlertCircle, Loader2, CheckCircle } from 'lucide-react'
 import { SchemaFormModal } from '@/components/schemas/SchemaFormModal'
 import { SchemaViewModal } from '@/components/schemas/SchemaViewModal'
+import { DeleteSchemaModal } from '@/components/schemas/DeleteSchemaModal'
 import type { components } from '@/lib/timeline-api'
 
 export const Route = createFileRoute('/settings/schemas/')({
@@ -20,7 +21,7 @@ function SchemasPage() {
   const [error, setError] = useState<string | null>(null)
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [viewingSchema, setViewingSchema] = useState<Schema | null>(null)
-  const [deleting, setDeleting] = useState<string | null>(null)
+  const [deletingSchema, setDeletingSchema] = useState<Schema | null>(null)
 
   useEffect(() => {
     if (authState.user) {
@@ -81,19 +82,32 @@ function SchemasPage() {
     }
   }
 
-  const handleDeleteSchema = async (schemaId: string) => {
-    if (!confirm('Delete this schema? This action cannot be undone.')) return
+  const handleDeleteSchema = (schema: Schema) => {
+    setDeletingSchema(schema)
+  }
 
-    setDeleting(schemaId)
+  const handleConfirmDelete = async () => {
+    if (!deletingSchema) return
+
     try {
-      // Since API doesn't have explicit delete, we'll just remove from UI
-      // In a real app, call the delete endpoint
-      setSchemas((prev) => prev.filter((s) => s.id !== schemaId))
+      const { error: apiError } = await timelineApi.eventSchemas.delete(deletingSchema.id)
+
+      if (apiError) {
+        const errorMsg =
+          typeof apiError === 'object' && 'detail' in apiError
+            ? (apiError as any).detail
+            : typeof apiError === 'object' && 'message' in apiError
+              ? (apiError as any).message
+              : 'Failed to delete schema'
+        throw new Error(errorMsg)
+      }
+
+      setSchemas((prev) => prev.filter((s) => s.id !== deletingSchema.id))
+      setDeletingSchema(null)
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : 'Failed to delete schema'
       setError(errorMsg)
-    } finally {
-      setDeleting(null)
+      throw err
     }
   }
 
@@ -125,6 +139,24 @@ function SchemasPage() {
 
       {/* View/Edit Schema Modal */}
       {viewingSchema && <SchemaViewModal schema={viewingSchema} onClose={() => setViewingSchema(null)} />}
+
+      {/* Delete Schema Modal */}
+      {deletingSchema && (
+        <DeleteSchemaModal
+          isOpen={true}
+          title="Delete Event Schema?"
+          message="This action cannot be undone."
+          itemLabel="deletion"
+          details={{
+            'event type': deletingSchema.event_type,
+            'version': `v${deletingSchema.version}`,
+            'status': deletingSchema.is_active ? 'Active' : 'Inactive',
+          }}
+          warning="Deletion is only possible if no events reference this schema version. If you see an error, keep this version as an inactive schema for historical verification."
+          onConfirm={handleConfirmDelete}
+          onClose={() => setDeletingSchema(null)}
+        />
+      )}
 
       {/* Error Alert */}
       {error && (
@@ -213,16 +245,11 @@ function SchemasPage() {
                         <Eye className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={() => handleDeleteSchema(schema.id)}
-                        disabled={deleting === schema.id}
-                        className="p-1 text-muted-foreground hover:text-red-600 dark:hover:text-red-400 hover:bg-muted rounded transition-colors disabled:opacity-50"
+                        onClick={() => handleDeleteSchema(schema)}
+                        className="p-1 text-muted-foreground hover:text-red-600 dark:hover:text-red-400 hover:bg-muted rounded transition-colors"
                         title="Delete"
                       >
-                        {deleting === schema.id ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <Trash2 className="w-4 h-4" />
-                        )}
+                        <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   </td>

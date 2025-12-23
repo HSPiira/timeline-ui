@@ -52,7 +52,7 @@ function SubjectEventsPage() {
       )
 
       if (subjectError) {
-        // @ts-ignore - openapi-fetch error handling
+        // @ts-expect-error - openapi-fetch error handling
         const errorMessage = subjectError?.message || 'Unable to load subject'
         setError(errorMessage)
         setLoading(false)
@@ -69,7 +69,7 @@ function SubjectEventsPage() {
       )
 
       if (eventsError) {
-        // @ts-ignore - openapi-fetch error handling
+        // @ts-expect-error - openapi-fetch error handling
         const errorMessage = eventsError?.message || 'Unable to load events'
         setError(errorMessage)
       } else if (eventsData) {
@@ -106,6 +106,7 @@ function SubjectEventsPage() {
       return next
     })
   }
+
 
   // Group events by date
   const eventsByDate = events.reduce((acc, event) => {
@@ -348,9 +349,11 @@ function SubjectEventsPage() {
                                         {event.event_type}
                                       </span>
                                     </div>
-                                    <span className="text-xs px-1.5 py-0.5 bg-secondary text-muted-foreground rounded-sm font-mono">
-                                      {event.id.slice(0, 8)}
-                                    </span>
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-xs px-1.5 py-0.5 bg-secondary text-muted-foreground rounded-sm font-mono">
+                                        {event.id.slice(0, 8)}
+                                      </span>
+                                    </div>
                                   </div>
 
                                   {/* Payload - shown when expanded */}
