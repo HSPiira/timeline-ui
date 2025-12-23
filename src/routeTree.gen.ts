@@ -13,9 +13,7 @@ import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as WorkflowsIndexRouteImport } from './routes/workflows/index'
 import { Route as SubjectsIndexRouteImport } from './routes/subjects/index'
-import { Route as SchemasIndexRouteImport } from './routes/schemas/index'
 import { Route as EventsIndexRouteImport } from './routes/events/index'
 import { Route as VerifySubjectIdRouteImport } from './routes/verify/$subjectId'
 import { Route as EventsCreateRouteImport } from './routes/events/create'
@@ -48,19 +46,9 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const WorkflowsIndexRoute = WorkflowsIndexRouteImport.update({
-  id: '/workflows/',
-  path: '/workflows/',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const SubjectsIndexRoute = SubjectsIndexRouteImport.update({
   id: '/subjects/',
   path: '/subjects/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SchemasIndexRoute = SchemasIndexRouteImport.update({
-  id: '/schemas/',
-  path: '/schemas/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EventsIndexRoute = EventsIndexRouteImport.update({
@@ -128,9 +116,7 @@ export interface FileRoutesByFullPath {
   '/events/create': typeof EventsCreateRoute
   '/verify/$subjectId': typeof VerifySubjectIdRoute
   '/events': typeof EventsIndexRoute
-  '/schemas': typeof SchemasIndexRoute
   '/subjects': typeof SubjectsIndexRoute
-  '/workflows': typeof WorkflowsIndexRoute
   '/events/subject/$subjectId': typeof EventsSubjectSubjectIdRoute
   '/admin/permissions': typeof AdminPermissionsIndexRoute
   '/admin/roles': typeof AdminRolesIndexRoute
@@ -148,9 +134,7 @@ export interface FileRoutesByTo {
   '/events/create': typeof EventsCreateRoute
   '/verify/$subjectId': typeof VerifySubjectIdRoute
   '/events': typeof EventsIndexRoute
-  '/schemas': typeof SchemasIndexRoute
   '/subjects': typeof SubjectsIndexRoute
-  '/workflows': typeof WorkflowsIndexRoute
   '/events/subject/$subjectId': typeof EventsSubjectSubjectIdRoute
   '/admin/permissions': typeof AdminPermissionsIndexRoute
   '/admin/roles': typeof AdminRolesIndexRoute
@@ -169,9 +153,7 @@ export interface FileRoutesById {
   '/events/create': typeof EventsCreateRoute
   '/verify/$subjectId': typeof VerifySubjectIdRoute
   '/events/': typeof EventsIndexRoute
-  '/schemas/': typeof SchemasIndexRoute
   '/subjects/': typeof SubjectsIndexRoute
-  '/workflows/': typeof WorkflowsIndexRoute
   '/events/subject/$subjectId': typeof EventsSubjectSubjectIdRoute
   '/admin/permissions/': typeof AdminPermissionsIndexRoute
   '/admin/roles/': typeof AdminRolesIndexRoute
@@ -191,9 +173,7 @@ export interface FileRouteTypes {
     | '/events/create'
     | '/verify/$subjectId'
     | '/events'
-    | '/schemas'
     | '/subjects'
-    | '/workflows'
     | '/events/subject/$subjectId'
     | '/admin/permissions'
     | '/admin/roles'
@@ -211,9 +191,7 @@ export interface FileRouteTypes {
     | '/events/create'
     | '/verify/$subjectId'
     | '/events'
-    | '/schemas'
     | '/subjects'
-    | '/workflows'
     | '/events/subject/$subjectId'
     | '/admin/permissions'
     | '/admin/roles'
@@ -231,9 +209,7 @@ export interface FileRouteTypes {
     | '/events/create'
     | '/verify/$subjectId'
     | '/events/'
-    | '/schemas/'
     | '/subjects/'
-    | '/workflows/'
     | '/events/subject/$subjectId'
     | '/admin/permissions/'
     | '/admin/roles/'
@@ -252,9 +228,7 @@ export interface RootRouteChildren {
   EventsCreateRoute: typeof EventsCreateRoute
   VerifySubjectIdRoute: typeof VerifySubjectIdRoute
   EventsIndexRoute: typeof EventsIndexRoute
-  SchemasIndexRoute: typeof SchemasIndexRoute
   SubjectsIndexRoute: typeof SubjectsIndexRoute
-  WorkflowsIndexRoute: typeof WorkflowsIndexRoute
   EventsSubjectSubjectIdRoute: typeof EventsSubjectSubjectIdRoute
   AdminPermissionsIndexRoute: typeof AdminPermissionsIndexRoute
   AdminRolesIndexRoute: typeof AdminRolesIndexRoute
@@ -290,25 +264,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/workflows/': {
-      id: '/workflows/'
-      path: '/workflows'
-      fullPath: '/workflows'
-      preLoaderRoute: typeof WorkflowsIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/subjects/': {
       id: '/subjects/'
       path: '/subjects'
       fullPath: '/subjects'
       preLoaderRoute: typeof SubjectsIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/schemas/': {
-      id: '/schemas/'
-      path: '/schemas'
-      fullPath: '/schemas'
-      preLoaderRoute: typeof SchemasIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/events/': {
@@ -419,9 +379,7 @@ const rootRouteChildren: RootRouteChildren = {
   EventsCreateRoute: EventsCreateRoute,
   VerifySubjectIdRoute: VerifySubjectIdRoute,
   EventsIndexRoute: EventsIndexRoute,
-  SchemasIndexRoute: SchemasIndexRoute,
   SubjectsIndexRoute: SubjectsIndexRoute,
-  WorkflowsIndexRoute: WorkflowsIndexRoute,
   EventsSubjectSubjectIdRoute: EventsSubjectSubjectIdRoute,
   AdminPermissionsIndexRoute: AdminPermissionsIndexRoute,
   AdminRolesIndexRoute: AdminRolesIndexRoute,
