@@ -10,7 +10,7 @@ import {
   Grid3x3,
   Table2,
 } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useStore } from '@tanstack/react-store'
 import { timelineApi } from '@/lib/api-client'
 import { authStore } from '@/lib/auth-store'
@@ -28,13 +28,38 @@ function SubjectsPage() {
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [filterType, setFilterType] = useState<string>('')
   const [search, setSearch] = useState('')
-  const [viewMode, setViewMode] = useState<ViewMode>('grid')
+  const [allSubjectTypes, setAllSubjectTypes] = useState<string[]>([])
+  const [viewMode, setViewMode] = useState<ViewMode>(() => {
+    // Initialize from localStorage on mount
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('subjects-view-mode')
+      return (saved === 'table' ? 'table' : 'grid') as ViewMode
+    }
+    return 'grid'
+  })
+
+  // Get filtered subjects
   const { subjects, isLoading, isError, error } = useSubjects({
     filterType,
     search,
   })
 
-  const subjectTypes = [...new Set(subjects.map((s) => s.subject_type))]
+  // Persist view mode to localStorage
+  useEffect(() => {
+    localStorage.setItem('subjects-view-mode', viewMode)
+  }, [viewMode])
+
+  // Track all available subject types (from initial load and subsequent data)
+  useEffect(() => {
+    const types = [...new Set(subjects.map((s) => s.subject_type))]
+    // Merge with existing types to preserve them when filtering
+    setAllSubjectTypes((prev) => {
+      const merged = new Set([...prev, ...types])
+      return Array.from(merged)
+    })
+  }, [subjects])
+
+  const subjectTypes = allSubjectTypes
 
   const handleCreateSubject = async (
     subjectType: string,
