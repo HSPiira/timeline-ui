@@ -24,23 +24,23 @@ import {
   // Helper to get icon and color for subject type
   function getSubjectIcon(
       subjectType: string
-    ): { icon: LucideIcon; gradient: string } {
+    ): { icon: LucideIcon; bgColor: string; textColor: string } {
       const type = subjectType.toLowerCase()
-    
-      // Map subject types to icons and gradients
-      const iconMap: Record<string, { icon: LucideIcon; gradient: string }> = {
-        user: { icon: User, gradient: 'from-foreground/80 to-foreground/60' },
-        users: { icon: Users, gradient: 'from-foreground/80 to-foreground/60' },
-        customer: { icon: Building2, gradient: 'from-foreground/70 to-foreground/50' },
-        order: { icon: ShoppingCart, gradient: 'from-foreground/75 to-foreground/55' },
-        project: { icon: FolderKanban, gradient: 'from-foreground/70 to-foreground/50' },
-        invoice: { icon: FileText, gradient: 'from-foreground/75 to-foreground/55' },
-        shipment: { icon: Package, gradient: 'from-foreground/80 to-foreground/60' },
-        package: { icon: Package, gradient: 'from-foreground/80 to-foreground/60' },
+
+      // Map subject types to icons and colors
+      const iconMap: Record<string, { icon: LucideIcon; bgColor: string; textColor: string }> = {
+        user: { icon: User, bgColor: 'bg-blue-100 dark:bg-blue-900/20', textColor: 'text-blue-600 dark:text-blue-400' },
+        users: { icon: Users, bgColor: 'bg-blue-100 dark:bg-blue-900/20', textColor: 'text-blue-600 dark:text-blue-400' },
+        customer: { icon: Building2, bgColor: 'bg-purple-100 dark:bg-purple-900/20', textColor: 'text-purple-600 dark:text-purple-400' },
+        order: { icon: ShoppingCart, bgColor: 'bg-green-100 dark:bg-green-900/20', textColor: 'text-green-600 dark:text-green-400' },
+        project: { icon: FolderKanban, bgColor: 'bg-orange-100 dark:bg-orange-900/20', textColor: 'text-orange-600 dark:text-orange-400' },
+        invoice: { icon: FileText, bgColor: 'bg-amber-100 dark:bg-amber-900/20', textColor: 'text-amber-600 dark:text-amber-400' },
+        shipment: { icon: Package, bgColor: 'bg-cyan-100 dark:bg-cyan-900/20', textColor: 'text-cyan-600 dark:text-cyan-400' },
+        package: { icon: Package, bgColor: 'bg-cyan-100 dark:bg-cyan-900/20', textColor: 'text-cyan-600 dark:text-cyan-400' },
       }
-    
+
       // Return specific icon or default
-      return iconMap[type] || { icon: Tag, gradient: 'from-foreground/70 to-foreground/50' }
+      return iconMap[type] || { icon: Tag, bgColor: 'bg-gray-100 dark:bg-gray-900/20', textColor: 'text-gray-600 dark:text-gray-400' }
     }
   
   const columns: ColumnDef<SubjectWithMetadata>[] = [
@@ -49,18 +49,18 @@ import {
       header: 'Subject',
       cell: ({ row }) => {
         const subject = row.original
-        const { icon: Icon, gradient } = getSubjectIcon(subject.subject_type)
+        const { icon: Icon, bgColor, textColor } = getSubjectIcon(subject.subject_type)
         return (
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <div
-              className={`w-9 h-9 rounded-sm bg-gradient-to-br ${gradient} flex items-center justify-center shrink-0`}
+              className={`w-8 h-8 rounded-sm ${bgColor} flex items-center justify-center shrink-0`}
             >
-              <Icon className="w-5 h-5 text-white" />
+              <Icon className={`w-4 h-4 ${textColor}`} />
             </div>
             <div className="min-w-0">
-              <p className="font-medium text-foreground truncate">{subject.id}</p>
+              <p className="font-medium text-foreground truncate text-sm">{subject.id}</p>
               {subject.external_ref && (
-                <p className="text-sm text-muted-foreground truncate">
+                <p className="text-xs text-muted-foreground truncate">
                   {subject.external_ref}
                 </p>
               )}
@@ -75,12 +75,9 @@ import {
       cell: ({ row }) => {
           const subject = row.original
           return (
-              <div className="flex items-center gap-2">
-                  <Tag className="w-4 h-4 text-muted-foreground/70" />
-                  <span className="text-sm font-medium text-foreground/90">
+              <span className="text-xs font-medium text-foreground/90">
                   {subject.subject_type}
-                  </span>
-              </div>
+              </span>
           )
       }
     },
@@ -90,10 +87,7 @@ import {
       cell: ({ row }) => {
           const subject = row.original
           return (
-              <div className="flex items-center gap-2">
-                  <Activity className="w-4 h-4 text-muted-foreground/70" />
-                  <span className="text-sm font-medium text-foreground">{subject.eventCount}</span>
-              </div>
+              <span className="text-xs font-medium text-foreground">{subject.eventCount}</span>
           )
       }
     },
@@ -103,12 +97,11 @@ import {
       cell: ({ row }) => {
           const subject = row.original
           return (
-              <span className="text-sm text-muted-foreground">
+              <span className="text-xs text-muted-foreground">
                   {subject.lastEventDate
                     ? new Date(subject.lastEventDate).toLocaleDateString('en-US', {
                         month: 'short',
                         day: 'numeric',
-                        year: 'numeric',
                       })
                     : '—'}
               </span>
@@ -121,11 +114,10 @@ import {
       cell: ({ row }) => {
           const subject = row.original
           return (
-              <span className="text-sm text-muted-foreground">
+              <span className="text-xs text-muted-foreground">
                   {new Date(subject.created_at).toLocaleDateString('en-US', {
                     month: 'short',
                     day: 'numeric',
-                    year: 'numeric',
                   })}
               </span>
           )
@@ -158,7 +150,7 @@ import {
                 {headerGroup.headers.map((header) => (
                   <th
                     key={header.id}
-                    className="px-6 py-2 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider"
+                    className="px-4 py-1.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider"
                   >
                     {header.isPlaceholder
                       ? null
@@ -173,9 +165,9 @@ import {
           </thead>
           <tbody className="divide-y divide-border">
             {table.getRowModel().rows.map((row) => (
-              <tr key={row.id} onClick={() => handleSubjectClick(row.original.id)} className="hover:bg-muted/30/50 transition-colors cursor-pointer">
+              <tr key={row.id} onClick={() => handleSubjectClick(row.original.id)} className="hover:bg-muted/30 transition-colors cursor-pointer">
                 {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id} className="px-6 py-2.5">
+                  <td key={cell.id} className="px-4 py-2">
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </td>
                 ))}
