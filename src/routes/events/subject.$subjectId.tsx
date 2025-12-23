@@ -194,61 +194,61 @@ function SubjectEventsPage() {
         {/* Back Button */}
         <button
           onClick={() => navigate({ to: '/subjects' })}
-          className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6 transition-colors"
+          className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-4 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           <span className="text-sm font-medium">Back to Subjects</span>
         </button>
 
         {/* Subject Header */}
-        <div className="bg-card/80 backdrop-blur-sm rounded-sm p-6 border border-border/50 mb-8">
-          <div className="flex items-start justify-between mb-4">
+        <div className="bg-card/80 backdrop-blur-sm rounded-sm p-4 border border-border/50 mb-4">
+          <div className="flex items-start justify-between mb-3">
             <div>
-              <h1 className="text-2xl font-bold text-foreground mb-2">
+              <h1 className="text-2xl font-bold text-foreground mb-1">
                 {subject.id}
               </h1>
-              <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                <div className="flex items-center gap-2">
-                  <Tag className="w-4 h-4" />
+              <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                <div className="flex items-center gap-1">
+                  <Tag className="w-3 h-3" />
                   <span className="font-medium">{subject.subject_type}</span>
                 </div>
                 {subject.external_ref && (
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1">
                     <span>Ref:</span>
                     <span className="font-mono">{subject.external_ref}</span>
                   </div>
                 )}
-                <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4" />
+                <div className="flex items-center gap-1">
+                  <Calendar className="w-3 h-3" />
                   <span>Created {new Date(subject.created_at).toLocaleDateString()}</span>
                 </div>
               </div>
             </div>
             <div className="text-right">
-              <p className="text-sm text-muted-foreground mb-1">Total Events</p>
-              <p className="text-3xl font-bold text-foreground">
+              <p className="text-xs text-muted-foreground">Total Events</p>
+              <p className="text-2xl font-bold text-foreground">
                 {events.length}
               </p>
             </div>
           </div>
 
           {/* Actions */}
-          <div className="flex items-center gap-2 pt-4 border-t border-border">
+          <div className="flex items-center gap-2 pt-2 border-t border-border">
             <button
               onClick={() => navigate({ to: `/verify/${subjectId}` })}
-              className="inline-flex items-center gap-2 px-3 py-2 text-sm bg-primary text-primary-foreground rounded-sm font-medium hover:bg-primary/90 transition-colors"
+              className="inline-flex items-center gap-2 px-3 py-1.5 text-xs bg-primary text-primary-foreground rounded-sm font-medium hover:bg-primary/90 transition-colors"
             >
-              <Shield className="w-4 h-4" />
+              <Shield className="w-3 h-3" />
               Verify Chain
             </button>
           </div>
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-1 mb-4 border-b border-border">
+        <div className="flex gap-1 mb-3 border-b border-border">
           <button
             onClick={() => setActiveTab('events')}
-            className={`px-4 py-3 text-sm font-medium transition-colors border-b-2 ${
+            className={`px-3 py-2 text-xs font-medium transition-colors border-b-2 ${
               activeTab === 'events'
                 ? 'border-primary text-foreground'
                 : 'border-transparent text-muted-foreground hover:text-foreground'
@@ -261,7 +261,7 @@ function SubjectEventsPage() {
           </button>
           <button
             onClick={() => setActiveTab('documents')}
-            className={`px-4 py-3 text-sm font-medium transition-colors border-b-2 ${
+            className={`px-3 py-2 text-xs font-medium transition-colors border-b-2 ${
               activeTab === 'documents'
                 ? 'border-primary text-foreground'
                 : 'border-transparent text-muted-foreground hover:text-foreground'
@@ -276,8 +276,8 @@ function SubjectEventsPage() {
 
         {/* Content */}
         {activeTab === 'events' && (
-        <div className="bg-card/80 backdrop-blur-sm rounded-sm p-6 border border-border/50">
-          <h2 className="text-lg font-semibold text-foreground mb-6">
+        <div className="bg-card/80 backdrop-blur-sm rounded-sm p-4 border border-border/50">
+          <h2 className="text-sm font-semibold text-foreground mb-4">
             Event Timeline
           </h2>
 
@@ -289,7 +289,7 @@ function SubjectEventsPage() {
               </p>
             </div>
           ) : (
-            <div className="space-y-6">
+            <div className="space-y-4">
               {Object.entries(eventsByDate).map(([date, dateEvents]) => {
                 const isDateCollapsed = collapsedDates.has(date)
 
@@ -298,14 +298,14 @@ function SubjectEventsPage() {
                     {/* Date Header */}
                     <button
                       onClick={() => toggleDate(date)}
-                      className="flex items-center gap-2 w-full text-left mb-4 group"
+                      className="flex items-center gap-2 w-full text-left mb-2 group"
                     >
                       {isDateCollapsed ? (
-                        <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300" />
+                        <ChevronRight className="w-3 h-3 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300" />
                       ) : (
-                        <ChevronDown className="w-4 h-4 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300" />
+                        <ChevronDown className="w-3 h-3 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300" />
                       )}
-                      <span className="text-sm font-semibold text-foreground/90">
+                      <span className="text-xs font-semibold text-foreground/90">
                         {date}
                       </span>
                       <span className="text-xs text-muted-foreground/70">
@@ -315,28 +315,28 @@ function SubjectEventsPage() {
 
                     {/* Events for this date */}
                     {!isDateCollapsed && (
-                      <div className="ml-6 space-y-4">
+                      <div className="ml-4 space-y-2">
                         {dateEvents.map((event, index) => {
                           const isExpanded = expandedEvents.has(event.id)
 
                           return (
-                            <div key={event.id} className="flex gap-4">
+                            <div key={event.id} className="flex gap-3">
                               {/* Timeline dot and line */}
-                              <div className="flex flex-col items-center pt-1">
-                                <div className="w-2 h-2 rounded-full bg-foreground/60" />
+                              <div className="flex flex-col items-center pt-0.5">
+                                <div className="w-1.5 h-1.5 rounded-full bg-foreground/60" />
                                 {index < dateEvents.length - 1 && (
-                                  <div className="w-0.5 flex-1 bg-secondary mt-2 min-h-[60px]" />
+                                  <div className="w-0.5 flex-1 bg-secondary mt-1 min-h-[40px]" />
                                 )}
                               </div>
 
                               {/* Event content */}
-                              <div className="flex-1 pb-4">
+                              <div className="flex-1 pb-2">
                                 <div
                                   onClick={() => toggleEvent(event.id)}
-                                  className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-sm border border-slate-200 dark:border-slate-700 hover:border-border transition-colors cursor-pointer"
+                                  className="p-3 bg-slate-50 dark:bg-slate-900/50 rounded-sm border border-slate-200 dark:border-slate-700 hover:border-border transition-colors cursor-pointer"
                                 >
-                                  <div className="flex items-start justify-between mb-2">
-                                    <div className="flex items-center gap-3">
+                                  <div className="flex items-start justify-between mb-1">
+                                    <div className="flex items-center gap-2">
                                       <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
                                         {new Date(event.event_time).toLocaleTimeString('en-US', {
                                           hour: '2-digit',
@@ -344,19 +344,19 @@ function SubjectEventsPage() {
                                           second: '2-digit',
                                         })}
                                       </span>
-                                      <span className="text-sm font-semibold text-foreground">
+                                      <span className="text-xs font-semibold text-foreground">
                                         {event.event_type}
                                       </span>
                                     </div>
-                                    <span className="text-xs px-2 py-1 bg-secondary text-muted-foreground rounded-sm font-mono">
+                                    <span className="text-xs px-1.5 py-0.5 bg-secondary text-muted-foreground rounded-sm font-mono">
                                       {event.id.slice(0, 8)}
                                     </span>
                                   </div>
 
                                   {/* Payload - shown when expanded */}
                                   {isExpanded && event.payload && (
-                                    <div className="mt-3 p-3 bg-white dark:bg-slate-800 rounded-sm border border-slate-200 dark:border-slate-700">
-                                      <p className="text-xs font-semibold text-muted-foreground mb-2">
+                                    <div className="mt-2 p-2 bg-white dark:bg-slate-800 rounded-sm border border-slate-200 dark:border-slate-700">
+                                      <p className="text-xs font-semibold text-muted-foreground mb-1">
                                         Event Data
                                       </p>
                                       <pre className="text-xs text-foreground/90 overflow-x-auto">
@@ -365,7 +365,7 @@ function SubjectEventsPage() {
                                     </div>
                                   )}
 
-                                  <div className="mt-2 text-xs text-muted-foreground">
+                                  <div className="mt-1 text-xs text-muted-foreground">
                                     Click to {isExpanded ? 'collapse' : 'expand'} details
                                   </div>
                                 </div>
@@ -385,10 +385,10 @@ function SubjectEventsPage() {
 
         {/* Documents Tab */}
         {activeTab === 'documents' && (
-        <div className="space-y-6">
+        <div className="space-y-4">
           {/* Upload Section */}
-          <div className="bg-card/80 backdrop-blur-sm rounded-sm p-6 border border-border/50">
-            <h2 className="text-lg font-semibold text-foreground mb-6">Upload Documents</h2>
+          <div className="bg-card/80 backdrop-blur-sm rounded-sm p-4 border border-border/50">
+            <h2 className="text-sm font-semibold text-foreground mb-4">Upload Documents</h2>
             <DocumentUpload
               subjectId={subjectId}
               onError={(error) => console.error('Upload error:', error)}
@@ -396,8 +396,8 @@ function SubjectEventsPage() {
           </div>
 
           {/* Documents List */}
-          <div className="bg-card/80 backdrop-blur-sm rounded-sm p-6 border border-border/50">
-            <h2 className="text-lg font-semibold text-foreground mb-6">Documents</h2>
+          <div className="bg-card/80 backdrop-blur-sm rounded-sm p-4 border border-border/50">
+            <h2 className="text-sm font-semibold text-foreground mb-4">Documents</h2>
             <DocumentList
               subjectId={subjectId}
               onError={(error) => console.error('Documents error:', error)}
