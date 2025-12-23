@@ -151,9 +151,9 @@ function CreateEventPage() {
   if (authState.isLoading) {
     return (
       <div className="min-h-[calc(100vh-4rem)] bg-background flex items-center justify-center">
-        <div className="flex items-center gap-3 text-muted-foreground">
-          <Loader2 className="w-5 h-5 animate-spin" />
-          <span>Loading...</span>
+        <div className="flex items-center gap-2 text-muted-foreground">
+          <Loader2 className="w-4 h-4 animate-spin" />
+          <span className="text-sm">Loading...</span>
         </div>
       </div>
     )
@@ -163,15 +163,15 @@ function CreateEventPage() {
 
   return (
     <>
-        <h1 className="text-2xl font-bold mb-6">Create Event</h1>
+        <h1 className="text-lg font-bold mb-3">Create Event</h1>
 
-        <form onSubmit={handleSubmit} className="space-y-6 bg-card/80 p-6 rounded-sm border border-border/50">
+        <form onSubmit={handleSubmit} className="space-y-3 bg-card/80 p-3 rounded-sm border border-border/50">
           {/* API Error Alert */}
           {apiError && (
-            <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-sm flex gap-3">
-              <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+            <div className="p-2.5 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-sm flex gap-2">
+              <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
               <div>
-                <h3 className="font-semibold text-red-900 dark:text-red-200">Error</h3>
+                <h3 className="font-semibold text-red-900 dark:text-red-200 text-sm">Error</h3>
                 <p className="text-sm text-red-800 dark:text-red-300">{apiError}</p>
               </div>
             </div>
@@ -179,69 +179,69 @@ function CreateEventPage() {
 
           {/* Subject Selection */}
           <div>
-            <label className="block text-sm font-medium mb-2">
+            <label className="block text-sm font-medium mb-1">
               Subject <span className="text-red-500">*</span>
             </label>
             <SubjectSelector value={state.subjectId} onChange={(value) => setState((prev) => ({ ...prev, subjectId: value }))} />
-            {state.fieldErrors.subjectId && <p className="text-xs text-red-500 mt-1">{state.fieldErrors.subjectId}</p>}
+            {state.fieldErrors.subjectId && <p className="text-sm text-red-500 mt-0.5">{state.fieldErrors.subjectId}</p>}
           </div>
 
           {/* Event Type Selection */}
           <div>
-            <label className="block text-sm font-medium mb-2">
+            <label className="block text-sm font-medium mb-1">
               Event Type <span className="text-red-500">*</span>
             </label>
             <EventTypeSelector value={state.eventType} onChange={(value) => setState((prev) => ({ ...prev, eventType: value }))} />
-            {state.fieldErrors.eventType && <p className="text-xs text-red-500 mt-1">{state.fieldErrors.eventType}</p>}
+            {state.fieldErrors.eventType && <p className="text-sm text-red-500 mt-0.5">{state.fieldErrors.eventType}</p>}
           </div>
 
           {/* Event Time */}
           <div>
-            <label className="block text-sm font-medium mb-2">Event Time</label>
+            <label className="block text-sm font-medium mb-1">Event Time</label>
             <input
               type="datetime-local"
               value={state.eventTime}
               onChange={(e) => setState((prev) => ({ ...prev, eventTime: e.target.value }))}
-              className="w-full px-3 py-2 bg-background border border-input rounded-sm text-sm"
+              className="w-full px-2.5 py-1.5 bg-background border border-input rounded-sm text-sm"
             />
-            <p className="text-xs text-muted-foreground mt-1">Defaults to current time</p>
+            <p className="text-sm text-muted-foreground mt-0.5">Defaults to current time</p>
           </div>
 
           {/* Payload / Dynamic Form */}
           <div>
-            <label className="block text-sm font-medium mb-3">
+            <label className="block text-sm font-medium mb-1.5">
               Event Data
               {schema?.required?.length ? ' ' : ''}
             </label>
 
             {schemaLoading ? (
-              <div className="flex items-center justify-center py-8">
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <Loader2 className="w-4 h-4 animate-spin" />
+              <div className="flex items-center justify-center py-4">
+                <div className="flex items-center gap-1.5 text-muted-foreground">
+                  <Loader2 className="w-3 h-3 animate-spin" />
                   <span className="text-sm">Loading schema...</span>
                 </div>
               </div>
             ) : schema?.properties ? (
-              <div className="space-y-4 p-4 bg-background/50 rounded-sm border border-border/50">
+              <div className="space-y-2 p-2.5 bg-background/50 rounded-sm border border-border/50">
                 <JsonSchemaForm schema={schema} value={state.payload} onChange={handlePayloadChange} errors={state.fieldErrors} />
               </div>
             ) : (
-              <div className="text-sm text-muted-foreground italic p-4 bg-background/50 rounded-sm border border-border/50">
+              <div className="text-sm text-muted-foreground italic p-2.5 bg-background/50 rounded-sm border border-border/50">
                 Select an event type to see available fields
               </div>
             )}
           </div>
 
           {/* Actions */}
-          <div className="flex items-center gap-3 pt-4">
+          <div className="flex items-center gap-2 pt-2">
             <button
               type="submit"
               disabled={loading || schemaLoading}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 rounded-sm font-medium hover:bg-slate-800 dark:hover:bg-slate-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="inline-flex items-center gap-1 px-3 py-1.5 text-sm bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 rounded-sm font-medium hover:bg-slate-800 dark:hover:bg-slate-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <Loader2 className="w-3 h-3 animate-spin" />
                   Creating...
                 </>
               ) : (

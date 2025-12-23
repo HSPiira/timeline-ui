@@ -127,8 +127,8 @@ function SchemasPage() {
 
       {/* Error Alert */}
       {error && (
-        <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-sm flex gap-3">
-          <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+        <div className="mb-3 p-2.5 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-sm flex gap-2">
+          <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
           <div className="flex-1">
             <h3 className="font-semibold text-red-900 dark:text-red-200 text-sm">Error</h3>
             <p className="text-sm text-red-800 dark:text-red-300 mt-0.5">{error}</p>
@@ -137,92 +137,91 @@ function SchemasPage() {
       )}
 
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-2">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Event Schemas</h1>
-          <p className="text-sm text-muted-foreground mt-1">Manage JSON schemas for event validation</p>
+          <h1 className="text-lg font-bold text-foreground">Event Schemas</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">Manage JSON schemas for event validation</p>
         </div>
         <button
           onClick={() => setShowCreateModal(true)}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-sm font-medium hover:bg-primary/90 transition-colors"
+          className="inline-flex items-center gap-1 px-2.5 py-1 text-sm bg-primary text-primary-foreground rounded-sm font-medium hover:bg-primary/90 transition-colors"
         >
-          <Plus className="w-4 h-4" />
+          <Plus className="w-3 h-3" />
           Create Schema
         </button>
       </div>
 
       {/* Schemas Table */}
       {schemas.length === 0 ? (
-        <div className="text-center py-12 bg-card/80 rounded-sm border border-border/50 p-8">
-          <h3 className="text-lg font-semibold text-foreground mb-2">No schemas yet</h3>
-          <p className="text-muted-foreground mb-4">Create your first event schema to enable validation</p>
+        <div className="text-center py-6 bg-card/80 rounded-sm border border-border/50 p-3">
+          <h3 className="text-sm font-semibold text-foreground mb-1">No schemas yet</h3>
+          <p className="text-sm text-muted-foreground mb-2">Create your first event schema to enable validation</p>
           <button
             onClick={() => setShowCreateModal(true)}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-sm font-medium hover:bg-primary/90 transition-colors"
+            className="inline-flex items-center gap-1 px-2.5 py-1 text-sm bg-primary text-primary-foreground rounded-sm font-medium hover:bg-primary/90 transition-colors"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-3 h-3" />
             Create Schema
           </button>
         </div>
       ) : (
         <div className="overflow-x-auto bg-card/80 rounded-sm border border-border/50">
-          <table className="w-full text-sm">
+          <table className="w-full text-xs">
             <thead>
               <tr className="border-b border-border">
-                <th className="text-left py-2 px-4 font-medium text-muted-foreground text-sm">Event Type</th>
-                <th className="text-left py-2 px-4 font-medium text-muted-foreground text-sm">Version</th>
-                <th className="text-left py-2 px-4 font-medium text-muted-foreground text-sm">Status</th>
-                <th className="text-left py-2 px-4 font-medium text-muted-foreground text-sm">Created</th>
-                <th className="text-right py-2 px-4 font-medium text-muted-foreground text-sm">Actions</th>
+                <th className="text-left py-1 px-2.5 font-medium text-muted-foreground text-xs">Event Type</th>
+                <th className="text-left py-1 px-2.5 font-medium text-muted-foreground text-xs">Version</th>
+                <th className="text-left py-1 px-2.5 font-medium text-muted-foreground text-xs">Status</th>
+                <th className="text-left py-1 px-2.5 font-medium text-muted-foreground text-xs">Created</th>
+                <th className="text-right py-1 px-2.5 font-medium text-muted-foreground text-xs">Actions</th>
               </tr>
             </thead>
             <tbody>
               {schemas.map((schema) => (
                 <tr key={schema.id} className="border-b border-border hover:bg-muted/50 transition-colors">
-                  <td className="py-2 px-4">
-                    <span className="font-medium text-foreground text-sm">{schema.event_type}</span>
+                  <td className="py-1 px-2.5">
+                    <span className="font-medium text-foreground text-xs">{schema.event_type}</span>
                   </td>
-                  <td className="py-2 px-4">
-                    <span className="text-muted-foreground text-sm">v{schema.version}</span>
+                  <td className="py-1 px-2.5">
+                    <span className="text-muted-foreground text-xs">v{schema.version}</span>
                   </td>
-                  <td className="py-2 px-4">
-                    <div className="flex items-center gap-2">
+                  <td className="py-1 px-2.5">
+                    <div className="flex items-center gap-0.5">
                       {schema.is_active ? (
                         <>
-                          <CheckCircle className="w-4 h-4 text-green-500" />
-                          <span className="text-green-600 dark:text-green-400 text-sm">Active</span>
+                          <CheckCircle className="w-3 h-3 text-green-500" />
+                          <span className="text-green-600 dark:text-green-400 text-xs">Active</span>
                         </>
                       ) : (
-                        <span className="text-muted-foreground text-sm">Inactive</span>
+                        <span className="text-muted-foreground text-xs">Inactive</span>
                       )}
                     </div>
                   </td>
-                  <td className="py-2 px-4 text-muted-foreground text-sm">
+                  <td className="py-1 px-2.5 text-muted-foreground text-xs">
                     {new Date(schema.created_at).toLocaleDateString('en-US', {
                       month: 'short',
                       day: 'numeric',
-                      year: 'numeric',
                     })}
                   </td>
-                  <td className="py-2 px-4">
-                    <div className="flex items-center justify-end gap-1">
+                  <td className="py-1 px-2.5">
+                    <div className="flex items-center justify-end gap-0.5">
                       <button
                         onClick={() => setViewingSchema(schema)}
-                        className="p-1.5 hover:bg-muted rounded-sm transition-colors"
+                        className="p-1 hover:bg-muted rounded-sm transition-colors"
                         title="View Schema"
                       >
-                        <Eye className="w-4 h-4 text-muted-foreground" />
+                        <Eye className="w-3.5 h-3.5 text-muted-foreground" />
                       </button>
                       <button
                         onClick={() => handleDeleteSchema(schema.id)}
                         disabled={deleting === schema.id}
-                        className="p-1.5 hover:bg-red-100 dark:hover:bg-red-900/20 rounded-sm transition-colors disabled:opacity-50"
+                        className="p-1 hover:bg-red-100 dark:hover:bg-red-900/20 rounded-sm transition-colors disabled:opacity-50"
                         title="Delete"
                       >
                         {deleting === schema.id ? (
-                          <Loader2 className="w-4 h-4 text-red-500 animate-spin" />
+                          <Loader2 className="w-3.5 h-3.5 text-red-500 animate-spin" />
                         ) : (
-                          <Trash2 className="w-4 h-4 text-red-500" />
+                          <Trash2 className="w-3.5 h-3.5 text-red-500" />
                         )}
                       </button>
                     </div>

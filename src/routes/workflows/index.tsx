@@ -140,9 +140,9 @@ function WorkflowsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
+      <div className="flex items-center justify-center py-8">
         <div className="flex items-center gap-2 text-muted-foreground">
-          <Loader2 className="w-5 h-5 animate-spin" />
+          <Loader2 className="w-4 h-4 animate-spin" />
           <span>Loading workflows...</span>
         </div>
       </div>
@@ -169,38 +169,38 @@ function WorkflowsPage() {
 
       {/* Error Alert */}
       {error && (
-        <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-sm flex gap-3">
-          <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+        <div className="mb-3 p-2.5 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-sm flex gap-2">
+          <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
           <div className="flex-1">
-            <h3 className="font-semibold text-red-900 dark:text-red-200">Error</h3>
-            <p className="text-sm text-red-800 dark:text-red-300 mt-1">{error}</p>
+            <h3 className="font-semibold text-red-900 dark:text-red-200 text-sm">Error</h3>
+            <p className="text-sm text-red-800 dark:text-red-300 mt-0.5">{error}</p>
           </div>
         </div>
       )}
 
       {/* No Access Notice */}
       {hasNoAccess && (
-        <div className="mb-6 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-sm flex gap-3">
-          <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+        <div className="mb-3 p-2.5 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-sm flex gap-2">
+          <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
           <div className="flex-1">
-            <h3 className="font-semibold text-amber-900 dark:text-amber-200">Limited Access</h3>
-            <p className="text-sm text-amber-800 dark:text-amber-300 mt-1">You don't have permission to manage workflows. You can view existing workflows but cannot create or modify them.</p>
+            <h3 className="font-semibold text-amber-900 dark:text-amber-200 text-sm">Limited Access</h3>
+            <p className="text-sm text-amber-800 dark:text-amber-300 mt-0.5">You don't have permission to manage workflows. You can view existing workflows but cannot create or modify them.</p>
           </div>
         </div>
       )}
 
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-3">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Workflows</h1>
-          <p className="text-sm text-muted-foreground mt-1">Manage event-driven automation workflows</p>
+          <h1 className="text-lg font-bold text-foreground">Workflows</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">Manage event-driven automation workflows</p>
         </div>
         {!hasNoAccess && (
           <button
             onClick={() => setShowCreateModal(true)}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-sm font-medium hover:bg-primary/90 transition-colors"
+            className="inline-flex items-center gap-1 px-2.5 py-1 text-sm bg-primary text-primary-foreground rounded-sm font-medium hover:bg-primary/90 transition-colors"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-3 h-3" />
             Create Workflow
           </button>
         )}
@@ -208,13 +208,13 @@ function WorkflowsPage() {
 
       {/* Filters */}
       {eventTypes.length > 0 && (
-        <div className="bg-card/80 backdrop-blur-sm rounded-sm p-4 border border-border/50 mb-6">
-          <div className="flex flex-wrap items-center gap-3">
+        <div className="bg-card/80 backdrop-blur-sm rounded-sm p-2.5 border border-border/50 mb-3">
+          <div className="flex flex-wrap items-center gap-2">
             <label className="text-sm font-medium text-foreground/90">Filter by trigger event type:</label>
             <select
               value={filterEventType}
               onChange={(e) => setFilterEventType(e.target.value)}
-              className="px-3 py-2 bg-background border border-input rounded-sm text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              className="px-2.5 py-1 bg-background border border-input rounded-sm text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
             >
               <option value="">All Workflows</option>
               {eventTypes.map((type) => (
@@ -237,19 +237,19 @@ function WorkflowsPage() {
 
       {/* Workflows List */}
       {filteredWorkflows.length === 0 ? (
-        <div className="text-center py-12 bg-card/80 rounded-sm border border-border/50 p-8">
-          <h3 className="text-lg font-semibold text-foreground mb-2">
+        <div className="text-center py-8 bg-card/80 rounded-sm border border-border/50 p-4">
+          <h3 className="text-sm font-semibold text-foreground mb-1">
             {hasNoAccess ? 'No workflows available' : 'No workflows yet'}
           </h3>
-          <p className="text-muted-foreground mb-4">
+          <p className="text-sm text-muted-foreground mb-3">
             {hasNoAccess ? 'You do not have permission to view or create workflows.' : 'Create your first workflow to automate event-driven tasks'}
           </p>
           {!hasNoAccess && (
             <button
               onClick={() => setShowCreateModal(true)}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-sm font-medium hover:bg-primary/90 transition-colors"
+              className="inline-flex items-center gap-1 px-2.5 py-1 text-sm bg-primary text-primary-foreground rounded-sm font-medium hover:bg-primary/90 transition-colors"
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="w-3 h-3" />
               Create Workflow
             </button>
           )}
@@ -259,12 +259,12 @@ function WorkflowsPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border">
-                <th className="text-left py-3 px-4 font-medium text-muted-foreground">Name</th>
-                <th className="text-left py-3 px-4 font-medium text-muted-foreground">Trigger Event Type</th>
-                <th className="text-left py-3 px-4 font-medium text-muted-foreground">Status</th>
-                <th className="text-left py-3 px-4 font-medium text-muted-foreground">Actions Count</th>
-                <th className="text-left py-3 px-4 font-medium text-muted-foreground">Created</th>
-                <th className="text-right py-3 px-4 font-medium text-muted-foreground">Actions</th>
+                <th className="text-left py-1 px-2.5 font-medium text-muted-foreground text-xs">Name</th>
+                <th className="text-left py-1 px-2.5 font-medium text-muted-foreground text-xs">Trigger Event Type</th>
+                <th className="text-left py-1 px-2.5 font-medium text-muted-foreground text-xs">Status</th>
+                <th className="text-left py-1 px-2.5 font-medium text-muted-foreground text-xs">Actions Count</th>
+                <th className="text-left py-1 px-2.5 font-medium text-muted-foreground text-xs">Created</th>
+                <th className="text-right py-1 px-2.5 font-medium text-muted-foreground text-xs">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -274,17 +274,17 @@ function WorkflowsPage() {
 
                 return (
                   <tr key={workflow.id} className="border-b border-border hover:bg-muted/50 transition-colors">
-                    <td className="py-3 px-4">
-                      <span className="font-medium text-foreground">{workflow.name}</span>
+                    <td className="py-1 px-2.5">
+                      <span className="font-medium text-foreground text-xs">{workflow.name}</span>
                     </td>
-                    <td className="py-3 px-4">
-                      <span className="text-muted-foreground text-xs bg-secondary px-2 py-1 rounded">{triggerEventType}</span>
+                    <td className="py-1 px-2.5">
+                      <span className="text-muted-foreground text-xs bg-secondary px-1.5 py-0.5 rounded">{triggerEventType}</span>
                     </td>
-                    <td className="py-3 px-4">
-                      <div className="flex items-center gap-2">
+                    <td className="py-1 px-2.5">
+                      <div className="flex items-center gap-0.5">
                         {workflow.is_active ? (
                           <>
-                            <CheckCircle className="w-4 h-4 text-green-500" />
+                            <CheckCircle className="w-3 h-3 text-green-500" />
                             <span className="text-green-600 dark:text-green-400 text-xs font-medium">Active</span>
                           </>
                         ) : (
@@ -292,40 +292,39 @@ function WorkflowsPage() {
                         )}
                       </div>
                     </td>
-                    <td className="py-3 px-4">
-                      <span className="text-muted-foreground">{actionsCount} action{actionsCount !== 1 ? 's' : ''}</span>
+                    <td className="py-1 px-2.5">
+                      <span className="text-muted-foreground text-xs">{actionsCount} action{actionsCount !== 1 ? 's' : ''}</span>
                     </td>
-                    <td className="py-3 px-4 text-muted-foreground">
+                    <td className="py-1 px-2.5 text-muted-foreground text-xs">
                       {new Date(workflow.created_at).toLocaleDateString('en-US', {
                         month: 'short',
                         day: 'numeric',
-                        year: 'numeric',
                       })}
                     </td>
-                    <td className="py-3 px-4">
-                      <div className="flex items-center justify-end gap-2">
+                    <td className="py-1 px-2.5">
+                      <div className="flex items-center justify-end gap-0.5">
                         <button
                           onClick={() => handleToggleWorkflow()}
                           disabled={true}
-                          className="p-2 hover:bg-muted rounded-sm transition-colors disabled:opacity-50"
+                          className="p-1 hover:bg-muted rounded-sm transition-colors disabled:opacity-50"
                           title={workflow.is_active ? 'Deactivate' : 'Activate'}
                         >
                           {workflow.is_active ? (
-                            <Pause className="w-4 h-4 text-muted-foreground" />
+                            <Pause className="w-3 h-3 text-muted-foreground" />
                           ) : (
-                            <Play className="w-4 h-4 text-muted-foreground" />
+                            <Play className="w-3 h-3 text-muted-foreground" />
                           )}
                         </button>
                         <button
                           onClick={() => handleDeleteWorkflow(workflow.id)}
                           disabled={deleting === workflow.id || hasNoAccess}
-                          className="p-2 hover:bg-red-100 dark:hover:bg-red-900/20 rounded-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="p-1 hover:bg-red-100 dark:hover:bg-red-900/20 rounded-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                           title={hasNoAccess ? 'No permission to delete' : 'Delete'}
                         >
                           {deleting === workflow.id ? (
-                            <Loader2 className="w-4 h-4 text-red-500 animate-spin" />
+                            <Loader2 className="w-3 h-3 text-red-500 animate-spin" />
                           ) : (
-                            <Trash2 className="w-4 h-4 text-red-500" />
+                            <Trash2 className="w-3 h-3 text-red-500" />
                           )}
                         </button>
                       </div>
