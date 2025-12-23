@@ -12,16 +12,15 @@ export const Route = createFileRoute('/verify/$subjectId')(
   }
 )
 
+type ChainVerificationResponse = components['schemas']['ChainVerificationResponse']
+type EventVerificationResult = components['schemas']['EventVerificationResult']
 type EventResponse = components['schemas']['EventResponse']
 
-interface VerificationResult {
-  isValid: boolean
-  totalEvents: number
-  validEvents: number
-  tamperedEvents: number
-  tamperedIndices: number[]
-  events: Array<EventResponse & { verified: boolean; expectedHash: string; actualHash: string }>
-  verifiedAt: string
+// Adapter to convert API response to ChainVisualization format
+interface VisualizationEvent extends EventResponse {
+  verified: boolean
+  expectedHash: string
+  actualHash: string
 }
 
 function VerifyPage() {
@@ -31,7 +30,7 @@ function VerifyPage() {
 
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [verification, setVerification] = useState<VerificationResult | null>(null)
+  const [verification, setVerification] = useState<ChainVerificationResponse | null>(null)
 
   useEffect(() => {
     if (authState.user) {
@@ -43,29 +42,13 @@ function VerifyPage() {
     setLoading(true)
     setError(null)
     try {
-      // Fetch events for the subject to display chain
-      const { data: eventsData, error: eventsError } = await timelineApi.events.list(subjectId)
+      // Call the real verify endpoint
+      const { data: verificationData, error: verifyError } = await timelineApi.events.verify(subjectId)
 
-      if (eventsError) {
-        const errorMsg = typeof eventsError === 'object' && 'message' in eventsError ? (eventsError as any).message : 'Failed to load events'
+      if (verifyError) {
+        const errorMsg = typeof verifyError === 'object' && 'message' in verifyError ? (verifyError as any).message : 'Failed to verify chain'
         setError(errorMsg)
-      } else if (eventsData && Array.isArray(eventsData)) {
-        // Simulate verification - in production this would call the verify endpoint
-        const totalEvents = eventsData.length
-        const verificationData: VerificationResult = {
-          isValid: true,
-          totalEvents: totalEvents,
-          validEvents: totalEvents,
-          tamperedEvents: 0,
-          tamperedIndices: [],
-          events: (eventsData as any[]).map((e) => ({
-            ...e,
-            verified: true,
-            expectedHash: (e as any).hash || '',
-            actualHash: (e as any).hash || '',
-          })),
-          verifiedAt: new Date().toISOString(),
-        }
+      } else if (verificationData) {
         setVerification(verificationData)
       }
     } catch (err) {
@@ -80,24 +63,25 @@ function VerifyPage() {
     if (!verification) return
 
     const reportContent = {
-      subjectId,
-      verifiedAt: verification.verifiedAt,
-      integryStatus: verification.isValid ? 'Valid' : 'Tampered',
+      subjectId: verification.subject_id,
+      tenantId: verification.tenant_id,
+      verifiedAt: verification.verified_at,
+      integrityStatus: verification.is_chain_valid ? 'Valid' : 'Tampered',
       summary: {
-        totalEvents: verification.totalEvents,
-        validEvents: verification.validEvents,
-        tamperedEvents: verification.tamperedEvents,
+        totalEvents: verification.total_events,
+        validEvents: verification.valid_events,
+        invalidEvents: verification.invalid_events,
       },
-      tamperedEventIndices: verification.tamperedIndices,
-      events: verification.events.map((e, i) => ({
-        index: i,
-        id: e.id,
+      eventResults: verification.event_results?.map((e) => ({
+        eventId: e.event_id,
         eventType: e.event_type,
         eventTime: e.event_time,
-        verified: e.verified,
-        hash: e.hash || (e as any).actual_hash,
-        previousHash: (e as any).previous_hash,
-        expectedHash: (e as any).expected_hash,
+        sequence: e.sequence,
+        isValid: e.is_valid,
+        errorType: e.error_type || null,
+        errorMessage: e.error_message || null,
+        expectedHash: e.expected_hash || null,
+        actualHash: e.actual_hash || null,
       })),
     }
 
@@ -106,7 +90,7 @@ function VerifyPage() {
     const url = URL.createObjectURL(dataBlob)
     const link = document.createElement('a')
     link.href = url
-    link.download = `chain-verification-${subjectId}-${new Date().toISOString().split('T')[0]}.json`
+    link.download = `chain-verification-${subjectId.slice(0, 8)}-${new Date().toISOString().split('T')[0]}.json`
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
@@ -162,7 +146,7 @@ function VerifyPage() {
           <div className="mb-3">
             <div className="flex items-center gap-2 mb-2">
               <h1 className="text-lg font-bold text-foreground">Chain Verification</h1>
-              {verification.isValid ? (
+              {verification.is_chain_valid ? (
                 <div className="flex items-center gap-1 px-2.5 py-1 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-sm">
                   <CheckCircle className="w-3.5 h-3.5 text-green-600 dark:text-green-400" />
                   <span className="font-semibold text-green-900 dark:text-green-200 text-xs">Valid Chain</span>
@@ -177,50 +161,111 @@ function VerifyPage() {
 
             {/* Compact Stats */}
             <div className="flex flex-wrap gap-3 mb-2 text-sm">
-              <span className="text-muted-foreground">Total Events: <span className="font-bold text-foreground">{verification.totalEvents}</span></span>
-              <span className="text-muted-foreground">Valid Events: <span className="font-bold text-green-600 dark:text-green-400">{verification.validEvents}</span></span>
-              <span className="text-muted-foreground">Tampered Events: <span className="font-bold text-red-600 dark:text-red-400">{verification.tamperedEvents}</span></span>
-              <span className="text-muted-foreground">Integrity: <span className={`font-bold ${verification.isValid ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>{verification.isValid ? '100%' : `${Math.round(((verification.totalEvents - verification.tamperedEvents) / verification.totalEvents) * 100)}%`}</span></span>
+              <span className="text-muted-foreground">Total Events: <span className="font-bold text-foreground">{verification.total_events}</span></span>
+              <span className="text-muted-foreground">Valid Events: <span className="font-bold text-green-600 dark:text-green-400">{verification.valid_events}</span></span>
+              <span className="text-muted-foreground">Invalid Events: <span className="font-bold text-red-600 dark:text-red-400">{verification.invalid_events}</span></span>
+              <span className="text-muted-foreground">Integrity: <span className={`font-bold ${verification.is_chain_valid ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>{verification.total_events > 0 ? Math.round((verification.valid_events / verification.total_events) * 100) : 0}%</span></span>
             </div>
 
             <p className="text-xs text-muted-foreground">Subject ID: {subjectId}</p>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Verified: {new Date(verification.verifiedAt).toLocaleString()}
+              Verified: {new Date(verification.verified_at).toLocaleString()}
             </p>
           </div>
 
           {/* Event Chain Timeline */}
           <div className="bg-card/80 rounded-sm border border-border/50 p-3 mb-3">
             <h2 className="text-sm font-semibold text-foreground mb-2">Event Chain Timeline</h2>
-            <ChainVisualization events={verification.events} tamperedIndices={verification.tamperedIndices} />
-          </div>
-
-          {/* Tampered Events Details */}
-          {verification.tamperedEvents > 0 && (
-            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-sm p-3 mb-3">
-              <h2 className="text-sm font-semibold text-red-900 dark:text-red-200 mb-2">Tampering Details</h2>
-              <div className="space-y-1.5">
-                {verification.events
-                  .map((event, index) => ({ event, index }))
-                  .filter(({ index }) => verification.tamperedIndices.includes(index))
-                  .map(({ event, index }) => (
-                    <div key={event.id} className="p-2 bg-background border border-red-200 dark:border-red-800 rounded-sm">
-                      <p className="font-mono text-xs text-red-600 dark:text-red-400 mb-1">
-                        Event #{index}: {event.event_type}
-                      </p>
-                      <div className="space-y-0.5 text-xs">
-                        <p className="text-muted-foreground">
-                          <span className="font-medium">Expected Hash:</span>
-                          <span className="font-mono break-all text-xs block">{(event as any).expected_hash || 'N/A'}</span>
-                        </p>
-                        <p className="text-muted-foreground">
-                          <span className="font-medium">Actual Hash:</span>
-                          <span className="font-mono break-all text-xs block">{event.hash || (event as any).actual_hash || 'N/A'}</span>
-                        </p>
+            {verification.event_results && verification.event_results.length > 0 ? (
+              <div className="space-y-2">
+                {verification.event_results.map((event, index) => (
+                  <div
+                    key={event.event_id}
+                    className={`p-3 rounded-sm border ${
+                      event.is_valid
+                        ? 'bg-green-50/50 dark:bg-green-900/10 border-green-200 dark:border-green-800'
+                        : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        {index === 0 && (
+                          <span className="text-xs px-1.5 py-0.5 bg-primary/20 text-primary rounded-sm font-medium">
+                            Genesis
+                          </span>
+                        )}
+                        <span className="text-xs font-mono text-muted-foreground">#{event.sequence.toString().padStart(3, '0')}</span>
+                        <span className="font-semibold text-sm text-foreground">{event.event_type}</span>
+                      </div>
+                      <div className={`flex items-center gap-1 px-1.5 py-0.5 rounded-sm text-xs font-medium ${
+                        event.is_valid
+                          ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+                          : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
+                      }`}>
+                        {event.is_valid ? (
+                          <>
+                            <CheckCircle className="w-3 h-3" />
+                            Valid
+                          </>
+                        ) : (
+                          <>
+                            <AlertTriangle className="w-3 h-3" />
+                            Invalid
+                          </>
+                        )}
                       </div>
                     </div>
-                  ))}
+
+                    <p className="text-xs text-muted-foreground mb-2">
+                      {new Date(event.event_time).toLocaleString()}
+                    </p>
+
+                    {/* Hash Details */}
+                    {(event.expected_hash || event.actual_hash) && (
+                      <div className="space-y-1 text-xs">
+                        {event.expected_hash && (
+                          <p className="text-muted-foreground">
+                            <span className="font-medium">Expected Hash:</span>
+                            <span className="font-mono block break-all text-muted-foreground/80 mt-0.5">{event.expected_hash.slice(0, 40)}...</span>
+                          </p>
+                        )}
+                        {event.actual_hash && (
+                          <p className="text-muted-foreground">
+                            <span className="font-medium">Actual Hash:</span>
+                            <span className={`font-mono block break-all mt-0.5 ${
+                              event.is_valid ? 'text-muted-foreground/80' : 'text-red-600 dark:text-red-400'
+                            }`}>{event.actual_hash.slice(0, 40)}...</span>
+                          </p>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Error Details */}
+                    {!event.is_valid && event.error_type && (
+                      <div className="mt-2 p-2 bg-red-100/50 dark:bg-red-900/30 rounded border border-red-200 dark:border-red-800">
+                        <p className="text-xs font-medium text-red-700 dark:text-red-400 mb-1">{event.error_type}</p>
+                        {event.error_message && (
+                          <p className="text-xs text-red-600 dark:text-red-300">{event.error_message}</p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
+            ) : (
+              <p className="text-xs text-muted-foreground">No events to display</p>
+            )}
+          </div>
+
+          {/* Invalid Events Summary */}
+          {verification.invalid_events > 0 && (
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-sm p-3 mb-3">
+              <h2 className="text-sm font-semibold text-red-900 dark:text-red-200 mb-2">
+                Chain Integrity Issues ({verification.invalid_events} {verification.invalid_events === 1 ? 'issue' : 'issues'})
+              </h2>
+              <p className="text-xs text-red-800 dark:text-red-300 mb-2">
+                {verification.invalid_events} event{verification.invalid_events !== 1 ? 's' : ''} failed verification. See Event Chain Timeline above for details.
+              </p>
             </div>
           )}
 

@@ -126,6 +126,10 @@ export const timelineApi = {
       }),
     create: (data: components['schemas']['EventCreate']) =>
       client.POST('/events/', { body: data }),
+    verify: (subjectId: string) =>
+      client.GET('/events/verify/{subject_id}', {
+        params: { path: { subject_id: subjectId } },
+      }),
   },
 
   // Event Schemas
