@@ -7,6 +7,8 @@ import {
   AlertCircle,
   Activity,
   Search,
+  Grid3x3,
+  Table2,
 } from 'lucide-react'
 import { useState } from 'react'
 import { useStore } from '@tanstack/react-store'
@@ -14,15 +16,19 @@ import { timelineApi } from '@/lib/api-client'
 import { authStore } from '@/lib/auth-store'
 import { useSubjects } from '@/hooks/useSubjects'
 import { SubjectsTable } from '@/components/subjects/SubjectsTable'
+import { SubjectsGrid } from '@/components/subjects/SubjectsGrid'
 
 export const Route = createFileRoute('/subjects/')({
   component: SubjectsPage,
 })
 
+type ViewMode = 'grid' | 'table'
+
 function SubjectsPage() {
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [filterType, setFilterType] = useState<string>('')
   const [search, setSearch] = useState('')
+  const [viewMode, setViewMode] = useState<ViewMode>('grid')
   const { subjects, isLoading, isError, error } = useSubjects({
     filterType,
     search,
@@ -77,7 +83,7 @@ function SubjectsPage() {
   return (
     <>
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-4">
           <div>
             <h1 className="text-2xl font-bold text-foreground mb-1">
               Subjects
@@ -86,13 +92,42 @@ function SubjectsPage() {
               Manage entities and their event timelines
             </p>
           </div>
-          <button
-            onClick={() => setShowCreateModal(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-sm font-medium hover:bg-primary/90 transition-colors"
-          >
-            <Plus className="w-4 h-4" />
-            Create Subject
-          </button>
+          <div className="flex items-center gap-2">
+            {/* View Mode Toggle */}
+            <div className="flex items-center gap-1 bg-muted/50 rounded-sm p-1 border border-border/30">
+              <button
+                onClick={() => setViewMode('grid')}
+                className={`p-2 rounded transition-colors ${
+                  viewMode === 'grid'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+                title="Grid view"
+              >
+                <Grid3x3 className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setViewMode('table')}
+                className={`p-2 rounded transition-colors ${
+                  viewMode === 'table'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+                title="Table view"
+              >
+                <Table2 className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Create Button */}
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-sm font-medium hover:bg-primary/90 transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              Create Subject
+            </button>
+          </div>
         </div>
 
         {/* Filter and Search Controls */}
@@ -187,7 +222,7 @@ function SubjectsPage() {
         )}
 
         {!isLoading && !isError && subjects.length > 0 && (
-          <SubjectsTable data={subjects} />
+          viewMode === 'grid' ? <SubjectsGrid data={subjects} /> : <SubjectsTable data={subjects} />
         )}
 
         {/* Create Subject Modal */}

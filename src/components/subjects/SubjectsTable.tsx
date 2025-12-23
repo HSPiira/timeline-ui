@@ -4,7 +4,7 @@ import {
     useReactTable,
   } from '@tanstack/react-table'
   import type { ColumnDef } from '@tanstack/react-table'
-  import type { SubjectResponse } from '@/lib/types'
+  import type { SubjectWithMetadata } from '@/hooks/useSubjects'
   import {
       Users,
       Calendar,
@@ -16,6 +16,7 @@ import {
       Building2,
       User,
       LucideIcon,
+      Activity,
     } from 'lucide-react'
   import { useNavigate } from '@tanstack/react-router'
   
@@ -42,7 +43,7 @@ import {
       return iconMap[type] || { icon: Tag, gradient: 'from-foreground/70 to-foreground/50' }
     }
   
-  const columns: ColumnDef<SubjectResponse>[] = [
+  const columns: ColumnDef<SubjectWithMetadata>[] = [
     {
       accessorKey: 'id',
       header: 'Subject',
@@ -84,14 +85,33 @@ import {
       }
     },
     {
-      accessorKey: 'events',
+      accessorKey: 'eventCount',
       header: 'Events',
-      cell: () => {
+      cell: ({ row }) => {
+          const subject = row.original
           return (
               <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-muted-foreground/70" />
-                  <span className="text-sm text-muted-foreground">-</span>
+                  <Activity className="w-4 h-4 text-muted-foreground/70" />
+                  <span className="text-sm font-medium text-foreground">{subject.eventCount}</span>
               </div>
+          )
+      }
+    },
+    {
+      accessorKey: 'lastEventDate',
+      header: 'Last Event',
+      cell: ({ row }) => {
+          const subject = row.original
+          return (
+              <span className="text-sm text-muted-foreground">
+                  {subject.lastEventDate
+                    ? new Date(subject.lastEventDate).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric',
+                      })
+                    : '—'}
+              </span>
           )
       }
     },
@@ -102,7 +122,11 @@ import {
           const subject = row.original
           return (
               <span className="text-sm text-muted-foreground">
-                  {new Date(subject.created_at).toLocaleDateString()}
+                  {new Date(subject.created_at).toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric',
+                  })}
               </span>
           )
       }
@@ -110,7 +134,7 @@ import {
   ]
   
   interface SubjectsTableProps {
-    data: SubjectResponse[]
+    data: SubjectWithMetadata[]
   }
   
   export function SubjectsTable({ data }: SubjectsTableProps) {
