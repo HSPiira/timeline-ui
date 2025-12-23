@@ -61,6 +61,20 @@ export const timelineApi = {
   // Users
   users: {
     me: () => client.GET('/users/me'),
+    getRoles: (userId: string) =>
+      client.GET('/users/{user_id}/roles', {
+        params: { path: { user_id: userId } },
+      }),
+    assignRole: (userId: string, data: components['schemas']['UserRoleAssign']) =>
+      client.POST('/users/{user_id}/roles', {
+        params: { path: { user_id: userId } },
+        body: data,
+      }),
+    removeRole: (userId: string, roleId: string) =>
+      client.DELETE('/users/{user_id}/roles/{role_id}', {
+        params: { path: { user_id: userId, role_id: roleId } },
+      }),
+    getMyRoles: () => client.GET('/users/me/roles'),
   },
 
   // Tenants
@@ -72,6 +86,56 @@ export const timelineApi = {
       }),
     create: (data: components['schemas']['TenantCreate']) =>
       client.POST('/tenants/', { body: data }),
+  },
+
+  // Roles
+  roles: {
+    list: (params?: { skip?: number; limit?: number; include_inactive?: boolean }) =>
+      client.GET('/roles/', {
+        params: { query: params },
+      }),
+    get: (id: string) =>
+      client.GET('/roles/{role_id}', {
+        params: { path: { role_id: id } },
+      }),
+    create: (data: components['schemas']['RoleCreate']) =>
+      client.POST('/roles/', { body: data }),
+    update: (id: string, data: components['schemas']['RoleUpdate']) =>
+      client.PUT('/roles/{role_id}', {
+        params: { path: { role_id: id } },
+        body: data,
+      }),
+    delete: (id: string) =>
+      client.DELETE('/roles/{role_id}', {
+        params: { path: { role_id: id } },
+      }),
+    assignPermissions: (roleId: string, data: components['schemas']['RolePermissionAssign']) =>
+      client.POST('/roles/{role_id}/permissions', {
+        params: { path: { role_id: roleId } },
+        body: data,
+      }),
+    removePermission: (roleId: string, permissionId: string) =>
+      client.DELETE('/roles/{role_id}/permissions/{permission_id}', {
+        params: { path: { role_id: roleId, permission_id: permissionId } },
+      }),
+  },
+
+  // Permissions
+  permissions: {
+    list: (params?: { skip?: number; limit?: number; resource?: string }) =>
+      client.GET('/permissions/', {
+        params: { query: params },
+      }),
+    get: (id: string) =>
+      client.GET('/permissions/{permission_id}', {
+        params: { path: { permission_id: id } },
+      }),
+    create: (data: components['schemas']['PermissionCreate']) =>
+      client.POST('/permissions/', { body: data }),
+    delete: (id: string) =>
+      client.DELETE('/permissions/{permission_id}', {
+        params: { path: { permission_id: id } },
+      }),
   },
 
   // Subjects

@@ -18,6 +18,8 @@ import { Route as SchemasIndexRouteImport } from './routes/schemas/index'
 import { Route as EventsIndexRouteImport } from './routes/events/index'
 import { Route as VerifySubjectIdRouteImport } from './routes/verify/$subjectId'
 import { Route as EventsCreateRouteImport } from './routes/events/create'
+import { Route as AdminRolesIndexRouteImport } from './routes/admin/roles/index'
+import { Route as AdminPermissionsIndexRouteImport } from './routes/admin/permissions/index'
 import { Route as EventsSubjectSubjectIdRouteImport } from './routes/events/subject.$subjectId'
 
 const RegisterRoute = RegisterRouteImport.update({
@@ -65,6 +67,16 @@ const EventsCreateRoute = EventsCreateRouteImport.update({
   path: '/events/create',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRolesIndexRoute = AdminRolesIndexRouteImport.update({
+  id: '/admin/roles/',
+  path: '/admin/roles/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminPermissionsIndexRoute = AdminPermissionsIndexRouteImport.update({
+  id: '/admin/permissions/',
+  path: '/admin/permissions/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EventsSubjectSubjectIdRoute = EventsSubjectSubjectIdRouteImport.update({
   id: '/events/subject/$subjectId',
   path: '/events/subject/$subjectId',
@@ -82,6 +94,8 @@ export interface FileRoutesByFullPath {
   '/subjects': typeof SubjectsIndexRoute
   '/workflows': typeof WorkflowsIndexRoute
   '/events/subject/$subjectId': typeof EventsSubjectSubjectIdRoute
+  '/admin/permissions': typeof AdminPermissionsIndexRoute
+  '/admin/roles': typeof AdminRolesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -94,6 +108,8 @@ export interface FileRoutesByTo {
   '/subjects': typeof SubjectsIndexRoute
   '/workflows': typeof WorkflowsIndexRoute
   '/events/subject/$subjectId': typeof EventsSubjectSubjectIdRoute
+  '/admin/permissions': typeof AdminPermissionsIndexRoute
+  '/admin/roles': typeof AdminRolesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -107,6 +123,8 @@ export interface FileRoutesById {
   '/subjects/': typeof SubjectsIndexRoute
   '/workflows/': typeof WorkflowsIndexRoute
   '/events/subject/$subjectId': typeof EventsSubjectSubjectIdRoute
+  '/admin/permissions/': typeof AdminPermissionsIndexRoute
+  '/admin/roles/': typeof AdminRolesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -121,6 +139,8 @@ export interface FileRouteTypes {
     | '/subjects'
     | '/workflows'
     | '/events/subject/$subjectId'
+    | '/admin/permissions'
+    | '/admin/roles'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -133,6 +153,8 @@ export interface FileRouteTypes {
     | '/subjects'
     | '/workflows'
     | '/events/subject/$subjectId'
+    | '/admin/permissions'
+    | '/admin/roles'
   id:
     | '__root__'
     | '/'
@@ -145,6 +167,8 @@ export interface FileRouteTypes {
     | '/subjects/'
     | '/workflows/'
     | '/events/subject/$subjectId'
+    | '/admin/permissions/'
+    | '/admin/roles/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -158,6 +182,8 @@ export interface RootRouteChildren {
   SubjectsIndexRoute: typeof SubjectsIndexRoute
   WorkflowsIndexRoute: typeof WorkflowsIndexRoute
   EventsSubjectSubjectIdRoute: typeof EventsSubjectSubjectIdRoute
+  AdminPermissionsIndexRoute: typeof AdminPermissionsIndexRoute
+  AdminRolesIndexRoute: typeof AdminRolesIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -225,6 +251,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EventsCreateRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/roles/': {
+      id: '/admin/roles/'
+      path: '/admin/roles'
+      fullPath: '/admin/roles'
+      preLoaderRoute: typeof AdminRolesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/permissions/': {
+      id: '/admin/permissions/'
+      path: '/admin/permissions'
+      fullPath: '/admin/permissions'
+      preLoaderRoute: typeof AdminPermissionsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/events/subject/$subjectId': {
       id: '/events/subject/$subjectId'
       path: '/events/subject/$subjectId'
@@ -246,6 +286,8 @@ const rootRouteChildren: RootRouteChildren = {
   SubjectsIndexRoute: SubjectsIndexRoute,
   WorkflowsIndexRoute: WorkflowsIndexRoute,
   EventsSubjectSubjectIdRoute: EventsSubjectSubjectIdRoute,
+  AdminPermissionsIndexRoute: AdminPermissionsIndexRoute,
+  AdminRolesIndexRoute: AdminRolesIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
