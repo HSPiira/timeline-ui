@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
@@ -18,10 +19,18 @@ import { Route as SchemasIndexRouteImport } from './routes/schemas/index'
 import { Route as EventsIndexRouteImport } from './routes/events/index'
 import { Route as VerifySubjectIdRouteImport } from './routes/verify/$subjectId'
 import { Route as EventsCreateRouteImport } from './routes/events/create'
+import { Route as SettingsUsersIndexRouteImport } from './routes/settings/users/index'
+import { Route as SettingsRolesIndexRouteImport } from './routes/settings/roles/index'
+import { Route as SettingsPermissionsIndexRouteImport } from './routes/settings/permissions/index'
 import { Route as AdminRolesIndexRouteImport } from './routes/admin/roles/index'
 import { Route as AdminPermissionsIndexRouteImport } from './routes/admin/permissions/index'
 import { Route as EventsSubjectSubjectIdRouteImport } from './routes/events/subject.$subjectId'
 
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
   path: '/register',
@@ -67,6 +76,22 @@ const EventsCreateRoute = EventsCreateRouteImport.update({
   path: '/events/create',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SettingsUsersIndexRoute = SettingsUsersIndexRouteImport.update({
+  id: '/users/',
+  path: '/users/',
+  getParentRoute: () => SettingsRoute,
+} as any)
+const SettingsRolesIndexRoute = SettingsRolesIndexRouteImport.update({
+  id: '/roles/',
+  path: '/roles/',
+  getParentRoute: () => SettingsRoute,
+} as any)
+const SettingsPermissionsIndexRoute =
+  SettingsPermissionsIndexRouteImport.update({
+    id: '/permissions/',
+    path: '/permissions/',
+    getParentRoute: () => SettingsRoute,
+  } as any)
 const AdminRolesIndexRoute = AdminRolesIndexRouteImport.update({
   id: '/admin/roles/',
   path: '/admin/roles/',
@@ -87,6 +112,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/settings': typeof SettingsRouteWithChildren
   '/events/create': typeof EventsCreateRoute
   '/verify/$subjectId': typeof VerifySubjectIdRoute
   '/events': typeof EventsIndexRoute
@@ -96,11 +122,15 @@ export interface FileRoutesByFullPath {
   '/events/subject/$subjectId': typeof EventsSubjectSubjectIdRoute
   '/admin/permissions': typeof AdminPermissionsIndexRoute
   '/admin/roles': typeof AdminRolesIndexRoute
+  '/settings/permissions': typeof SettingsPermissionsIndexRoute
+  '/settings/roles': typeof SettingsRolesIndexRoute
+  '/settings/users': typeof SettingsUsersIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/settings': typeof SettingsRouteWithChildren
   '/events/create': typeof EventsCreateRoute
   '/verify/$subjectId': typeof VerifySubjectIdRoute
   '/events': typeof EventsIndexRoute
@@ -110,12 +140,16 @@ export interface FileRoutesByTo {
   '/events/subject/$subjectId': typeof EventsSubjectSubjectIdRoute
   '/admin/permissions': typeof AdminPermissionsIndexRoute
   '/admin/roles': typeof AdminRolesIndexRoute
+  '/settings/permissions': typeof SettingsPermissionsIndexRoute
+  '/settings/roles': typeof SettingsRolesIndexRoute
+  '/settings/users': typeof SettingsUsersIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/settings': typeof SettingsRouteWithChildren
   '/events/create': typeof EventsCreateRoute
   '/verify/$subjectId': typeof VerifySubjectIdRoute
   '/events/': typeof EventsIndexRoute
@@ -125,6 +159,9 @@ export interface FileRoutesById {
   '/events/subject/$subjectId': typeof EventsSubjectSubjectIdRoute
   '/admin/permissions/': typeof AdminPermissionsIndexRoute
   '/admin/roles/': typeof AdminRolesIndexRoute
+  '/settings/permissions/': typeof SettingsPermissionsIndexRoute
+  '/settings/roles/': typeof SettingsRolesIndexRoute
+  '/settings/users/': typeof SettingsUsersIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -132,6 +169,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/register'
+    | '/settings'
     | '/events/create'
     | '/verify/$subjectId'
     | '/events'
@@ -141,11 +179,15 @@ export interface FileRouteTypes {
     | '/events/subject/$subjectId'
     | '/admin/permissions'
     | '/admin/roles'
+    | '/settings/permissions'
+    | '/settings/roles'
+    | '/settings/users'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/login'
     | '/register'
+    | '/settings'
     | '/events/create'
     | '/verify/$subjectId'
     | '/events'
@@ -155,11 +197,15 @@ export interface FileRouteTypes {
     | '/events/subject/$subjectId'
     | '/admin/permissions'
     | '/admin/roles'
+    | '/settings/permissions'
+    | '/settings/roles'
+    | '/settings/users'
   id:
     | '__root__'
     | '/'
     | '/login'
     | '/register'
+    | '/settings'
     | '/events/create'
     | '/verify/$subjectId'
     | '/events/'
@@ -169,12 +215,16 @@ export interface FileRouteTypes {
     | '/events/subject/$subjectId'
     | '/admin/permissions/'
     | '/admin/roles/'
+    | '/settings/permissions/'
+    | '/settings/roles/'
+    | '/settings/users/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LoginRoute: typeof LoginRoute
   RegisterRoute: typeof RegisterRoute
+  SettingsRoute: typeof SettingsRouteWithChildren
   EventsCreateRoute: typeof EventsCreateRoute
   VerifySubjectIdRoute: typeof VerifySubjectIdRoute
   EventsIndexRoute: typeof EventsIndexRoute
@@ -188,6 +238,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/register': {
       id: '/register'
       path: '/register'
@@ -251,6 +308,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EventsCreateRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/settings/users/': {
+      id: '/settings/users/'
+      path: '/users'
+      fullPath: '/settings/users'
+      preLoaderRoute: typeof SettingsUsersIndexRouteImport
+      parentRoute: typeof SettingsRoute
+    }
+    '/settings/roles/': {
+      id: '/settings/roles/'
+      path: '/roles'
+      fullPath: '/settings/roles'
+      preLoaderRoute: typeof SettingsRolesIndexRouteImport
+      parentRoute: typeof SettingsRoute
+    }
+    '/settings/permissions/': {
+      id: '/settings/permissions/'
+      path: '/permissions'
+      fullPath: '/settings/permissions'
+      preLoaderRoute: typeof SettingsPermissionsIndexRouteImport
+      parentRoute: typeof SettingsRoute
+    }
     '/admin/roles/': {
       id: '/admin/roles/'
       path: '/admin/roles'
@@ -275,10 +353,27 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface SettingsRouteChildren {
+  SettingsPermissionsIndexRoute: typeof SettingsPermissionsIndexRoute
+  SettingsRolesIndexRoute: typeof SettingsRolesIndexRoute
+  SettingsUsersIndexRoute: typeof SettingsUsersIndexRoute
+}
+
+const SettingsRouteChildren: SettingsRouteChildren = {
+  SettingsPermissionsIndexRoute: SettingsPermissionsIndexRoute,
+  SettingsRolesIndexRoute: SettingsRolesIndexRoute,
+  SettingsUsersIndexRoute: SettingsUsersIndexRoute,
+}
+
+const SettingsRouteWithChildren = SettingsRoute._addFileChildren(
+  SettingsRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
+  SettingsRoute: SettingsRouteWithChildren,
   EventsCreateRoute: EventsCreateRoute,
   VerifySubjectIdRoute: VerifySubjectIdRoute,
   EventsIndexRoute: EventsIndexRoute,

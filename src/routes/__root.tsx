@@ -10,7 +10,7 @@ import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
 import { useStore } from '@tanstack/react-store'
 import { useEffect } from 'react'
-import { LogOut, LayoutDashboard, Users, Calendar, Shield } from 'lucide-react'
+import { LogOut, LayoutDashboard, Users, Calendar } from 'lucide-react'
 
 import TanStackQueryDevtools from '@/integrations/tanstack-query/devtools'
 import { authStore, authActions } from '@/lib/auth-store'
@@ -127,9 +127,6 @@ function RootDocument({ children }: { children: React.ReactNode }) {
                       </NavLink>
                       <NavLink to="/events" icon={Calendar}>
                         Events
-                      </NavLink>
-                      <NavLink to="/admin/roles" icon={Shield}>
-                        Admin
                       </NavLink>
                     </nav>
                   </div>
