@@ -1,14 +1,19 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { ArrowLeft, Calendar, Tag, Loader2, AlertCircle, ChevronDown, ChevronRight, Activity } from 'lucide-react'
+import { ArrowLeft, Calendar, Tag, Loader2, AlertCircle, ChevronDown, ChevronRight, Activity, FileText, Shield } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useStore } from '@tanstack/react-store'
 import { timelineApi } from '@/lib/api-client'
 import { authStore } from '@/lib/auth-store'
+import { DocumentUpload } from '@/components/documents/DocumentUpload'
+import { DocumentList } from '@/components/documents/DocumentList'
+import { DocumentViewer } from '@/components/documents/DocumentViewer'
 import type { SubjectResponse, EventResponse } from '@/lib/types'
 
 export const Route = createFileRoute('/events/subject/$subjectId')({
   component: SubjectEventsPage,
 })
+
+type Tab = 'events' | 'documents'
 
 function SubjectEventsPage() {
   const { subjectId } = Route.useParams()
@@ -20,6 +25,8 @@ function SubjectEventsPage() {
   const [error, setError] = useState<string | null>(null)
   const [collapsedDates, setCollapsedDates] = useState<Set<string>>(new Set())
   const [expandedEvents, setExpandedEvents] = useState<Set<string>>(new Set())
+  const [activeTab, setActiveTab] = useState<Tab>('events')
+  const [viewingDocument, setViewingDocument] = useState<{ id: string; filename: string; type: string } | null>(null)
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -174,8 +181,16 @@ function SubjectEventsPage() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-background">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <>
+      {/* Document Viewer Modal */}
+      {viewingDocument && (
+        <DocumentViewer
+          documentId={viewingDocument.id}
+          filename={viewingDocument.filename}
+          fileType={viewingDocument.type}
+          onClose={() => setViewingDocument(null)}
+        />
+      )}
         {/* Back Button */}
         <button
           onClick={() => navigate({ to: '/subjects' })}
@@ -187,7 +202,7 @@ function SubjectEventsPage() {
 
         {/* Subject Header */}
         <div className="bg-card/80 backdrop-blur-sm rounded-sm p-6 border border-border/50 mb-8">
-          <div className="flex items-start justify-between">
+          <div className="flex items-start justify-between mb-4">
             <div>
               <h1 className="text-2xl font-bold text-foreground mb-2">
                 {subject.id}
@@ -216,9 +231,51 @@ function SubjectEventsPage() {
               </p>
             </div>
           </div>
+
+          {/* Actions */}
+          <div className="flex items-center gap-2 pt-4 border-t border-border">
+            <button
+              onClick={() => navigate({ to: `/verify/${subjectId}` })}
+              className="inline-flex items-center gap-2 px-3 py-2 text-sm bg-primary text-primary-foreground rounded-sm font-medium hover:bg-primary/90 transition-colors"
+            >
+              <Shield className="w-4 h-4" />
+              Verify Chain
+            </button>
+          </div>
         </div>
 
-        {/* Timeline */}
+        {/* Tabs */}
+        <div className="flex gap-1 mb-4 border-b border-border">
+          <button
+            onClick={() => setActiveTab('events')}
+            className={`px-4 py-3 text-sm font-medium transition-colors border-b-2 ${
+              activeTab === 'events'
+                ? 'border-primary text-foreground'
+                : 'border-transparent text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            <span className="flex items-center gap-2">
+              <Activity className="w-4 h-4" />
+              Events
+            </span>
+          </button>
+          <button
+            onClick={() => setActiveTab('documents')}
+            className={`px-4 py-3 text-sm font-medium transition-colors border-b-2 ${
+              activeTab === 'documents'
+                ? 'border-primary text-foreground'
+                : 'border-transparent text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            <span className="flex items-center gap-2">
+              <FileText className="w-4 h-4" />
+              Documents
+            </span>
+          </button>
+        </div>
+
+        {/* Content */}
+        {activeTab === 'events' && (
         <div className="bg-card/80 backdrop-blur-sm rounded-sm p-6 border border-border/50">
           <h2 className="text-lg font-semibold text-foreground mb-6">
             Event Timeline
@@ -324,7 +381,30 @@ function SubjectEventsPage() {
             </div>
           )}
         </div>
-      </div>
-    </div>
+        )}
+
+        {/* Documents Tab */}
+        {activeTab === 'documents' && (
+        <div className="space-y-6">
+          {/* Upload Section */}
+          <div className="bg-card/80 backdrop-blur-sm rounded-sm p-6 border border-border/50">
+            <h2 className="text-lg font-semibold text-foreground mb-6">Upload Documents</h2>
+            <DocumentUpload
+              subjectId={subjectId}
+              onError={(error) => console.error('Upload error:', error)}
+            />
+          </div>
+
+          {/* Documents List */}
+          <div className="bg-card/80 backdrop-blur-sm rounded-sm p-6 border border-border/50">
+            <h2 className="text-lg font-semibold text-foreground mb-6">Documents</h2>
+            <DocumentList
+              subjectId={subjectId}
+              onError={(error) => console.error('Documents error:', error)}
+            />
+          </div>
+        </div>
+        )}
+    </>
   )
 }

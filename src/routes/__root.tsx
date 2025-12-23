@@ -16,6 +16,7 @@ import TanStackQueryDevtools from '@/integrations/tanstack-query/devtools'
 import { authStore, authActions } from '@/lib/auth-store'
 import { ThemeToggle } from '@/components/theme/theme-toggler'
 import { ThemeProvider } from '@/components/theme/theme-provider'
+import { SettingsMenu } from '@/components/header/SettingsMenu'
 
 import appCss from '@/styles.css?url'
 
@@ -130,10 +131,11 @@ function RootDocument({ children }: { children: React.ReactNode }) {
                     </nav>
                   </div>
 
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2">
                     <span className="text-sm font-medium text-muted-foreground">
                       {authState.user.username}
                     </span>
+                    <SettingsMenu />
                     <ThemeToggle variant="ghost" size="default" />
                     <button
                       onClick={handleLogout}
@@ -148,7 +150,11 @@ function RootDocument({ children }: { children: React.ReactNode }) {
             </header>
           )}
 
-          <main className={authState.user ? 'pt-16' : ''}>{children}</main>
+          <main className={`${authState.user ? 'pt-16' : ''} min-h-[calc(100vh-4rem)] bg-background`}>
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+              {children}
+            </div>
+          </main>
 
           <TanStackDevtools
             config={{

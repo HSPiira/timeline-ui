@@ -1,0 +1,351 @@
+import { useState, useEffect } from 'react'
+import { X, Loader2, AlertCircle, Plus, Trash2 } from 'lucide-react'
+import { timelineApi } from '@/lib/api-client'
+import type { components } from '@/lib/timeline-api'
+
+type WorkflowCreate = components['schemas']['WorkflowCreate']
+
+interface WorkflowFormModalProps {
+  onClose: () => void
+  onSubmit: (data: WorkflowCreate) => Promise<boolean>
+  title: string
+}
+
+interface FormState {
+  name: string
+  description: string
+  triggerEventType: string
+  actions: Array<{
+    id: string
+    action_type: string
+    parameters: Record<string, any>
+  }>
+  isActive: boolean
+  fieldErrors: Record<string, string>
+}
+
+export function WorkflowFormModal({ onClose, onSubmit, title }: WorkflowFormModalProps) {
+  const [state, setState] = useState<FormState>({
+    name: '',
+    description: '',
+    triggerEventType: '',
+    actions: [],
+    isActive: true,
+    fieldErrors: {},
+  })
+  const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [eventTypes, setEventTypes] = useState<string[]>([])
+  const [loadingEventTypes, setLoadingEventTypes] = useState(false)
+
+  useEffect(() => {
+    fetchEventTypes()
+  }, [])
+
+  const fetchEventTypes = async () => {
+    setLoadingEventTypes(true)
+    try {
+      const { data, error: apiError } = await timelineApi.eventSchemas.list()
+      if (!apiError && data) {
+        const types = [...new Set(data.map((s) => s.event_type))]
+        setEventTypes(types)
+      }
+    } catch (err) {
+      console.error('Failed to fetch event types:', err)
+    } finally {
+      setLoadingEventTypes(false)
+    }
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError(null)
+
+    // Validation
+    const errors: Record<string, string> = {}
+
+    if (!state.name.trim()) {
+      errors.name = 'Workflow name is required'
+    }
+
+    if (!state.triggerEventType.trim()) {
+      errors.triggerEventType = 'Trigger event type is required'
+    }
+
+    if (state.actions.length === 0) {
+      errors.actions = 'At least one action is required'
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setState((prev) => ({ ...prev, fieldErrors: errors }))
+      return
+    }
+
+    setLoading(true)
+    try {
+      const workflowData: WorkflowCreate = {
+        name: state.name,
+        description: state.description || undefined,
+        trigger: {
+          event_type: state.triggerEventType,
+        } as any,
+        actions: state.actions as any,
+        is_active: state.isActive,
+      }
+
+      const success = await onSubmit(workflowData)
+      if (!success) {
+        setError('Failed to create workflow. Please try again.')
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An unexpected error occurred')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const addAction = () => {
+    const newAction = {
+      id: Date.now().toString(),
+      action_type: 'create_event',
+      parameters: {},
+    }
+    setState((prev) => ({
+      ...prev,
+      actions: [...prev.actions, newAction],
+    }))
+  }
+
+  const removeAction = (id: string) => {
+    setState((prev) => ({
+      ...prev,
+      actions: prev.actions.filter((a) => a.id !== id),
+    }))
+  }
+
+  const updateAction = (id: string, updates: Partial<(typeof state.actions)[0]>) => {
+    setState((prev) => ({
+      ...prev,
+      actions: prev.actions.map((a) => (a.id === id ? { ...a, ...updates } : a)),
+    }))
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-card rounded-sm max-w-2xl w-full max-h-[90vh] overflow-auto p-6 shadow-xl">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-semibold text-foreground">{title}</h2>
+          <button
+            onClick={onClose}
+            disabled={loading}
+            className="text-muted-foreground/70 hover:text-foreground transition-colors disabled:opacity-50"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Error Alert */}
+          {error && (
+            <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-sm flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-destructive flex-shrink-0" />
+              <p className="text-sm text-destructive">{error}</p>
+            </div>
+          )}
+
+          {/* Workflow Name */}
+          <div>
+            <label className="block text-sm font-medium text-foreground/90 mb-2">
+              Workflow Name <span className="text-destructive">*</span>
+            </label>
+            <input
+              type="text"
+              value={state.name}
+              onChange={(e) =>
+                setState((prev) => ({
+                  ...prev,
+                  name: e.target.value,
+                  fieldErrors: { ...prev.fieldErrors, name: '' },
+                }))
+              }
+              placeholder="e.g., Alert on high priority events"
+              className="w-full px-3 py-2 bg-background border border-input rounded-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
+              disabled={loading}
+            />
+            {state.fieldErrors.name && (
+              <p className="text-xs text-destructive mt-1">{state.fieldErrors.name}</p>
+            )}
+          </div>
+
+          {/* Description */}
+          <div>
+            <label className="block text-sm font-medium text-foreground/90 mb-2">Description</label>
+            <textarea
+              value={state.description}
+              onChange={(e) =>
+                setState((prev) => ({
+                  ...prev,
+                  description: e.target.value,
+                }))
+              }
+              placeholder="Optional description of what this workflow does"
+              className="w-full px-3 py-2 bg-background border border-input rounded-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50 resize-none"
+              rows={3}
+              disabled={loading}
+            />
+          </div>
+
+          {/* Trigger Configuration */}
+          <div className="border-t border-border pt-4">
+            <h3 className="text-sm font-semibold text-foreground/90 mb-3">Trigger</h3>
+            <div>
+              <label className="block text-sm font-medium text-foreground/90 mb-2">
+                Event Type <span className="text-destructive">*</span>
+              </label>
+              <select
+                value={state.triggerEventType}
+                onChange={(e) =>
+                  setState((prev) => ({
+                    ...prev,
+                    triggerEventType: e.target.value,
+                    fieldErrors: { ...prev.fieldErrors, triggerEventType: '' },
+                  }))
+                }
+                className="w-full px-3 py-2 bg-background border border-input rounded-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
+                disabled={loading || loadingEventTypes}
+              >
+                <option value="">Select event type...</option>
+                {eventTypes.map((type) => (
+                  <option key={type} value={type}>
+                    {type}
+                  </option>
+                ))}
+              </select>
+              {state.fieldErrors.triggerEventType && (
+                <p className="text-xs text-destructive mt-1">
+                  {state.fieldErrors.triggerEventType}
+                </p>
+              )}
+              <p className="text-xs text-muted-foreground mt-1">
+                This workflow will be triggered when an event of this type is created
+              </p>
+            </div>
+          </div>
+
+          {/* Actions Configuration */}
+          <div className="border-t border-border pt-4">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-semibold text-foreground/90">Actions</h3>
+              <button
+                type="button"
+                onClick={addAction}
+                disabled={loading}
+                className="flex items-center gap-1 px-2 py-1 text-xs bg-primary text-primary-foreground rounded-sm hover:bg-primary/90 transition-colors disabled:opacity-50"
+              >
+                <Plus className="w-3 h-3" />
+                Add Action
+              </button>
+            </div>
+
+            {state.fieldErrors.actions && (
+              <p className="text-xs text-destructive mb-2">{state.fieldErrors.actions}</p>
+            )}
+
+            {state.actions.length === 0 ? (
+              <div className="p-3 bg-background/50 border border-dashed border-border rounded-sm text-center text-sm text-muted-foreground">
+                No actions yet. Click "Add Action" to create one.
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {state.actions.map((action, index) => (
+                  <div
+                    key={action.id}
+                    className="p-3 bg-background/50 border border-border rounded-sm space-y-2"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-medium text-muted-foreground">Action {index + 1}</span>
+                      <button
+                        type="button"
+                        onClick={() => removeAction(action.id)}
+                        disabled={loading}
+                        className="p-1 hover:bg-red-100 dark:hover:bg-red-900/20 rounded transition-colors disabled:opacity-50"
+                      >
+                        <Trash2 className="w-3 h-3 text-red-500" />
+                      </button>
+                    </div>
+
+                    <select
+                      value={action.action_type}
+                      onChange={(e) =>
+                        updateAction(action.id, { action_type: e.target.value })
+                      }
+                      className="w-full px-2 py-1 bg-background border border-input rounded-sm text-sm focus:outline-none focus:ring-1 focus:ring-ring disabled:opacity-50"
+                      disabled={loading}
+                    >
+                      <option value="create_event">Create Event</option>
+                      <option value="send_email">Send Email</option>
+                      <option value="update_subject">Update Subject</option>
+                    </select>
+
+                    <input
+                      type="text"
+                      placeholder="Action parameters (JSON format)"
+                      className="w-full px-2 py-1 bg-background border border-input rounded-sm text-xs focus:outline-none focus:ring-1 focus:ring-ring disabled:opacity-50"
+                      disabled={loading}
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Active Toggle */}
+          <div className="border-t border-border pt-4 flex items-center gap-3">
+            <input
+              type="checkbox"
+              id="isActive"
+              checked={state.isActive}
+              onChange={(e) =>
+                setState((prev) => ({
+                  ...prev,
+                  isActive: e.target.checked,
+                }))
+              }
+              disabled={loading}
+              className="rounded"
+            />
+            <label htmlFor="isActive" className="text-sm font-medium text-foreground/90">
+              Activate workflow immediately after creation
+            </label>
+          </div>
+
+          {/* Actions */}
+          <div className="flex items-center gap-3 pt-4 border-t border-border">
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Creating...
+                </>
+              ) : (
+                'Create Workflow'
+              )}
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={loading}
+              className="px-4 py-2 border border-input text-foreground/90 rounded-sm font-medium hover:bg-muted/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}

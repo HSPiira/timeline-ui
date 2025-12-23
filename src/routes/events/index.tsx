@@ -111,9 +111,8 @@ function EventsPage() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-background">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Header */}
+    <>
+      {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-600 dark:from-slate-100 dark:to-slate-400 bg-clip-text text-transparent mb-2">
@@ -123,7 +122,7 @@ function EventsPage() {
               Browse and manage all timeline events
             </p>
           </div>
-          <button className="flex items-center gap-2 px-4 py-2 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 rounded-sm font-medium hover:bg-slate-800 dark:hover:bg-slate-200 transition-colors">
+          <button onClick={() => navigate({ to: '/events/create' })} className="flex items-center gap-2 px-4 py-2 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 rounded-sm font-medium hover:bg-slate-800 dark:hover:bg-slate-200 transition-colors">
             <Plus className="w-4 h-4" />
             Log Event
           </button>
@@ -233,7 +232,6 @@ function EventsPage() {
             ))}
           </div>
         )}
-      </div>
-    </div>
+    </>
   )
 }

@@ -12,8 +12,12 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as WorkflowsIndexRouteImport } from './routes/workflows/index'
 import { Route as SubjectsIndexRouteImport } from './routes/subjects/index'
+import { Route as SchemasIndexRouteImport } from './routes/schemas/index'
 import { Route as EventsIndexRouteImport } from './routes/events/index'
+import { Route as VerifySubjectIdRouteImport } from './routes/verify/$subjectId'
+import { Route as EventsCreateRouteImport } from './routes/events/create'
 import { Route as EventsSubjectSubjectIdRouteImport } from './routes/events/subject.$subjectId'
 
 const RegisterRoute = RegisterRouteImport.update({
@@ -31,14 +35,34 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WorkflowsIndexRoute = WorkflowsIndexRouteImport.update({
+  id: '/workflows/',
+  path: '/workflows/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SubjectsIndexRoute = SubjectsIndexRouteImport.update({
   id: '/subjects/',
   path: '/subjects/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SchemasIndexRoute = SchemasIndexRouteImport.update({
+  id: '/schemas/',
+  path: '/schemas/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EventsIndexRoute = EventsIndexRouteImport.update({
   id: '/events/',
   path: '/events/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VerifySubjectIdRoute = VerifySubjectIdRouteImport.update({
+  id: '/verify/$subjectId',
+  path: '/verify/$subjectId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EventsCreateRoute = EventsCreateRouteImport.update({
+  id: '/events/create',
+  path: '/events/create',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EventsSubjectSubjectIdRoute = EventsSubjectSubjectIdRouteImport.update({
@@ -51,16 +75,24 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/events/create': typeof EventsCreateRoute
+  '/verify/$subjectId': typeof VerifySubjectIdRoute
   '/events': typeof EventsIndexRoute
+  '/schemas': typeof SchemasIndexRoute
   '/subjects': typeof SubjectsIndexRoute
+  '/workflows': typeof WorkflowsIndexRoute
   '/events/subject/$subjectId': typeof EventsSubjectSubjectIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/events/create': typeof EventsCreateRoute
+  '/verify/$subjectId': typeof VerifySubjectIdRoute
   '/events': typeof EventsIndexRoute
+  '/schemas': typeof SchemasIndexRoute
   '/subjects': typeof SubjectsIndexRoute
+  '/workflows': typeof WorkflowsIndexRoute
   '/events/subject/$subjectId': typeof EventsSubjectSubjectIdRoute
 }
 export interface FileRoutesById {
@@ -68,8 +100,12 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/events/create': typeof EventsCreateRoute
+  '/verify/$subjectId': typeof VerifySubjectIdRoute
   '/events/': typeof EventsIndexRoute
+  '/schemas/': typeof SchemasIndexRoute
   '/subjects/': typeof SubjectsIndexRoute
+  '/workflows/': typeof WorkflowsIndexRoute
   '/events/subject/$subjectId': typeof EventsSubjectSubjectIdRoute
 }
 export interface FileRouteTypes {
@@ -78,24 +114,36 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/register'
+    | '/events/create'
+    | '/verify/$subjectId'
     | '/events'
+    | '/schemas'
     | '/subjects'
+    | '/workflows'
     | '/events/subject/$subjectId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/login'
     | '/register'
+    | '/events/create'
+    | '/verify/$subjectId'
     | '/events'
+    | '/schemas'
     | '/subjects'
+    | '/workflows'
     | '/events/subject/$subjectId'
   id:
     | '__root__'
     | '/'
     | '/login'
     | '/register'
+    | '/events/create'
+    | '/verify/$subjectId'
     | '/events/'
+    | '/schemas/'
     | '/subjects/'
+    | '/workflows/'
     | '/events/subject/$subjectId'
   fileRoutesById: FileRoutesById
 }
@@ -103,8 +151,12 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LoginRoute: typeof LoginRoute
   RegisterRoute: typeof RegisterRoute
+  EventsCreateRoute: typeof EventsCreateRoute
+  VerifySubjectIdRoute: typeof VerifySubjectIdRoute
   EventsIndexRoute: typeof EventsIndexRoute
+  SchemasIndexRoute: typeof SchemasIndexRoute
   SubjectsIndexRoute: typeof SubjectsIndexRoute
+  WorkflowsIndexRoute: typeof WorkflowsIndexRoute
   EventsSubjectSubjectIdRoute: typeof EventsSubjectSubjectIdRoute
 }
 
@@ -131,6 +183,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/workflows/': {
+      id: '/workflows/'
+      path: '/workflows'
+      fullPath: '/workflows'
+      preLoaderRoute: typeof WorkflowsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/subjects/': {
       id: '/subjects/'
       path: '/subjects'
@@ -138,11 +197,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SubjectsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/schemas/': {
+      id: '/schemas/'
+      path: '/schemas'
+      fullPath: '/schemas'
+      preLoaderRoute: typeof SchemasIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/events/': {
       id: '/events/'
       path: '/events'
       fullPath: '/events'
       preLoaderRoute: typeof EventsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/verify/$subjectId': {
+      id: '/verify/$subjectId'
+      path: '/verify/$subjectId'
+      fullPath: '/verify/$subjectId'
+      preLoaderRoute: typeof VerifySubjectIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/events/create': {
+      id: '/events/create'
+      path: '/events/create'
+      fullPath: '/events/create'
+      preLoaderRoute: typeof EventsCreateRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/events/subject/$subjectId': {
@@ -159,8 +239,12 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
+  EventsCreateRoute: EventsCreateRoute,
+  VerifySubjectIdRoute: VerifySubjectIdRoute,
   EventsIndexRoute: EventsIndexRoute,
+  SchemasIndexRoute: SchemasIndexRoute,
   SubjectsIndexRoute: SubjectsIndexRoute,
+  WorkflowsIndexRoute: WorkflowsIndexRoute,
   EventsSubjectSubjectIdRoute: EventsSubjectSubjectIdRoute,
 }
 export const routeTree = rootRouteImport

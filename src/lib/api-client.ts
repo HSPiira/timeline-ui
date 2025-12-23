@@ -153,16 +153,34 @@ export const timelineApi = {
       client.GET('/documents/{document_id}', {
         params: { path: { document_id: id } },
       }),
-      upload: (data: components['schemas']['Body_upload_document_documents_upload_post']) => {
-        return client.POST('/documents/upload', { body: data })
-      }
+    upload: (data: components['schemas']['Body_upload_document_documents_upload_post']) => {
+      return client.POST('/documents/upload', { body: data })
+    },
+    download: (id: string) =>
+      client.GET('/documents/{document_id}/download', {
+        params: { path: { document_id: id } },
+      }),
+    delete: (id: string) =>
+      client.DELETE('/documents/{document_id}', {
+        params: { path: { document_id: id } },
+      }),
   },
 
   // Workflows
   workflows: {
     list: () => client.GET('/workflows/'),
+    get: (id: string) =>
+      client.GET('/workflows/{workflow_id}', {
+        params: { path: { workflow_id: id } },
+      }),
     create: (data: components['schemas']['WorkflowCreate']) =>
       client.POST('/workflows/', { body: data }),
+    // Note: update endpoint not yet available in OpenAPI schema
+    // update: (id: string, data: { is_active?: boolean }) => ...,
+    delete: (id: string) =>
+      client.DELETE('/workflows/{workflow_id}', {
+        params: { path: { workflow_id: id } },
+      }),
   },
 
   // Email Accounts
