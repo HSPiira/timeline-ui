@@ -52,10 +52,10 @@ function SettingsLayout() {
   ]
 
   return (
-    <div className="flex gap-6">
+    <div className="flex gap-6 items-start">
       {/* Sidebar */}
       <div className="w-64 flex-shrink-0">
-        <div className="bg-card/80 backdrop-blur-sm rounded-sm border border-border/50 p-4 sticky top-24">
+        <div className="bg-card/80 backdrop-blur-sm rounded-sm border border-border/50 p-4 sticky top-24 h-fit">
           <h2 className="text-sm font-semibold text-foreground mb-4">Settings</h2>
           <nav className="space-y-1">
             {menuItems.map((item) => {

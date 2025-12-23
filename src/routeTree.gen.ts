@@ -19,7 +19,9 @@ import { Route as SchemasIndexRouteImport } from './routes/schemas/index'
 import { Route as EventsIndexRouteImport } from './routes/events/index'
 import { Route as VerifySubjectIdRouteImport } from './routes/verify/$subjectId'
 import { Route as EventsCreateRouteImport } from './routes/events/create'
+import { Route as SettingsWorkflowsIndexRouteImport } from './routes/settings/workflows/index'
 import { Route as SettingsUsersIndexRouteImport } from './routes/settings/users/index'
+import { Route as SettingsSchemasIndexRouteImport } from './routes/settings/schemas/index'
 import { Route as SettingsRolesIndexRouteImport } from './routes/settings/roles/index'
 import { Route as SettingsPermissionsIndexRouteImport } from './routes/settings/permissions/index'
 import { Route as AdminRolesIndexRouteImport } from './routes/admin/roles/index'
@@ -76,9 +78,19 @@ const EventsCreateRoute = EventsCreateRouteImport.update({
   path: '/events/create',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SettingsWorkflowsIndexRoute = SettingsWorkflowsIndexRouteImport.update({
+  id: '/workflows/',
+  path: '/workflows/',
+  getParentRoute: () => SettingsRoute,
+} as any)
 const SettingsUsersIndexRoute = SettingsUsersIndexRouteImport.update({
   id: '/users/',
   path: '/users/',
+  getParentRoute: () => SettingsRoute,
+} as any)
+const SettingsSchemasIndexRoute = SettingsSchemasIndexRouteImport.update({
+  id: '/schemas/',
+  path: '/schemas/',
   getParentRoute: () => SettingsRoute,
 } as any)
 const SettingsRolesIndexRoute = SettingsRolesIndexRouteImport.update({
@@ -124,7 +136,9 @@ export interface FileRoutesByFullPath {
   '/admin/roles': typeof AdminRolesIndexRoute
   '/settings/permissions': typeof SettingsPermissionsIndexRoute
   '/settings/roles': typeof SettingsRolesIndexRoute
+  '/settings/schemas': typeof SettingsSchemasIndexRoute
   '/settings/users': typeof SettingsUsersIndexRoute
+  '/settings/workflows': typeof SettingsWorkflowsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -142,7 +156,9 @@ export interface FileRoutesByTo {
   '/admin/roles': typeof AdminRolesIndexRoute
   '/settings/permissions': typeof SettingsPermissionsIndexRoute
   '/settings/roles': typeof SettingsRolesIndexRoute
+  '/settings/schemas': typeof SettingsSchemasIndexRoute
   '/settings/users': typeof SettingsUsersIndexRoute
+  '/settings/workflows': typeof SettingsWorkflowsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -161,7 +177,9 @@ export interface FileRoutesById {
   '/admin/roles/': typeof AdminRolesIndexRoute
   '/settings/permissions/': typeof SettingsPermissionsIndexRoute
   '/settings/roles/': typeof SettingsRolesIndexRoute
+  '/settings/schemas/': typeof SettingsSchemasIndexRoute
   '/settings/users/': typeof SettingsUsersIndexRoute
+  '/settings/workflows/': typeof SettingsWorkflowsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -181,7 +199,9 @@ export interface FileRouteTypes {
     | '/admin/roles'
     | '/settings/permissions'
     | '/settings/roles'
+    | '/settings/schemas'
     | '/settings/users'
+    | '/settings/workflows'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -199,7 +219,9 @@ export interface FileRouteTypes {
     | '/admin/roles'
     | '/settings/permissions'
     | '/settings/roles'
+    | '/settings/schemas'
     | '/settings/users'
+    | '/settings/workflows'
   id:
     | '__root__'
     | '/'
@@ -217,7 +239,9 @@ export interface FileRouteTypes {
     | '/admin/roles/'
     | '/settings/permissions/'
     | '/settings/roles/'
+    | '/settings/schemas/'
     | '/settings/users/'
+    | '/settings/workflows/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -308,11 +332,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EventsCreateRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/settings/workflows/': {
+      id: '/settings/workflows/'
+      path: '/workflows'
+      fullPath: '/settings/workflows'
+      preLoaderRoute: typeof SettingsWorkflowsIndexRouteImport
+      parentRoute: typeof SettingsRoute
+    }
     '/settings/users/': {
       id: '/settings/users/'
       path: '/users'
       fullPath: '/settings/users'
       preLoaderRoute: typeof SettingsUsersIndexRouteImport
+      parentRoute: typeof SettingsRoute
+    }
+    '/settings/schemas/': {
+      id: '/settings/schemas/'
+      path: '/schemas'
+      fullPath: '/settings/schemas'
+      preLoaderRoute: typeof SettingsSchemasIndexRouteImport
       parentRoute: typeof SettingsRoute
     }
     '/settings/roles/': {
@@ -356,13 +394,17 @@ declare module '@tanstack/react-router' {
 interface SettingsRouteChildren {
   SettingsPermissionsIndexRoute: typeof SettingsPermissionsIndexRoute
   SettingsRolesIndexRoute: typeof SettingsRolesIndexRoute
+  SettingsSchemasIndexRoute: typeof SettingsSchemasIndexRoute
   SettingsUsersIndexRoute: typeof SettingsUsersIndexRoute
+  SettingsWorkflowsIndexRoute: typeof SettingsWorkflowsIndexRoute
 }
 
 const SettingsRouteChildren: SettingsRouteChildren = {
   SettingsPermissionsIndexRoute: SettingsPermissionsIndexRoute,
   SettingsRolesIndexRoute: SettingsRolesIndexRoute,
+  SettingsSchemasIndexRoute: SettingsSchemasIndexRoute,
   SettingsUsersIndexRoute: SettingsUsersIndexRoute,
+  SettingsWorkflowsIndexRoute: SettingsWorkflowsIndexRoute,
 }
 
 const SettingsRouteWithChildren = SettingsRoute._addFileChildren(
