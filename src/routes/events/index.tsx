@@ -5,6 +5,7 @@ import { useStore } from '@tanstack/react-store'
 import { timelineApi } from '@/lib/api-client'
 import { authStore } from '@/lib/auth-store'
 import { EventDocumentsModal } from '@/components/documents/EventDocumentsModal'
+import { EventDetailsModal } from '@/components/events/EventDetailsModal'
 import type { EventResponse } from '@/lib/types'
 
 export const Route = createFileRoute('/events/')({
@@ -20,6 +21,7 @@ function EventsPage() {
   const [filterEventType, setFilterEventType] = useState<string>('')
   const [eventTypes, setEventTypes] = useState<string[]>([])
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null)
+  const [detailsEventId, setDetailsEventId] = useState<string | null>(null)
   const [documentCounts, setDocumentCounts] = useState<Record<string, number>>({})
 
   // Redirect to login if not authenticated
@@ -266,7 +268,10 @@ function EventsPage() {
 
                     {/* Actions */}
                     <div className="flex items-center gap-2 flex-shrink-0">
-                      <button className="px-2 py-1 text-sm text-muted-foreground hover:text-foreground hover:bg-slate-100 dark:hover:bg-slate-700 rounded-sm transition-colors">
+                      <button
+                        onClick={() => setDetailsEventId(event.id)}
+                        className="px-2 py-1 text-sm text-muted-foreground hover:text-foreground hover:bg-slate-100 dark:hover:bg-slate-700 rounded-sm transition-colors"
+                      >
                         View Details
                       </button>
                     </div>
@@ -291,6 +296,17 @@ function EventsPage() {
                 setSelectedEventId(null)
                 fetchEvents()
               }}
+            />
+          ) : null
+        })()}
+
+        {/* Details Modal */}
+        {detailsEventId && events.length > 0 && (() => {
+          const event = events.find(e => e.id === detailsEventId)
+          return event ? (
+            <EventDetailsModal
+              event={event}
+              onClose={() => setDetailsEventId(null)}
             />
           ) : null
         })()}

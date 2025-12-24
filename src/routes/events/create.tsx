@@ -122,8 +122,8 @@ function CreateEventPage() {
     return null
   }, [schema])
 
-  // Check if schema requires documents
-  const schemaRequiresDocuments = documentFieldName !== null
+  // Documents are now optional - users can add them after event creation
+  const schemaRequiresDocuments = false
 
   // Validate payload against schema
   const validatePayload = useMemo(() => {
@@ -142,13 +142,8 @@ function CreateEventPage() {
     return errors
   }, [schema, state.payload])
 
-  // Validate documents if required
-  const validateDocuments = useMemo(() => {
-    if (schemaRequiresDocuments && state.stagedDocuments.length === 0) {
-      return 'At least one document is required for this event type'
-    }
-    return null
-  }, [schemaRequiresDocuments, state.stagedDocuments])
+  // Documents are now optional
+  const validateDocuments = null
 
   const handlePayloadChange = (newPayload: Record<string, any>) => {
     setState((prev) => ({
@@ -176,11 +171,6 @@ function CreateEventPage() {
       return
     }
 
-    // Validate documents if required
-    if (validateDocuments) {
-      setApiError(validateDocuments)
-      return
-    }
 
     if (Object.keys(errors).length > 0) {
       setState((prev) => ({
@@ -199,7 +189,7 @@ function CreateEventPage() {
         return
       }
 
-      // Create event first
+      // Create event with payload (documents are optional now)
       const eventCreateData: components['schemas']['EventCreate'] = {
         subject_id: state.subjectId,
         event_type: state.eventType,
@@ -226,7 +216,7 @@ function CreateEventPage() {
         return
       }
 
-      // Now upload documents linked to the created event
+      // Upload and link documents to the created event (if any)
       if (state.stagedDocuments.length > 0) {
         try {
           await Promise.all(
@@ -239,19 +229,18 @@ function CreateEventPage() {
 
               const { error } = await timelineApi.documents.upload(formData)
               if (error) {
-                throw new Error(typeof error === 'object' && 'message' in error ? (error as any).message : 'Failed to upload document')
+                console.warn('Failed to link document to event:', error)
+                // Don't fail - event was created successfully
               }
             })
           )
         } catch (err) {
-          // Documents failed to upload, but event was created
-          const errorMsg = err instanceof Error ? err.message : 'Failed to upload some documents'
-          console.error('Document upload error (event was created):', errorMsg)
-          // Still navigate away since event was created successfully
+          console.warn('Error uploading documents:', err)
+          // Event was created successfully, documents optional
         }
       }
 
-      // Navigate after event and documents are created
+      // Navigate to events list
       navigate({ to: '/events' })
     } catch (err) {
       console.error('Error creating event:', err)
@@ -329,23 +318,24 @@ function CreateEventPage() {
             <p className="text-sm text-muted-foreground mt-0.5">Defaults to current time</p>
           </div>
 
-          {/* Document Upload - if schema requires documents */}
-          {state.subjectId && schemaRequiresDocuments && (
+          {/* Document Upload - Optional */}
+          {state.subjectId && (
             <div>
               <label className="block text-sm font-medium mb-1.5">
-                Supporting Documents {schemaRequiresDocuments && <span className="text-red-500">*</span>}
+                Supporting Documents
+                <span className="text-muted-foreground text-xs ml-2">(optional)</span>
               </label>
               <div className="p-3 bg-background/50 rounded-sm border border-border/50">
                 <EventDocumentUpload
                   subjectId={state.subjectId}
                   onFilesChanged={(files) => setState((prev) => ({ ...prev, stagedDocuments: files }))}
                   onError={(error) => setApiError(typeof error === 'string' ? error : String(error))}
-                  required={schemaRequiresDocuments}
+                  required={false}
                 />
               </div>
-              {validateDocuments && (
-                <p className="text-sm text-red-500 mt-1">{validateDocuments}</p>
-              )}
+              <p className="text-xs text-muted-foreground mt-2">
+                Documents will be uploaded and linked to this event after creation. You can also add documents later.
+              </p>
             </div>
           )}
 
