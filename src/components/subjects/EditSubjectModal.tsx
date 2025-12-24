@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { Loader2, AlertCircle, X } from 'lucide-react'
+import { Loader2, X } from 'lucide-react'
 import { useToast } from '@/hooks/useToast'
+import { FormField, FormInput, FormError } from '@/components/ui/FormField'
 
 interface EditSubjectModalProps {
   isOpen: boolean
@@ -63,40 +64,28 @@ export function EditSubjectModal({
 
         <form onSubmit={handleSubmit}>
           <div className="space-y-4">
+            {error && <FormError message={error} />}
+
             {/* Subject Type (Read-only) */}
-            <div>
-              <label className="block text-sm font-medium text-foreground/90 mb-2">
-                Subject Type
-              </label>
+            <FormField label="Subject Type">
               <div className="px-3 py-2 bg-muted rounded-sm text-foreground text-sm">
                 {subject.subject_type}
               </div>
-            </div>
+            </FormField>
 
             {/* External Reference */}
-            <div>
-              <label className="block text-sm font-medium text-foreground/90 mb-2">
-                External Reference
-              </label>
-              <input
+            <FormField
+              label="External Reference"
+              hint="Leave blank to remove the external reference"
+            >
+              <FormInput
                 type="text"
                 value={externalRef}
                 onChange={(e) => setExternalRef(e.target.value)}
                 placeholder="e.g., external ID or reference"
-                className="w-full px-3 py-2 bg-background border border-input rounded-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                 disabled={loading}
               />
-              <p className="mt-1 text-xs text-muted-foreground">
-                Leave blank to remove the external reference
-              </p>
-            </div>
-
-            {error && (
-              <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-sm flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 text-destructive flex-shrink-0" />
-                <p className="text-sm text-destructive">{error}</p>
-              </div>
-            )}
+            </FormField>
           </div>
 
           <div className="flex items-center gap-3 mt-6">
