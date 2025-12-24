@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { Plus, Loader2, AlertCircle, Activity } from 'lucide-react'
+import { Plus, Loader2, AlertCircle, Activity, ChevronDown, ChevronRight, Calendar } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useStore } from '@tanstack/react-store'
 import { timelineApi } from '@/lib/api-client'
@@ -24,6 +24,7 @@ function EventsPage() {
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null)
   const [detailsEventId, setDetailsEventId] = useState<string | null>(null)
   const [documentCounts, setDocumentCounts] = useState<Record<string, number>>({})
+  const [collapsedDates, setCollapsedDates] = useState<Set<string>>(new Set())
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -87,6 +88,31 @@ function EventsPage() {
     }
   }
 
+  const toggleDate = (date: string) => {
+    setCollapsedDates((prev) => {
+      const next = new Set(prev)
+      if (next.has(date)) {
+        next.delete(date)
+      } else {
+        next.add(date)
+      }
+      return next
+    })
+  }
+
+  // Group events by date
+  const eventsByDate = events.reduce((acc, event) => {
+    const date = new Date(event.event_time).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    })
+    if (!acc[date]) {
+      acc[date] = []
+    }
+    acc[date].push(event)
+    return acc
+  }, {} as Record<string, EventResponse[]>)
 
   if (authState.isLoading) {
     return (
@@ -188,7 +214,7 @@ function EventsPage() {
           </div>
         )}
 
-        {/* Empty State or Events List */}
+        {/* Empty State or Events Timeline */}
         {events.length === 0 ? (
           <div className="bg-card/80 backdrop-blur-sm rounded-sm p-6 border border-border/50 text-center">
             <div className="w-12 h-12 rounded-sm bg-secondary flex items-center justify-center mx-auto mb-2">
@@ -208,19 +234,49 @@ function EventsPage() {
             </button>
           </div>
         ) : (
-          <div className="space-y-2">
-            {events.map((event: EventResponse) => {
-              const docCount = documentCounts[event.id] || 0
-              return (
-                <EventCard
-                  key={event.id}
-                  event={event}
-                  documentCount={docCount}
-                  onViewDetails={() => setDetailsEventId(event.id)}
-                  onViewDocuments={() => setSelectedEventId(event.id)}
-                />
-              )
-            })}
+          <div className="bg-card/80 backdrop-blur-sm rounded-sm p-4 border border-border/50">
+            <h2 className="text-sm font-semibold text-foreground mb-4">
+              Event Timeline
+            </h2>
+            <div className="space-y-6">
+              {Object.entries(eventsByDate).map(([date, dateEvents]) => {
+                const isDateCollapsed = collapsedDates.has(date)
+
+                return (
+                  <div key={date}>
+                    {/* Date Header */}
+                    <button
+                      onClick={() => toggleDate(date)}
+                      className="flex items-center gap-2 mb-4"
+                    >
+                      {isDateCollapsed ? <ChevronRight /> : <ChevronDown />}
+                      <span className="font-semibold">{date}</span>
+                      <span className="text-xs text-muted-foreground">
+                        ({dateEvents.length})
+                      </span>
+                    </button>
+
+                    {/* Events for this date */}
+                    {!isDateCollapsed && (
+                      <div className="ml-6 space-y-2">
+                        {dateEvents.map((event) => {
+                          const docCount = documentCounts[event.id] || 0
+                          return (
+                            <EventCard
+                              key={event.id}
+                              event={event}
+                              documentCount={docCount}
+                              onViewDetails={() => setDetailsEventId(event.id)}
+                              onViewDocuments={() => setSelectedEventId(event.id)}
+                            />
+                          )
+                        })}
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
           </div>
         )}
 
