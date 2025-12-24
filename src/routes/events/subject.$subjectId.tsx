@@ -11,6 +11,7 @@ import { EventCard } from '@/components/events/EventCard'
 import { EventDetailsModal } from '@/components/events/EventDetailsModal'
 import { EventDocumentsModal } from '@/components/documents/EventDocumentsModal'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
+import { SkeletonBreadcrumbs, SkeletonEventTimeline, Skeleton } from '@/components/ui/Skeleton'
 import type { SubjectResponse, EventResponse } from '@/lib/types'
 
 export const Route = createFileRoute('/events/subject/$subjectId')({
@@ -152,12 +153,37 @@ function SubjectEventsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-[calc(100vh-4rem)] bg-background flex items-center justify-center">
-        <div className="flex items-center gap-3 text-muted-foreground">
-          <Loader2 className="w-5 h-5 animate-spin" />
-          <span>Loading timeline...</span>
+      <>
+        {/* Skeleton Breadcrumbs */}
+        <SkeletonBreadcrumbs />
+
+        {/* Skeleton Header */}
+        <div className="bg-card/80 backdrop-blur-sm rounded-sm p-4 border border-border/50 mb-4">
+          <div className="flex items-start justify-between mb-3">
+            <div className="flex-1">
+              <Skeleton className="h-8 w-1/2 mb-2" />
+              <div className="flex items-center gap-3">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-4 w-32" />
+              </div>
+            </div>
+            <Skeleton className="h-8 w-20" />
+          </div>
+          <Skeleton className="h-10 w-32 mt-2" />
         </div>
-      </div>
+
+        {/* Skeleton Tabs */}
+        <div className="flex gap-1 mb-3 border-b border-border">
+          <Skeleton className="h-8 w-20" />
+          <Skeleton className="h-8 w-24" />
+        </div>
+
+        {/* Skeleton Timeline */}
+        <div className="bg-card/80 backdrop-blur-sm rounded-sm p-4 border border-border/50">
+          <Skeleton className="h-5 w-32 mb-4" />
+          <SkeletonEventTimeline />
+        </div>
+      </>
     )
   }
 

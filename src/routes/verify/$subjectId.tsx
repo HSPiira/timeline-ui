@@ -2,9 +2,10 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useState, useEffect } from 'react'
 import { useRequireAuth } from '@/hooks/useRequireAuth'
 import { timelineApi } from '@/lib/api-client'
-import { CheckCircle, AlertTriangle, Loader2, AlertCircle, Download } from 'lucide-react'
+import { CheckCircle, AlertTriangle, AlertCircle, Download } from 'lucide-react'
 import { ChainVisualization } from '@/components/verify/ChainVisualization'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
+import { SkeletonBreadcrumbs, Skeleton } from '@/components/ui/Skeleton'
 import type { components } from '@/lib/timeline-api'
 
 export const Route = createFileRoute('/verify/$subjectId')(
@@ -104,12 +105,49 @@ function VerifyPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-8">
-        <div className="flex items-center gap-2 text-muted-foreground">
-          <Loader2 className="w-4 h-4 animate-spin" />
-          <span>Verifying chain integrity...</span>
+      <>
+        {/* Skeleton Breadcrumbs */}
+        <SkeletonBreadcrumbs />
+
+        {/* Skeleton Header */}
+        <div className="mb-3">
+          <div className="flex items-center gap-2 mb-2">
+            <Skeleton className="h-7 w-1/3" />
+            <Skeleton className="h-6 w-24" />
+          </div>
+          <div className="flex flex-wrap gap-3 mb-2">
+            <Skeleton className="h-5 w-32" />
+            <Skeleton className="h-5 w-32" />
+            <Skeleton className="h-5 w-32" />
+          </div>
+          <Skeleton className="h-4 w-1/2 mb-2" />
+          <Skeleton className="h-4 w-1/3" />
         </div>
-      </div>
+
+        {/* Skeleton Event Chain Timeline */}
+        <div className="bg-card/80 rounded-sm border border-border/50 p-3 mb-3">
+          <Skeleton className="h-5 w-40 mb-2" />
+          <div className="space-y-2">
+            <div className="p-3 rounded-sm border border-border/50 bg-muted/30">
+              <Skeleton className="h-5 w-1/2 mb-2" />
+              <Skeleton className="h-4 w-1/3" />
+            </div>
+            <div className="p-3 rounded-sm border border-border/50 bg-muted/30">
+              <Skeleton className="h-5 w-1/2 mb-2" />
+              <Skeleton className="h-4 w-1/3" />
+            </div>
+            <div className="p-3 rounded-sm border border-border/50 bg-muted/30">
+              <Skeleton className="h-5 w-1/2 mb-2" />
+              <Skeleton className="h-4 w-1/3" />
+            </div>
+          </div>
+        </div>
+
+        {/* Skeleton Export Button */}
+        <div className="flex justify-center">
+          <Skeleton className="h-8 w-32" />
+        </div>
+      </>
     )
   }
 

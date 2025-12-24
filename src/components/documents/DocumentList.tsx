@@ -4,6 +4,7 @@ import { timelineApi } from '@/lib/api-client'
 import { DocumentViewer } from './DocumentViewer'
 import { useToast } from '@/hooks/useToast'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
+import { SkeletonDocumentList } from '@/components/ui/Skeleton'
 import type { components } from '@/lib/timeline-api'
 
 export interface DocumentListProps {
@@ -164,14 +165,7 @@ export function DocumentList({ subjectId, eventId, readOnly, onDelete, onError }
   }
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center py-8">
-        <div className="flex items-center gap-2 text-muted-foreground">
-          <Loader2 className="w-4 h-4 animate-spin" />
-          <span className="text-sm">Loading documents...</span>
-        </div>
-      </div>
-    )
+    return <SkeletonDocumentList />
   }
 
   if (error && documents.length === 0) {
