@@ -7,6 +7,7 @@ import { authStore } from '@/lib/auth-store'
 import { EventDocumentsModal } from '@/components/documents/EventDocumentsModal'
 import { EventDetailsModal } from '@/components/events/EventDetailsModal'
 import { EventCard } from '@/components/events/EventCard'
+import { EmptyState } from '@/components/ui/EmptyState'
 import type { EventResponse } from '@/lib/types'
 
 export const Route = createFileRoute('/events/')({
@@ -216,22 +217,16 @@ function EventsPage() {
 
         {/* Empty State or Events Timeline */}
         {events.length === 0 ? (
-          <div className="bg-card/80 backdrop-blur-sm rounded-sm p-6 border border-border/50 text-center">
-            <div className="w-12 h-12 rounded-sm bg-secondary flex items-center justify-center mx-auto mb-2">
-              <Calendar className="w-6 h-6 text-muted-foreground/70" />
-            </div>
-            <h3 className="text-sm font-semibold text-foreground mb-1">
-              No events yet
-            </h3>
-            <p className="text-xs text-muted-foreground mb-3 max-w-md mx-auto">
-              Events are recorded actions or state changes. Start logging events to build your timeline history.
-            </p>
-            <button
-            onClick={() => navigate({ to: '/events/create' })}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 rounded-sm font-medium hover:bg-slate-800 dark:hover:bg-slate-200 transition-colors">
-              <Plus className="w-4 h-4" />
-              Log Your First Event
-            </button>
+          <div className="bg-card/80 backdrop-blur-sm rounded-sm border border-border/50">
+            <EmptyState
+              icon={Calendar}
+              title="No events yet"
+              description="Events are recorded actions or state changes tracked in chronological order. Log your first event to build a timeline history."
+              action={{
+                label: 'Log Your First Event',
+                onClick: () => navigate({ to: '/events/create' }),
+              }}
+            />
           </div>
         ) : (
           <div className="bg-card/80 backdrop-blur-sm rounded-sm p-4 border border-border/50">

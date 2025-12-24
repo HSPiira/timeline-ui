@@ -20,6 +20,7 @@ import { useToast } from '@/hooks/useToast'
 import { SubjectsTable } from '@/components/subjects/SubjectsTable'
 import { SubjectsGrid } from '@/components/subjects/SubjectsGrid'
 import { EditSubjectModal } from '@/components/subjects/EditSubjectModal'
+import { EmptyState } from '@/components/ui/EmptyState'
 import type { SubjectWithMetadata } from '@/hooks/useSubjects'
 
 export const Route = createFileRoute('/subjects/')({
@@ -263,25 +264,31 @@ function SubjectsPage() {
         )}
 
         {!isLoading && !isError && subjects.length === 0 && (
-          <div className="bg-card/80 backdrop-blur-sm rounded-sm p-8 border border-border/50 text-center">
-            <div className="w-14 h-14 rounded-sm bg-secondary flex items-center justify-center mx-auto mb-3">
-              <Users className="w-7 h-7 text-muted-foreground/70" />
-            </div>
-            <h3 className="text-base font-semibold text-foreground mb-2">
-              No subjects found
-            </h3>
-            <p className="text-sm text-muted-foreground mb-5 max-w-md mx-auto">
-              {search || filterType
-                ? 'No subjects match your current filters.'
-                : 'Create your first subject to start tracking events.'}
-            </p>
-            <button
-              onClick={() => setShowCreateModal(true)}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-sm font-medium hover:bg-primary/90 transition-colors"
-            >
-              <Plus className="w-4 h-4" />
-              Create Subject
-            </button>
+          <div className="bg-card/80 backdrop-blur-sm rounded-sm border border-border/50">
+            <EmptyState
+              icon={Users}
+              title={search || filterType ? 'No subjects match' : 'No subjects yet'}
+              description={
+                search || filterType
+                  ? 'Try adjusting your filters or search terms'
+                  : 'Create your first subject to start tracking events and building verifiable event chains'
+              }
+              action={{
+                label: 'Create Subject',
+                onClick: () => setShowCreateModal(true),
+              }}
+              secondaryAction={
+                search || filterType
+                  ? {
+                      label: 'Clear Filters',
+                      onClick: () => {
+                        setSearch('')
+                        setFilterType('')
+                      },
+                    }
+                  : undefined
+              }
+            />
           </div>
         )}
 

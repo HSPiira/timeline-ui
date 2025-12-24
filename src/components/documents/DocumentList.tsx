@@ -5,6 +5,7 @@ import { DocumentViewer } from './DocumentViewer'
 import { useToast } from '@/hooks/useToast'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { SkeletonDocumentList } from '@/components/ui/Skeleton'
+import { EmptyState } from '@/components/ui/EmptyState'
 import type { components } from '@/lib/timeline-api'
 
 export interface DocumentListProps {
@@ -182,10 +183,11 @@ export function DocumentList({ subjectId, eventId, readOnly, onDelete, onError }
 
   if (documents.length === 0) {
     return (
-      <div className="text-center py-8">
-        <FileIcon className="w-12 h-12 mx-auto text-amber-200 dark:text-amber-900/40 mb-3" />
-        <p className="text-sm text-amber-700 dark:text-amber-300">No documents yet</p>
-      </div>
+      <EmptyState
+        icon={FileIcon}
+        title="No documents yet"
+        description="Documents will appear here once they are uploaded to this subject"
+      />
     )
   }
 

@@ -12,6 +12,7 @@ import { EventDetailsModal } from '@/components/events/EventDetailsModal'
 import { EventDocumentsModal } from '@/components/documents/EventDocumentsModal'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import { SkeletonBreadcrumbs, SkeletonEventTimeline, Skeleton } from '@/components/ui/Skeleton'
+import { EmptyState } from '@/components/ui/EmptyState'
 import type { SubjectResponse, EventResponse } from '@/lib/types'
 
 export const Route = createFileRoute('/events/subject/$subjectId')({
@@ -321,12 +322,15 @@ function SubjectEventsPage() {
           </h2>
 
           {events.length === 0 ? (
-            <div className="text-center py-12">
-              <Calendar className="w-12 h-12 text-muted-foreground/50 mx-auto mb-3" />
-              <p className="text-sm text-slate-500 dark:text-slate-400">
-                No events recorded for this subject yet
-              </p>
-            </div>
+            <EmptyState
+              icon={Calendar}
+              title="No events recorded"
+              description="Events for this subject will appear here once they are created"
+              action={{
+                label: 'Record First Event',
+                onClick: () => navigate({ to: '/events/create' }),
+              }}
+            />
           ) : (
             <div className="space-y-6">
               {Object.entries(eventsByDate).map(([date, dateEvents]) => {
