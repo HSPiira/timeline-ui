@@ -2,8 +2,9 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useState, useEffect } from 'react'
 import { useRequireAuth } from '@/hooks/useRequireAuth'
 import { timelineApi } from '@/lib/api-client'
-import { ChevronLeft, CheckCircle, AlertTriangle, Loader2, AlertCircle, Download } from 'lucide-react'
+import { CheckCircle, AlertTriangle, Loader2, AlertCircle, Download } from 'lucide-react'
 import { ChainVisualization } from '@/components/verify/ChainVisualization'
+import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import type { components } from '@/lib/timeline-api'
 
 export const Route = createFileRoute('/verify/$subjectId')(
@@ -114,14 +115,14 @@ function VerifyPage() {
 
   return (
     <>
-      {/* Back Button */}
-      <button
-        onClick={() => navigate({ to: `/events/subject/${subjectId}` })}
-        className="flex items-center gap-1 py-1 text-sm text-muted-foreground hover:text-foreground mb-3 transition-colors"
-      >
-        <ChevronLeft className="w-3.5 h-3.5" />
-        Back to Subject
-      </button>
+      {/* Breadcrumbs */}
+      <Breadcrumbs
+        items={[
+          { label: 'Subjects', href: '/subjects' },
+          { label: `Subject ${subjectId.slice(0, 8)}...`, href: `/events/subject/${subjectId}` },
+          { label: 'Verify' },
+        ]}
+      />
 
       {/* Error Alert */}
       {error && (

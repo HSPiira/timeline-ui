@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { ArrowLeft, Calendar, Tag, Loader2, AlertCircle, ChevronDown, ChevronRight, Activity, FileText, Shield } from 'lucide-react'
+import { Calendar, Tag, Loader2, AlertCircle, ChevronDown, ChevronRight, Activity, FileText, Shield } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useStore } from '@tanstack/react-store'
 import { timelineApi } from '@/lib/api-client'
@@ -10,6 +10,7 @@ import { DocumentViewer } from '@/components/documents/DocumentViewer'
 import { EventCard } from '@/components/events/EventCard'
 import { EventDetailsModal } from '@/components/events/EventDetailsModal'
 import { EventDocumentsModal } from '@/components/documents/EventDocumentsModal'
+import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import type { SubjectResponse, EventResponse } from '@/lib/types'
 
 export const Route = createFileRoute('/events/subject/$subjectId')({
@@ -204,14 +205,13 @@ function SubjectEventsPage() {
           onClose={() => setViewingDocument(null)}
         />
       )}
-        {/* Back Button */}
-        <button
-          onClick={() => navigate({ to: '/subjects' })}
-          className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-4 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span className="text-sm font-medium">Back to Subjects</span>
-        </button>
+        {/* Breadcrumbs */}
+        <Breadcrumbs
+          items={[
+            { label: 'Subjects', href: '/subjects' },
+            { label: subject.id },
+          ]}
+        />
 
         {/* Subject Header */}
         <div className="bg-card/80 backdrop-blur-sm rounded-sm p-4 border border-border/50 mb-4">
