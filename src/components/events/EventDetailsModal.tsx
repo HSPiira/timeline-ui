@@ -1,4 +1,4 @@
-import { X, Calendar, User, Clock, FileText } from 'lucide-react'
+import { X, User, Clock, FileText } from 'lucide-react'
 import { DocumentList } from '@/components/documents/DocumentList'
 import type { EventResponse } from '@/lib/types'
 

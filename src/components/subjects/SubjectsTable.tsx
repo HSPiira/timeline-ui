@@ -23,23 +23,23 @@ import {
   // Helper to get icon and color for subject type
   function getSubjectIcon(
       subjectType: string
-    ): { icon: LucideIcon; bgColor: string; textColor: string } {
+    ): { icon: LucideIcon; bgColor: string; textColor: string; borderColor: string; accent: string } {
       const type = subjectType.toLowerCase()
 
       // Map subject types to icons and colors
-      const iconMap: Record<string, { icon: LucideIcon; bgColor: string; textColor: string }> = {
-        user: { icon: User, bgColor: 'bg-blue-100 dark:bg-blue-900/20', textColor: 'text-blue-600 dark:text-blue-400' },
-        users: { icon: Users, bgColor: 'bg-blue-100 dark:bg-blue-900/20', textColor: 'text-blue-600 dark:text-blue-400' },
-        customer: { icon: Building2, bgColor: 'bg-purple-100 dark:bg-purple-900/20', textColor: 'text-purple-600 dark:text-purple-400' },
-        order: { icon: ShoppingCart, bgColor: 'bg-green-100 dark:bg-green-900/20', textColor: 'text-green-600 dark:text-green-400' },
-        project: { icon: FolderKanban, bgColor: 'bg-orange-100 dark:bg-orange-900/20', textColor: 'text-orange-600 dark:text-orange-400' },
-        invoice: { icon: FileText, bgColor: 'bg-amber-100 dark:bg-amber-900/20', textColor: 'text-amber-600 dark:text-amber-400' },
-        shipment: { icon: Package, bgColor: 'bg-cyan-100 dark:bg-cyan-900/20', textColor: 'text-cyan-600 dark:text-cyan-400' },
-        package: { icon: Package, bgColor: 'bg-cyan-100 dark:bg-cyan-900/20', textColor: 'text-cyan-600 dark:text-cyan-400' },
+      const iconMap: Record<string, { icon: LucideIcon; bgColor: string; textColor: string; borderColor: string; accent: string }> = {
+        user: { icon: User, bgColor: 'bg-blue-100 dark:bg-blue-900/20', textColor: 'text-blue-600 dark:text-blue-400', borderColor: 'border-blue-200 dark:border-blue-800', accent: 'text-blue-700 dark:text-blue-300' },
+        users: { icon: Users, bgColor: 'bg-blue-100 dark:bg-blue-900/20', textColor: 'text-blue-600 dark:text-blue-400', borderColor: 'border-blue-200 dark:border-blue-800', accent: 'text-blue-700 dark:text-blue-300' },
+        customer: { icon: Building2, bgColor: 'bg-purple-100 dark:bg-purple-900/20', textColor: 'text-purple-600 dark:text-purple-400', borderColor: 'border-purple-200 dark:border-purple-800', accent: 'text-purple-700 dark:text-purple-300' },
+        order: { icon: ShoppingCart, bgColor: 'bg-green-100 dark:bg-green-900/20', textColor: 'text-green-600 dark:text-green-400', borderColor: 'border-green-200 dark:border-green-800', accent: 'text-green-700 dark:text-green-300' },
+        project: { icon: FolderKanban, bgColor: 'bg-orange-100 dark:bg-orange-900/20', textColor: 'text-orange-600 dark:text-orange-400', borderColor: 'border-orange-200 dark:border-orange-800', accent: 'text-orange-700 dark:text-orange-300' },
+        invoice: { icon: FileText, bgColor: 'bg-amber-100 dark:bg-amber-900/20', textColor: 'text-amber-600 dark:text-amber-400', borderColor: 'border-amber-200 dark:border-amber-800', accent: 'text-amber-700 dark:text-amber-300' },
+        shipment: { icon: Package, bgColor: 'bg-cyan-100 dark:bg-cyan-900/20', textColor: 'text-cyan-600 dark:text-cyan-400', borderColor: 'border-cyan-200 dark:border-cyan-800', accent: 'text-cyan-700 dark:text-cyan-300' },
+        package: { icon: Package, bgColor: 'bg-cyan-100 dark:bg-cyan-900/20', textColor: 'text-cyan-600 dark:text-cyan-400', borderColor: 'border-cyan-200 dark:border-cyan-800', accent: 'text-cyan-700 dark:text-cyan-300' },
       }
 
       // Return specific icon or default
-      return iconMap[type] || { icon: Tag, bgColor: 'bg-gray-100 dark:bg-gray-900/20', textColor: 'text-gray-600 dark:text-gray-400' }
+      return iconMap[type] || { icon: Tag, bgColor: 'bg-gray-100 dark:bg-gray-900/20', textColor: 'text-gray-600 dark:text-gray-400', borderColor: 'border-gray-200 dark:border-gray-800', accent: 'text-gray-700 dark:text-gray-300' }
     }
   
   interface SubjectsTableProps {
@@ -81,8 +81,9 @@ import {
         header: 'Type',
         cell: ({ row }) => {
             const subject = row.original
+            const { borderColor, accent } = getSubjectIcon(subject.subject_type)
             return (
-                <span className="text-sm font-medium text-foreground/90">
+                <span className={`text-sm font-medium ${accent} px-2 py-1 rounded border ${borderColor} bg-opacity-5`}>
                     {subject.subject_type}
                 </span>
             )
@@ -162,9 +163,9 @@ import {
     }
   
     return (
-      <div className="bg-card/80 backdrop-blur-sm rounded-sm border border-border/50 overflow-hidden">
+      <div className="bg-card/80 backdrop-blur-sm rounded-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
         <table className="w-full">
-          <thead className="bg-muted/50 border-b">
+          <thead className="bg-gradient-to-r from-slate-50 to-slate-100/50 dark:from-slate-950/30 dark:to-slate-900/20 border-b border-slate-200 dark:border-slate-800">
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (

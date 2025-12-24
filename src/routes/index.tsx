@@ -238,10 +238,13 @@ function HomePage() {
         />
 
         {/* Recent Activity */}
-        <div className="bg-card/80 backdrop-blur-sm rounded-sm p-4 border border-border/50">
-          <h2 className="text-sm font-semibold text-foreground mb-4">
-            Recent Activity
-          </h2>
+        <div className="bg-gradient-to-br from-card to-card/50 backdrop-blur-sm rounded-sm border border-indigo-200/50 dark:border-indigo-900/50">
+          <div className="p-4 border-b border-indigo-200/50 dark:border-indigo-900/50 bg-gradient-to-r from-indigo-50/50 to-indigo-100/30 dark:from-indigo-950/20 dark:to-indigo-900/10">
+            <h2 className="text-sm font-semibold text-indigo-950 dark:text-indigo-200">
+              Recent Activity
+            </h2>
+          </div>
+          <div className="p-4">
           {loading && Object.keys(eventsByDate).length === 0 ? (
             <div className="flex items-center justify-center py-12">
               <div className="flex items-center gap-3 text-muted-foreground">
@@ -252,6 +255,7 @@ function HomePage() {
           ) : (
             <RecentActivity eventsByDate={eventsByDate} timeline={timeline} />
           )}
+          </div>
         </div>
     </>
   )

@@ -158,26 +158,26 @@ export function DocumentList({ subjectId, eventId, readOnly, onDelete, onError }
   if (documents.length === 0) {
     return (
       <div className="text-center py-8">
-        <FileIcon className="w-12 h-12 mx-auto text-muted-foreground/50 mb-3" />
-        <p className="text-sm text-muted-foreground">No documents yet</p>
+        <FileIcon className="w-12 h-12 mx-auto text-amber-200 dark:text-amber-900/40 mb-3" />
+        <p className="text-sm text-amber-700 dark:text-amber-300">No documents yet</p>
       </div>
     )
   }
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="border-b border-border">
-            <th className="text-left py-3 px-3 font-medium text-muted-foreground">Name</th>
-            <th className="text-left py-3 px-3 font-medium text-muted-foreground">Size</th>
-            <th className="text-left py-3 px-3 font-medium text-muted-foreground">Uploaded</th>
-            <th className="text-right py-3 px-3 font-medium text-muted-foreground">Actions</th>
+      <table className="w-full text-sm border border-amber-200 dark:border-amber-800 rounded-sm overflow-hidden">
+        <thead className="bg-gradient-to-r from-amber-50 to-amber-100/50 dark:from-amber-950/30 dark:to-amber-900/20">
+          <tr className="border-b border-amber-200 dark:border-amber-800">
+            <th className="text-left py-3 px-3 font-medium text-amber-900 dark:text-amber-200">Name</th>
+            <th className="text-left py-3 px-3 font-medium text-amber-900 dark:text-amber-200">Size</th>
+            <th className="text-left py-3 px-3 font-medium text-amber-900 dark:text-amber-200">Uploaded</th>
+            <th className="text-right py-3 px-3 font-medium text-amber-900 dark:text-amber-200">Actions</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody className="divide-y divide-amber-100 dark:divide-amber-900/30">
           {documents.map((doc) => (
-            <tr key={doc.id} className="border-b border-border hover:bg-muted/50 transition-colors">
+            <tr key={doc.id} className="hover:bg-amber-50/50 dark:hover:bg-amber-950/20 transition-colors">
               <td className="py-3 px-3">
                 <div className="flex items-center gap-2">
                   <span className="text-base">{FILE_ICONS[getMimeType(doc)] || '📎'}</span>
@@ -198,10 +198,10 @@ export function DocumentList({ subjectId, eventId, readOnly, onDelete, onError }
                 <div className="flex items-center justify-end gap-2">
                   <button
                     onClick={() => handleDownload(doc.id, getDisplayName(doc))}
-                    className="p-2 hover:bg-muted rounded-sm transition-colors"
+                    className="p-2 hover:bg-amber-100 dark:hover:bg-amber-900/30 rounded-sm transition-colors"
                     title="Download"
                   >
-                    <Download className="w-4 h-4 text-muted-foreground" />
+                    <Download className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                   </button>
                   {!readOnly && (
                     <button
