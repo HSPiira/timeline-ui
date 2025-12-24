@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react'
 import { Upload, X } from 'lucide-react'
+import { useToast } from '@/hooks/useToast'
 
 export interface EventDocumentUploadProps {
   subjectId: string
@@ -36,6 +37,7 @@ export function EventDocumentUpload({
   const [stagedFiles, setStagedFiles] = useState<StagedFile[]>([])
   const [isDragging, setIsDragging] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
+  const toast = useToast()
 
   const validateFile = (file: File): string | null => {
     if (!ALLOWED_TYPES.includes(file.type)) {
@@ -56,6 +58,7 @@ export function EventDocumentUpload({
 
       if (error) {
         onError?.(error)
+        toast.error('Invalid file', error)
         return
       }
 

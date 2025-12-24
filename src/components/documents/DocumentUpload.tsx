@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react'
 import { Upload, X, AlertCircle, CheckCircle, Loader2 } from 'lucide-react'
 import { timelineApi } from '@/lib/api-client'
+import { useToast } from '@/hooks/useToast'
 
 export interface DocumentUploadProps {
   subjectId?: string
@@ -42,6 +43,7 @@ export function DocumentUpload({
   const [isDragging, setIsDragging] = useState(false)
   const [documentType, setDocumentType] = useState('evidence')
   const inputRef = useRef<HTMLInputElement>(null)
+  const toast = useToast()
 
   const validateFile = (file: File): string | null => {
     if (!ALLOWED_TYPES.includes(file.type)) {
@@ -59,6 +61,7 @@ export function DocumentUpload({
       if (!subjectId) {
         const error = 'Subject ID is required to upload documents'
         onError?.(error)
+        toast.error('Upload failed', error)
         setFiles((prev) => prev.map((f) => (f.id === uploadingFile.id ? { ...f, status: 'error', error, progress: 0 } : f)))
         return
       }
@@ -66,6 +69,7 @@ export function DocumentUpload({
       if (!uploadingFile.documentType) {
         const error = 'Document type is required'
         onError?.(error)
+        toast.error('Upload failed', error)
         setFiles((prev) => prev.map((f) => (f.id === uploadingFile.id ? { ...f, status: 'error', error, progress: 0 } : f)))
         return
       }
@@ -120,14 +124,17 @@ export function DocumentUpload({
 
         setFiles((prev) => prev.map((f) => (f.id === uploadingFile.id ? { ...f, status: 'error', error: errorMessage, progress: 0 } : f)))
         onError?.(errorMessage)
+        toast.error('Upload failed', errorMessage)
       } else if (data) {
         setFiles((prev) => prev.map((f) => (f.id === uploadingFile.id ? { ...f, status: 'success', progress: 100 } : f)))
         onUploadComplete?.(data.id)
+        toast.success('Document uploaded', file.name)
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unexpected error during upload'
       setFiles((prev) => prev.map((f) => (f.id === uploadingFile.id ? { ...f, status: 'error', error: errorMessage, progress: 0 } : f)))
       onError?.(errorMessage)
+      toast.error('Upload error', errorMessage)
     }
   }
 
@@ -139,6 +146,7 @@ export function DocumentUpload({
 
       if (error) {
         onError?.(error)
+        toast.error('Invalid file', error)
         return
       }
 

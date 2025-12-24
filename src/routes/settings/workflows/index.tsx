@@ -1,9 +1,11 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useState, useEffect } from 'react'
 import { useRequireAuth } from '@/hooks/useRequireAuth'
+import { useToast } from '@/hooks/useToast'
 import { timelineApi } from '@/lib/api-client'
 import { Plus, Play, Pause, Trash2, AlertCircle, Loader2, CheckCircle } from 'lucide-react'
 import { WorkflowFormModal } from '@/components/workflows/WorkflowFormModal'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import type { components } from '@/lib/timeline-api'
 
 export const Route = createFileRoute('/settings/workflows/')({
@@ -15,11 +17,13 @@ type WorkflowCreate = components['schemas']['WorkflowCreate']
 
 function WorkflowsPage() {
   const authState = useRequireAuth()
+  const toast = useToast()
   const [workflows, setWorkflows] = useState<Workflow[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [deleting, setDeleting] = useState<string | null>(null)
+  const [confirmingDelete, setConfirmingDelete] = useState<{ id: string; name: string } | null>(null)
   const [eventTypes, setEventTypes] = useState<string[]>([])
   const [filterEventType, setFilterEventType] = useState<string>('')
   const [hasNoAccess, setHasNoAccess] = useState(false)
@@ -112,15 +116,20 @@ function WorkflowsPage() {
     setError('Workflow toggle feature coming soon. The API endpoint for updating workflows is not yet available.')
   }
 
-  const handleDeleteWorkflow = async (workflowId: string) => {
+  const handleDeleteClick = (workflowId: string, workflowName: string) => {
     if (hasNoAccess) {
-      setError('You do not have permission to delete workflows')
+      toast.error('Permission denied', 'You do not have permission to delete workflows')
       return
     }
+    setConfirmingDelete({ id: workflowId, name: workflowName })
+  }
 
-    if (!confirm('Delete this workflow? This action cannot be undone.')) return
+  const handleConfirmDelete = async () => {
+    if (!confirmingDelete) return
 
+    const { id: workflowId, name: workflowName } = confirmingDelete
     setDeleting(workflowId)
+
     try {
       const { error: apiError } = await timelineApi.workflows.delete(workflowId)
 
@@ -130,12 +139,16 @@ function WorkflowsPage() {
             ? (apiError as any).message
             : 'Failed to delete workflow'
         setError(errorMsg)
+        toast.error('Failed to delete', errorMsg)
       } else {
         setWorkflows((prev) => prev.filter((w) => w.id !== workflowId))
+        toast.success('Workflow deleted', `"${workflowName}" has been deleted`)
+        setConfirmingDelete(null)
       }
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : 'Failed to delete workflow'
       setError(errorMsg)
+      toast.error('Error deleting', errorMsg)
     } finally {
       setDeleting(null)
     }
@@ -331,7 +344,7 @@ function WorkflowsPage() {
                           )}
                         </button>
                         <button
-                          onClick={() => handleDeleteWorkflow(workflow.id)}
+                          onClick={() => handleDeleteClick(workflow.id, workflow.name)}
                           disabled={deleting === workflow.id || hasNoAccess}
                           className="p-1 text-muted-foreground hover:text-red-600 dark:hover:text-red-400 hover:bg-muted rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                           title={hasNoAccess ? 'No permission to delete' : 'Delete'}
@@ -351,6 +364,19 @@ function WorkflowsPage() {
           </table>
         </div>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={!!confirmingDelete}
+        title="Delete Workflow?"
+        message={`Are you sure you want to delete "${confirmingDelete?.name}"? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        isDestructive={true}
+        isLoading={deleting === confirmingDelete?.id}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setConfirmingDelete(null)}
+      />
     </>
   )
 }

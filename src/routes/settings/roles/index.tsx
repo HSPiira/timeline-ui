@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import { useRequireAuth } from '@/hooks/useRequireAuth'
+import { useToast } from '@/hooks/useToast'
 import { timelineApi } from '@/lib/api-client'
 import {
   AlertCircle,
@@ -12,6 +13,7 @@ import {
   CheckCircle,
   X,
 } from 'lucide-react'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import type { components } from '@/lib/timeline-api'
 
 export const Route = createFileRoute('/settings/roles/')({
@@ -24,6 +26,7 @@ type PermissionResponse = components['schemas']['PermissionResponse']
 
 function RolesPage() {
   const authState = useRequireAuth()
+  const toast = useToast()
   const [roles, setRoles] = useState<RoleResponse[]>([])
   const [permissions, setPermissions] = useState<PermissionResponse[]>([])
   const [loading, setLoading] = useState(true)
@@ -34,6 +37,7 @@ function RolesPage() {
   const [editingRole, setEditingRole] = useState<RoleResponse | null>(null)
   const [managingPermissions, setManagingPermissions] = useState<RoleWithPermissions | null>(null)
   const [deletingRoleId, setDeletingRoleId] = useState<string | null>(null)
+  const [confirmingDelete, setConfirmingDelete] = useState<{ id: string; name: string } | null>(null)
   const [includeInactive, setIncludeInactive] = useState(false)
 
   useEffect(() => {
@@ -93,31 +97,36 @@ function RolesPage() {
     }
   }
 
-  const handleDelete = async (role: RoleResponse) => {
+  const handleDeleteClick = (role: RoleResponse) => {
     if (hasNoAccess) {
-      setError('You do not have permission to delete roles')
+      toast.error('Permission denied', 'You do not have permission to delete roles')
       return
     }
 
     if (role.is_system) {
-      setError('System roles cannot be deleted')
+      toast.error('Cannot delete', 'System roles cannot be deleted')
       return
     }
 
-    if (!confirm(`Delete role "${role.name}"? This action cannot be undone.`)) {
-      return
-    }
+    setConfirmingDelete({ id: role.id, name: role.name })
+  }
 
-    setDeletingRoleId(role.id)
+  const handleConfirmDelete = async () => {
+    if (!confirmingDelete) return
+
+    setDeletingRoleId(confirmingDelete.id)
     try {
-      const { error: apiError } = await timelineApi.roles.delete(role.id)
+      const { error: apiError } = await timelineApi.roles.delete(confirmingDelete.id)
 
       if (apiError) {
         const errorMsg = // @ts-ignore
           apiError?.message || 'Failed to delete role'
         setError(errorMsg)
+        toast.error('Failed to delete', errorMsg)
       } else {
-        setRoles((prev) => prev.filter((r) => r.id !== role.id))
+        setRoles((prev) => prev.filter((r) => r.id !== confirmingDelete.id))
+        toast.success('Role deleted', `"${confirmingDelete.name}" has been deleted`)
+        setConfirmingDelete(null)
       }
     } finally {
       setDeletingRoleId(null)
@@ -354,7 +363,7 @@ function RolesPage() {
                         <SquarePen className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={() => handleDelete(role)}
+                        onClick={() => handleDeleteClick(role)}
                         disabled={deletingRoleId === role.id || role.is_system || hasNoAccess}
                         title={
                           role.is_system
@@ -379,6 +388,19 @@ function RolesPage() {
           </table>
         </div>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={!!confirmingDelete}
+        title="Delete Role?"
+        message={`Are you sure you want to delete "${confirmingDelete?.name}"? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        isDestructive={true}
+        isLoading={deletingRoleId === confirmingDelete?.id}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setConfirmingDelete(null)}
+      />
     </>
   )
 }

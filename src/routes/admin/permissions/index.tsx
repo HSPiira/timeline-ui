@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import { useRequireAuth } from '@/hooks/useRequireAuth'
+import { useToast } from '@/hooks/useToast'
 import { timelineApi } from '@/lib/api-client'
 import {
   AlertCircle,
@@ -10,6 +11,7 @@ import {
   Eye,
   X,
 } from 'lucide-react'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import type { components } from '@/lib/timeline-api'
 
 export const Route = createFileRoute('/admin/permissions/')({
@@ -34,6 +36,7 @@ const ACTION_TYPES = ['create', 'read', 'update', 'delete', 'assign', 'verify']
 
 function PermissionsPage() {
   const authState = useRequireAuth()
+  const toast = useToast()
   const [permissions, setPermissions] = useState<PermissionResponse[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -41,6 +44,7 @@ function PermissionsPage() {
 
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [deletingPermId, setDeletingPermId] = useState<string | null>(null)
+  const [confirmingDelete, setConfirmingDelete] = useState<{ id: string; code: string } | null>(null)
   const [filterResource, setFilterResource] = useState('')
   const [viewingRoles, setViewingRoles] = useState<{ permId: string; permCode: string; roles: RoleResponse[] } | null>(null)
   const [loadingRoles, setLoadingRoles] = useState(false)
@@ -85,26 +89,30 @@ function PermissionsPage() {
     }
   }
 
-  const handleDelete = async (perm: PermissionResponse) => {
+  const handleDeleteClick = (perm: PermissionResponse) => {
     if (hasNoAccess) {
-      setError('You do not have permission to delete permissions')
+      toast.error('Permission denied', 'You do not have permission to delete permissions')
       return
     }
+    setConfirmingDelete({ id: perm.id, code: perm.code })
+  }
 
-    if (!confirm(`Delete permission "${perm.code}"? This action cannot be undone.`)) {
-      return
-    }
+  const handleConfirmDelete = async () => {
+    if (!confirmingDelete) return
 
-    setDeletingPermId(perm.id)
+    setDeletingPermId(confirmingDelete.id)
     try {
-      const { error: apiError } = await timelineApi.permissions.delete(perm.id)
+      const { error: apiError } = await timelineApi.permissions.delete(confirmingDelete.id)
 
       if (apiError) {
         const errorMsg = // @ts-ignore
           apiError?.message || 'Failed to delete permission'
         setError(errorMsg)
+        toast.error('Failed to delete', errorMsg)
       } else {
-        setPermissions((prev) => prev.filter((p) => p.id !== perm.id))
+        setPermissions((prev) => prev.filter((p) => p.id !== confirmingDelete.id))
+        toast.success('Permission deleted', `"${confirmingDelete.code}" has been deleted`)
+        setConfirmingDelete(null)
       }
     } finally {
       setDeletingPermId(null)
@@ -304,7 +312,7 @@ function PermissionsPage() {
                         <Eye className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={() => handleDelete(perm)}
+                        onClick={() => handleDeleteClick(perm)}
                         disabled={deletingPermId === perm.id || hasNoAccess}
                         title={
                           hasNoAccess
@@ -327,6 +335,19 @@ function PermissionsPage() {
           </table>
         </div>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={!!confirmingDelete}
+        title="Delete Permission?"
+        message={`Are you sure you want to delete "${confirmingDelete?.code}"? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        isDestructive={true}
+        isLoading={deletingPermId === confirmingDelete?.id}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setConfirmingDelete(null)}
+      />
     </>
   )
 }

@@ -17,6 +17,7 @@ import { authStore, authActions } from '@/lib/auth-store'
 import { ThemeToggle } from '@/components/theme/theme-toggler'
 import { ThemeProvider } from '@/components/theme/theme-provider'
 import { SettingsMenu } from '@/components/header/SettingsMenu'
+import { ToastContainer } from '@/components/toast/ToastContainer'
 
 import appCss from '@/styles.css?url'
 
@@ -155,6 +156,8 @@ function RootDocument({ children }: { children: React.ReactNode }) {
               {children}
             </div>
           </main>
+
+          <ToastContainer />
 
           <TanStackDevtools
             config={{

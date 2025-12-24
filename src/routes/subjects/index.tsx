@@ -16,6 +16,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { timelineApi } from '@/lib/api-client'
 import { authStore } from '@/lib/auth-store'
 import { useSubjects } from '@/hooks/useSubjects'
+import { useToast } from '@/hooks/useToast'
 import { SubjectsTable } from '@/components/subjects/SubjectsTable'
 import { SubjectsGrid } from '@/components/subjects/SubjectsGrid'
 import { EditSubjectModal } from '@/components/subjects/EditSubjectModal'
@@ -29,6 +30,7 @@ type ViewMode = 'grid' | 'table'
 
 function SubjectsPage() {
   const queryClient = useQueryClient()
+  const toast = useToast()
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
   const [editingSubject, setEditingSubject] = useState<SubjectWithMetadata | null>(null)
@@ -79,15 +81,18 @@ function SubjectsPage() {
 
       if (apiError) {
         console.error('Failed to create subject:', apiError)
+        toast.error('Failed to create', 'Unable to create subject')
         return false
       }
 
       // Invalidate the subjects query to automatically refetch the latest data
       queryClient.invalidateQueries({ queryKey: ['subjects'] })
       setShowCreateModal(false)
+      toast.success('Subject created', `New subject "${subjectType}" created`)
       return true
     } catch (err) {
       console.error('Error creating subject:', err)
+      toast.error('Error creating', 'An unexpected error occurred')
       return false
     }
   }
@@ -319,28 +324,34 @@ function CreateSubjectModal({
     const [externalRef, setExternalRef] = useState('')
     const [error, setError] = useState<string | null>(null)
     const [loading, setLoading] = useState(false)
-  
+    const toast = useToast()
+
     const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault()
       setError(null)
-  
+
       // Validate subject type
       if (!subjectType.trim()) {
-        setError('Subject type is required')
+        const validationError = 'Subject type is required'
+        setError(validationError)
+        toast.error('Validation error', validationError)
         return
       }
-  
+
       if (!/^[a-zA-Z0-9_]+$/.test(subjectType)) {
-        setError('Subject type must contain only alphanumeric characters and underscores')
+        const validationError = 'Subject type must contain only alphanumeric characters and underscores'
+        setError(validationError)
+        toast.error('Validation error', validationError)
         return
       }
-  
+
       setLoading(true)
       const success = await onCreate(subjectType.toLowerCase(), externalRef || undefined)
       setLoading(false)
-  
+
       if (!success) {
-        setError('Failed to create subject. Please try again.')
+        const createError = 'Failed to create subject. Please try again.'
+        setError(createError)
       }
     }
   

@@ -2,6 +2,8 @@ import { useCallback, useEffect, useState } from 'react'
 import { Download, Trash2, Loader2, AlertCircle, FileIcon, Eye } from 'lucide-react'
 import { timelineApi } from '@/lib/api-client'
 import { DocumentViewer } from './DocumentViewer'
+import { useToast } from '@/hooks/useToast'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import type { components } from '@/lib/timeline-api'
 
 export interface DocumentListProps {
@@ -45,6 +47,8 @@ export function DocumentList({ subjectId, eventId, readOnly, onDelete, onError }
   const [deleting, setDeleting] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [viewingDocument, setViewingDocument] = useState<{ id: string; filename: string; type: string } | null>(null)
+  const [confirmingDelete, setConfirmingDelete] = useState<{ id: string; filename: string } | null>(null)
+  const toast = useToast()
 
   const fetchDocuments = useCallback(async () => {
     setLoading(true)
@@ -87,10 +91,16 @@ export function DocumentList({ subjectId, eventId, readOnly, onDelete, onError }
     }
   }, [subjectId, eventId, fetchDocuments])
 
-  const handleDelete = async (documentId: string) => {
-    if (!confirm('Delete this document?')) return
+  const handleDeleteClick = (documentId: string, filename: string) => {
+    setConfirmingDelete({ id: documentId, filename })
+  }
 
+  const handleConfirmDelete = async () => {
+    if (!confirmingDelete) return
+
+    const { id: documentId, filename } = confirmingDelete
     setDeleting(documentId)
+
     try {
       const { error: deleteError } = await timelineApi.documents.delete(documentId)
 
@@ -98,14 +108,18 @@ export function DocumentList({ subjectId, eventId, readOnly, onDelete, onError }
         const errorMsg = typeof deleteError === 'object' && 'message' in deleteError ? (deleteError as any).message : 'Failed to delete document'
         setError(errorMsg)
         onError?.(errorMsg)
+        toast.error('Failed to delete', errorMsg)
       } else {
         setDocuments((prev) => prev.filter((doc) => doc.id !== documentId))
         onDelete?.(documentId)
+        toast.success('Document deleted', `"${filename}" has been removed`)
+        setConfirmingDelete(null)
       }
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : 'Unexpected error deleting document'
       setError(errorMsg)
       onError?.(errorMsg)
+      toast.error('Failed to delete', errorMsg)
     } finally {
       setDeleting(null)
     }
@@ -237,7 +251,7 @@ export function DocumentList({ subjectId, eventId, readOnly, onDelete, onError }
                   </button>
                   {!readOnly && (
                     <button
-                      onClick={() => handleDelete(doc.id)}
+                      onClick={() => handleDeleteClick(doc.id, getDisplayName(doc))}
                       disabled={deleting === doc.id}
                       className="px-3 py-2 hover:bg-red-100 dark:hover:bg-red-900/20 rounded-sm transition-colors disabled:opacity-50 font-medium"
                       title="Delete"
@@ -265,6 +279,19 @@ export function DocumentList({ subjectId, eventId, readOnly, onDelete, onError }
           onClose={() => setViewingDocument(null)}
         />
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={!!confirmingDelete}
+        title="Delete Document?"
+        message={`Are you sure you want to delete "${confirmingDelete?.filename}"? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        isDestructive={true}
+        isLoading={deleting === confirmingDelete?.id}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setConfirmingDelete(null)}
+      />
     </div>
   )
 }

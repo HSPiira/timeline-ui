@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Loader2, AlertCircle, X } from 'lucide-react'
+import { useToast } from '@/hooks/useToast'
 
 interface EditSubjectModalProps {
   isOpen: boolean
@@ -21,6 +22,7 @@ export function EditSubjectModal({
   const [externalRef, setExternalRef] = useState(subject.external_ref || '')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const toast = useToast()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -33,8 +35,11 @@ export function EditSubjectModal({
     if (success) {
       setExternalRef('')
       onClose()
+      toast.success('Subject updated', 'Your changes have been saved')
     } else {
-      setError('Failed to update subject. Please try again.')
+      const errorMsg = 'Failed to update subject. Please try again.'
+      setError(errorMsg)
+      toast.error('Update failed', errorMsg)
     }
   }
 
