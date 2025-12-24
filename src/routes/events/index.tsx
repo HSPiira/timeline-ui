@@ -214,13 +214,13 @@ function EventsPage() {
               return (
                 <div
                   key={event.id}
-                  className="bg-card/80 backdrop-blur-sm rounded-sm p-4 border border-border/50 hover:border-border transition-colors"
+                  className="bg-gradient-to-r from-card to-card/50 backdrop-blur-sm rounded-sm p-4 border border-blue-200/50 dark:border-blue-900/50 hover:border-blue-300 dark:hover:border-blue-800 transition-colors shadow-sm hover:shadow-md"
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex items-start gap-2.5 flex-1">
                       {/* Event Icon */}
-                      <div className="w-8 h-8 rounded-sm bg-gradient-to-br from-foreground/75 to-foreground/55 flex items-center justify-center shrink-0">
-                        <Calendar className="w-4 h-4 text-background" />
+                      <div className="w-8 h-8 rounded-sm bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shrink-0">
+                        <Calendar className="w-4 h-4 text-white" />
                       </div>
 
                       {/* Event Details */}
@@ -229,7 +229,7 @@ function EventsPage() {
                           <h3 className="font-semibold text-foreground text-sm">
                             {event.event_type}
                           </h3>
-                          <span className="px-1.5 py-0.5 text-sm font-medium bg-secondary text-foreground/90 rounded-sm">
+                          <span className="px-2 py-0.5 text-xs font-mono bg-slate-700 dark:bg-slate-600 text-slate-100 dark:text-slate-200 rounded-sm">
                             {event.id.slice(0, 8)}
                           </span>
                           {hasDocuments && (
@@ -270,7 +270,7 @@ function EventsPage() {
                     <div className="flex items-center gap-2 flex-shrink-0">
                       <button
                         onClick={() => setDetailsEventId(event.id)}
-                        className="px-2 py-1 text-sm text-muted-foreground hover:text-foreground hover:bg-slate-100 dark:hover:bg-slate-700 rounded-sm transition-colors"
+                        className="px-3 py-1.5 text-sm font-medium bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-sm transition-all hover:shadow-sm"
                       >
                         View Details
                       </button>

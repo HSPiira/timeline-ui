@@ -11,11 +11,11 @@ export function EventDetailsModal({ event, onClose }: EventDetailsModalProps) {
   return (
     <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" onClick={onClose} role="presentation">
       <div
-        className="bg-background border border-border rounded-sm shadow-xl max-w-3xl w-full max-h-[90vh] flex flex-col"
+        className="bg-background border border-blue-200 dark:border-blue-900 rounded-sm shadow-xl max-w-3xl w-full max-h-[90vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-border">
+        <div className="flex items-center justify-between p-4 border-b border-blue-200 dark:border-blue-900 bg-gradient-to-r from-blue-50 to-blue-100/50 dark:from-blue-950/30 dark:to-blue-900/20">
           <div>
             <h2 className="font-semibold text-foreground text-lg">{event.event_type}</h2>
             <p className="text-xs text-muted-foreground mt-1">Event ID: {event.id}</p>

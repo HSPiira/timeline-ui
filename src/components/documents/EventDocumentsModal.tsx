@@ -93,11 +93,11 @@ export function EventDocumentsModal({
   return (
     <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" onClick={onClose} role="presentation">
       <div
-        className="bg-background border border-border rounded-sm shadow-xl max-w-2xl w-full max-h-[90vh] flex flex-col"
+        className="bg-background border border-amber-200 dark:border-amber-900 rounded-sm shadow-xl max-w-2xl w-full max-h-[90vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-border">
+        <div className="flex items-center justify-between p-4 border-b border-amber-200 dark:border-amber-900 bg-gradient-to-r from-amber-50 to-amber-100/50 dark:from-amber-950/30 dark:to-amber-900/20">
           <div>
             <h2 className="font-semibold text-foreground">Event Documents</h2>
             <p className="text-xs text-muted-foreground mt-0.5">{eventId.slice(0, 8)}</p>
@@ -130,7 +130,7 @@ export function EventDocumentsModal({
 
           {/* Upload Section */}
           {showUpload && (
-            <div className="p-3 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-sm space-y-3">
+            <div className="p-3 bg-gradient-to-r from-blue-50 to-blue-100/50 dark:from-blue-950/30 dark:to-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-sm space-y-3">
               <div>
                 <h4 className="text-sm font-medium text-blue-900 dark:text-blue-200 mb-2">Add Additional Documents</h4>
                 <p className="text-xs text-blue-800 dark:text-blue-300 mb-3">
@@ -148,7 +148,7 @@ export function EventDocumentsModal({
                 <button
                   onClick={handleUploadDocuments}
                   disabled={stagedFiles.length === 0 || uploading}
-                  className="inline-flex items-center gap-1 px-3 py-1.5 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="inline-flex items-center gap-1 px-3 py-1.5 text-sm bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white rounded-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:shadow-sm"
                 >
                   {uploading ? (
                     <>
@@ -181,7 +181,7 @@ export function EventDocumentsModal({
           {!showUpload && (
             <button
               onClick={() => setShowUpload(true)}
-              className="w-full px-3 py-2 text-sm border border-dashed border-primary text-primary rounded-sm hover:bg-primary/5 transition-colors font-medium"
+              className="w-full px-3 py-2.5 text-sm border-2 border-dashed border-amber-400 dark:border-amber-600 text-amber-700 dark:text-amber-300 rounded-sm hover:bg-amber-50 dark:hover:bg-amber-950/20 transition-all font-medium hover:border-amber-500 dark:hover:border-amber-500"
             >
               <Plus className="w-4 h-4 inline mr-1" />
               Attach Additional Documents

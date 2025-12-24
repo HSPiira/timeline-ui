@@ -61,19 +61,19 @@ export function TimelineEvent({
             checkDocuments()
           }}
           onMouseLeave={() => onHover(null)}
-          className="flex justify-between hover:bg-muted px-2 py-1.5 rounded-sm cursor-pointer"
+          className="flex justify-between hover:bg-blue-50 dark:hover:bg-blue-950/30 px-2 py-1.5 rounded-sm cursor-pointer transition-colors"
         >
           <div className="flex gap-2 items-center">
-            <span className="text-xs text-muted-foreground">
+            <span className="text-xs text-muted-foreground font-mono">
               {new Date(event.event_time).toLocaleTimeString('en-US', {
                 hour: '2-digit',
                 minute: '2-digit'
               })}
             </span>
-            <span className="font-mono text-xs bg-secondary px-2 rounded-sm">
-              {event.subject_id}
+            <span className="font-mono text-xs bg-gradient-to-r from-slate-600 to-slate-700 dark:from-slate-700 dark:to-slate-800 text-slate-100 px-2 py-0.5 rounded-sm">
+              {event.subject_id.slice(0, 8)}
             </span>
-            <span className="text-sm font-medium">{event.event_type}</span>
+            <span className="text-sm font-semibold text-blue-700 dark:text-blue-300">{event.event_type}</span>
 
             {/* Document Indicator */}
             {loadingDocuments && (
