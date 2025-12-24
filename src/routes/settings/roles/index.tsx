@@ -7,7 +7,7 @@ import {
   Loader2,
   Plus,
   Trash2,
-  Edit2,
+  SquarePen,
   Shield,
   CheckCircle,
   X,
@@ -351,7 +351,7 @@ function RolesPage() {
                         }
                         className="p-1 text-muted-foreground hover:text-foreground hover:bg-muted rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        <Edit2 className="w-4 h-4" />
+                        <SquarePen className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => handleDelete(role)}

@@ -31,8 +31,10 @@ export function getAuthToken(): string | null {
 // Add auth and content-type interceptor
 client.use({
   onRequest({ request }) {
-    if (authToken) {
-      request.headers.set('Authorization', `Bearer ${authToken}`)
+    // Always read current token at request time (not cached module-level authToken)
+    const currentToken = getAuthToken()
+    if (currentToken) {
+      request.headers.set('Authorization', `Bearer ${currentToken}`)
     }
     // Set Content-Type for non-FormData requests
     // For FormData, let the browser set Content-Type with proper boundary

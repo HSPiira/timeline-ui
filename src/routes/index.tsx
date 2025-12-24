@@ -137,17 +137,47 @@ function HomePage() {
     }
   }, [])
 
-  // Fetch data on user login and set up auto-refresh interval
+  // Fetch data on user login and set up smart auto-refresh
   useEffect(() => {
     if (authState.user) {
       fetchDashboard()
 
-      // Auto-refresh every 5 seconds
-      const interval = setInterval(() => {
-        fetchDashboard()
-      }, 5000)
+      // Smart polling: pause when tab is hidden, resume when visible
+      let interval: NodeJS.Timeout | null = null
+      const POLL_INTERVAL = 30000 // 30 seconds (not 5)
 
-      return () => clearInterval(interval)
+      const startPolling = () => {
+        if (!document.hidden) {
+          interval = setInterval(() => {
+            if (!document.hidden) {
+              fetchDashboard()
+            }
+          }, POLL_INTERVAL)
+        }
+      }
+
+      const handleVisibilityChange = () => {
+        if (document.hidden) {
+          // Tab is hidden - stop polling to save battery/bandwidth
+          if (interval) {
+            clearInterval(interval)
+            interval = null
+          }
+        } else {
+          // Tab is visible - resume polling
+          startPolling()
+        }
+      }
+
+      startPolling()
+      document.addEventListener('visibilitychange', handleVisibilityChange)
+
+      return () => {
+        if (interval) {
+          clearInterval(interval)
+        }
+        document.removeEventListener('visibilitychange', handleVisibilityChange)
+      }
     }
   }, [authState.user, fetchDashboard])
 
