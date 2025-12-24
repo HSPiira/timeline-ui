@@ -199,44 +199,13 @@ function CreateEventPage() {
         return
       }
 
-      // Upload staged documents first if any
-      let documentIds: string[] = []
-      if (state.stagedDocuments.length > 0 && documentFieldName) {
-        try {
-          documentIds = await Promise.all(
-            state.stagedDocuments.map(async (file) => {
-              const formData = new FormData()
-              formData.append('file', file)
-              formData.append('subject_id', state.subjectId)
-              formData.append('document_type', 'evidence')
-
-              const { data, error } = await timelineApi.documents.upload(formData)
-              if (error) {
-                throw new Error(typeof error === 'object' && 'message' in error ? (error as any).message : 'Failed to upload document')
-              }
-              return (data as any).id
-            })
-          )
-        } catch (err) {
-          const errorMsg = err instanceof Error ? err.message : 'Failed to upload documents'
-          setApiError(errorMsg)
-          setLoading(false)
-          return
-        }
-      }
-
-      // Include document IDs in payload
-      const payload = { ...state.payload }
-      if (documentIds.length > 0 && documentFieldName) {
-        payload[documentFieldName] = documentIds
-      }
-
+      // Create event first
       const eventCreateData: components['schemas']['EventCreate'] = {
         subject_id: state.subjectId,
         event_type: state.eventType,
         schema_version: schemaVersion,
         event_time: new Date(state.eventTime).toISOString(),
-        payload,
+        payload: state.payload,
       }
 
       const { data, error: createError } = await timelineApi.events.create(eventCreateData)
@@ -247,9 +216,43 @@ function CreateEventPage() {
             ? (createError as any).message
             : 'Failed to create event'
         setApiError(errorMessage)
-      } else if (data) {
-        navigate({ to: '/events' })
+        setLoading(false)
+        return
       }
+
+      if (!data?.id) {
+        setApiError('Failed to create event: no event ID returned')
+        setLoading(false)
+        return
+      }
+
+      // Now upload documents linked to the created event
+      if (state.stagedDocuments.length > 0) {
+        try {
+          await Promise.all(
+            state.stagedDocuments.map(async (file) => {
+              const formData = new FormData()
+              formData.append('file', file)
+              formData.append('subject_id', state.subjectId)
+              formData.append('event_id', data.id)
+              formData.append('document_type', 'evidence')
+
+              const { error } = await timelineApi.documents.upload(formData)
+              if (error) {
+                throw new Error(typeof error === 'object' && 'message' in error ? (error as any).message : 'Failed to upload document')
+              }
+            })
+          )
+        } catch (err) {
+          // Documents failed to upload, but event was created
+          const errorMsg = err instanceof Error ? err.message : 'Failed to upload some documents'
+          console.error('Document upload error (event was created):', errorMsg)
+          // Still navigate away since event was created successfully
+        }
+      }
+
+      // Navigate after event and documents are created
+      navigate({ to: '/events' })
     } catch (err) {
       console.error('Error creating event:', err)
       setApiError('An unexpected error occurred while creating the event')

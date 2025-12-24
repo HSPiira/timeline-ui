@@ -54,18 +54,26 @@ function EventsPage() {
         const types = [...new Set(data.map((e: EventResponse) => e.event_type))]
         setEventTypes(types)
 
-        // Load document counts for all events
-        const counts: Record<string, number> = {}
-        for (const event of data) {
+        // Load document counts for all events in parallel
+        const documentPromises = data.map(async (event) => {
           try {
-            const { data: docs } = await timelineApi.documents.listByEvent(event.id)
-            if (Array.isArray(docs)) {
-              counts[event.id] = docs.length
+            const { data: docs, error } = await timelineApi.documents.listByEvent(event.id)
+            if (error) {
+              console.warn(`API error loading documents for event ${event.id}:`, error)
+              return { eventId: event.id, count: 0 }
             }
+            return { eventId: event.id, count: Array.isArray(docs) ? docs.length : 0 }
           } catch (err) {
             console.error(`Failed to load documents for event ${event.id}:`, err)
+            return { eventId: event.id, count: 0 }
           }
-        }
+        })
+
+        const documentResults = await Promise.all(documentPromises)
+        const counts: Record<string, number> = {}
+        documentResults.forEach(({ eventId, count }) => {
+          counts[eventId] = count
+        })
         setDocumentCounts(counts)
       }
     } catch (err) {
