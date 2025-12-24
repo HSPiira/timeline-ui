@@ -31,12 +31,27 @@ export function DocumentViewer({ documentId, filename, fileType, onClose }: Docu
           return
         }
 
-        if (data instanceof Blob) {
-          setContent(data)
-          setState('ready')
-        } else if (data) {
-          setContent(new Blob([JSON.stringify(data)], { type: 'application/json' }))
-          setState('ready')
+        if (data) {
+          // Handle different data types
+          if (data instanceof Blob) {
+            setContent(data)
+            setState('ready')
+          } else if (data instanceof ArrayBuffer) {
+            // Convert ArrayBuffer to Blob with proper mime type
+            const blob = new Blob([data], { type: fileType || 'application/octet-stream' })
+            setContent(blob)
+            setState('ready')
+          } else if (typeof data === 'string') {
+            // If it's a string, convert to Blob
+            const blob = new Blob([data], { type: fileType || 'application/octet-stream' })
+            setContent(blob)
+            setState('ready')
+          } else {
+            // Fallback for other types
+            const blob = new Blob([JSON.stringify(data)], { type: 'application/json' })
+            setContent(blob)
+            setState('ready')
+          }
         }
       } catch (err) {
         const errorMsg = err instanceof Error ? err.message : 'Unexpected error loading document'
@@ -46,7 +61,7 @@ export function DocumentViewer({ documentId, filename, fileType, onClose }: Docu
     }
 
     loadDocument()
-  }, [documentId])
+  }, [documentId, fileType])
 
   const isImage = fileType.startsWith('image/')
   const isPdf = fileType === 'application/pdf'

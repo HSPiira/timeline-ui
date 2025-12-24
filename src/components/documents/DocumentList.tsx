@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Download, Trash2, Loader2, AlertCircle, FileIcon, Eye } from 'lucide-react'
 import { timelineApi } from '@/lib/api-client'
 import { DocumentViewer } from './DocumentViewer'
@@ -46,7 +46,7 @@ export function DocumentList({ subjectId, eventId, readOnly, onDelete, onError }
   const [error, setError] = useState<string | null>(null)
   const [viewingDocument, setViewingDocument] = useState<{ id: string; filename: string; type: string } | null>(null)
 
-  const fetchDocuments = async () => {
+  const fetchDocuments = useCallback(async () => {
     setLoading(true)
     setError(null)
     try {
@@ -79,13 +79,13 @@ export function DocumentList({ subjectId, eventId, readOnly, onDelete, onError }
     } finally {
       setLoading(false)
     }
-  }
+  }, [subjectId, eventId, onError])
 
   useEffect(() => {
     if (subjectId || eventId) {
       fetchDocuments()
     }
-  }, [subjectId, eventId])
+  }, [subjectId, eventId, fetchDocuments])
 
   const handleDelete = async (documentId: string) => {
     if (!confirm('Delete this document?')) return
@@ -205,7 +205,11 @@ export function DocumentList({ subjectId, eventId, readOnly, onDelete, onError }
                   <span className="truncate underline-offset-2 group-hover:underline font-medium text-foreground">{getDisplayName(doc)}</span>
                 </button>
               </td>
-              <td className="py-3 px-3 text-muted-foreground text-sm">{(getFileSize(doc) / 1024 / 1024).toFixed(2)}MB</td>
+              <td className="py-3 px-3 text-muted-foreground">  
+                {getFileSize(doc) < 1024 * 1024  
+                  ? `${(getFileSize(doc) / 1024).toFixed(1)}KB`  
+                  : `${(getFileSize(doc) / 1024 / 1024).toFixed(2)}MB`}  
+              </td>
               <td className="py-3 px-3 text-muted-foreground text-sm">
                 {new Date(doc.created_at).toLocaleDateString('en-US', {
                   year: 'numeric',
