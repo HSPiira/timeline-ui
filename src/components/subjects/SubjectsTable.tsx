@@ -60,7 +60,7 @@ import {
           return (
             <div className="flex items-center gap-2">
               <div
-                className={`w-8 h-8 rounded-sm ${bgColor} flex items-center justify-center shrink-0`}
+                className={`w-8 h-8 rounded-lg ${bgColor} flex items-center justify-center shrink-0`}
               >
                 <Icon className={`w-4 h-4 ${textColor}`} />
               </div>
@@ -81,9 +81,9 @@ import {
         header: 'Type',
         cell: ({ row }) => {
             const subject = row.original
-            const { borderColor, accent } = getSubjectIcon(subject.subject_type)
+            const { borderColor, accent, bgColor } = getSubjectIcon(subject.subject_type)
             return (
-                <span className={`text-sm font-medium ${accent} px-2 py-1 rounded border ${borderColor} bg-opacity-5`}>
+                <span className={`text-sm font-medium ${accent} px-2.5 py-1.5 rounded-lg border ${borderColor} ${bgColor} inline-block`}>
                     {subject.subject_type}
                 </span>
             )
@@ -142,8 +142,9 @@ import {
                 e.stopPropagation()
                 onEdit?.(subject)
               }}
-              className="px-4 py-2 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded transition-colors font-medium"
+              className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-ring/20"
               title="Edit subject"
+              aria-label="Edit subject"
             >
               <SquarePen className="w-4 h-4" />
             </button>
@@ -163,15 +164,15 @@ import {
     }
   
     return (
-      <div className="bg-card/80 backdrop-blur-sm rounded-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
+      <div className="bg-card/80 backdrop-blur-sm rounded-lg border border-border overflow-hidden">
         <table className="w-full">
-          <thead className="bg-gradient-to-r from-slate-50 to-slate-100/50 dark:from-slate-950/30 dark:to-slate-900/20 border-b border-slate-200 dark:border-slate-800">
+          <thead className="bg-muted/50 border-b border-border">
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
                   <th
                     key={header.id}
-                    className="px-4 py-2.5 text-left text-sm font-semibold text-muted-foreground uppercase tracking-wider"
+                    className="px-4 py-3 text-left text-sm font-semibold text-foreground"
                   >
                     {header.isPlaceholder
                       ? null
@@ -186,9 +187,13 @@ import {
           </thead>
           <tbody className="divide-y divide-border">
             {table.getRowModel().rows.map((row) => (
-              <tr key={row.id} onClick={() => handleSubjectClick(row.original.id)} className="hover:bg-muted/30 transition-colors cursor-pointer">
+              <tr
+                key={row.id}
+                onClick={() => handleSubjectClick(row.original.id)}
+                className="hover:bg-muted/50 transition-colors cursor-pointer focus-within:bg-muted/30"
+              >
                 {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id} className="px-4 py-3">
+                  <td key={cell.id} className="px-4 py-3 text-sm">
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </td>
                 ))}
