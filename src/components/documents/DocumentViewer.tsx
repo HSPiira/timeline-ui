@@ -107,14 +107,14 @@ export function DocumentViewer({ documentId, filename, fileType, onClose }: Docu
 
           <div className="flex items-center gap-2 flex-shrink-0">
             {isImage && (
-              <button onClick={handlePrint} className="p-2 hover:bg-muted rounded-sm transition-colors" title="Print">
+              <button onClick={handlePrint} className="px-4 py-2 hover:bg-muted rounded-sm transition-colors font-medium" title="Print">
                 <Printer className="w-4 h-4 text-muted-foreground" />
               </button>
             )}
-            <button onClick={handleDownload} className="p-2 hover:bg-muted rounded-sm transition-colors" title="Download">
+            <button onClick={handleDownload} className="px-4 py-2 hover:bg-muted rounded-sm transition-colors font-medium" title="Download">
               <Download className="w-4 h-4 text-muted-foreground" />
             </button>
-            <button onClick={onClose} className="p-2 hover:bg-muted rounded-sm transition-colors" title="Close" aria-label="Close modal">
+            <button onClick={onClose} className="px-4 py-2 hover:bg-muted rounded-sm transition-colors font-medium" title="Close" aria-label="Close modal">
               <X className="w-4 h-4 text-muted-foreground" />
             </button>
           </div>
@@ -137,7 +137,7 @@ export function DocumentViewer({ documentId, filename, fileType, onClose }: Docu
                 <p className="text-sm text-muted-foreground mt-1">{error}</p>
                 <button
                   onClick={handleDownload}
-                  className="mt-4 px-3 py-2 bg-primary text-primary-foreground rounded-sm text-sm hover:bg-primary/90 transition-colors"
+                  className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-sm font-medium hover:bg-primary/90 transition-colors"
                 >
                   Download instead
                 </button>
@@ -163,7 +163,7 @@ export function DocumentViewer({ documentId, filename, fileType, onClose }: Docu
                     <p className="text-sm text-muted-foreground mt-1">PDF preview is not available in your browser</p>
                     <button
                       onClick={handleDownload}
-                      className="mt-4 px-3 py-2 bg-primary text-primary-foreground rounded-sm text-sm hover:bg-primary/90 transition-colors"
+                      className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-sm font-medium hover:bg-primary/90 transition-colors"
                     >
                       Download PDF
                     </button>
@@ -179,7 +179,7 @@ export function DocumentViewer({ documentId, filename, fileType, onClose }: Docu
                     <p className="text-sm text-muted-foreground mt-1">This file type cannot be previewed</p>
                     <button
                       onClick={handleDownload}
-                      className="mt-4 px-3 py-2 bg-primary text-primary-foreground rounded-sm text-sm hover:bg-primary/90 transition-colors"
+                      className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-sm font-medium hover:bg-primary/90 transition-colors"
                     >
                       Download File
                     </button>

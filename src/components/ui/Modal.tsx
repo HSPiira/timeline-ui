@@ -42,7 +42,7 @@ export function Modal({
             {closeButton && (
               <button
                 onClick={onClose}
-                className="text-muted-foreground/70 hover:text-foreground transition-colors"
+                className="px-4 py-2 text-muted-foreground/70 hover:text-foreground transition-colors font-medium"
                 aria-label="Close modal"
               >
                 <X className="w-5 h-5" />

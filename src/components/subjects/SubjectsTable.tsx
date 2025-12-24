@@ -142,7 +142,7 @@ import {
                 e.stopPropagation()
                 onEdit?.(subject)
               }}
-              className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded transition-colors"
+              className="px-4 py-2 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded transition-colors font-medium"
               title="Edit subject"
             >
               <SquarePen className="w-4 h-4" />

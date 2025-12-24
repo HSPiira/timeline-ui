@@ -105,7 +105,7 @@ export function EventDocumentsModal({
 
           <button
             onClick={onClose}
-            className="p-2 hover:bg-muted rounded-sm transition-colors"
+            className="px-4 py-2 hover:bg-muted rounded-sm transition-colors font-medium"
             title="Close"
             aria-label="Close modal"
           >
@@ -148,16 +148,16 @@ export function EventDocumentsModal({
                 <button
                   onClick={handleUploadDocuments}
                   disabled={stagedFiles.length === 0 || uploading}
-                  className="inline-flex items-center gap-1 px-3 py-1.5 text-sm bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white rounded-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:shadow-sm"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white rounded-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:shadow-sm"
                 >
                   {uploading ? (
                     <>
-                      <Loader2 className="w-3 h-3 animate-spin" />
+                      <Loader2 className="w-4 h-4 animate-spin" />
                       Uploading...
                     </>
                   ) : (
                     <>
-                      <Plus className="w-3 h-3" />
+                      <Plus className="w-4 h-4" />
                       Create Update Event
                     </>
                   )}
@@ -169,7 +169,7 @@ export function EventDocumentsModal({
                     setError(null)
                   }}
                   disabled={uploading}
-                  className="px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground disabled:opacity-50"
+                  className="px-4 py-2 border border-input text-foreground/90 rounded-sm font-medium hover:bg-muted/30 transition-colors disabled:opacity-50"
                 >
                   Cancel
                 </button>
@@ -181,9 +181,9 @@ export function EventDocumentsModal({
           {!showUpload && (
             <button
               onClick={() => setShowUpload(true)}
-              className="w-full px-3 py-2.5 text-sm border-2 border-dashed border-amber-400 dark:border-amber-600 text-amber-700 dark:text-amber-300 rounded-sm hover:bg-amber-50 dark:hover:bg-amber-950/20 transition-all font-medium hover:border-amber-500 dark:hover:border-amber-500"
+              className="w-full px-4 py-2 text-sm border-2 border-dashed border-amber-400 dark:border-amber-600 text-amber-700 dark:text-amber-300 rounded-sm hover:bg-amber-50 dark:hover:bg-amber-950/20 transition-all font-medium hover:border-amber-500 dark:hover:border-amber-500"
             >
-              <Plus className="w-4 h-4 inline mr-1" />
+              <Plus className="w-4 h-4 inline mr-2" />
               Attach Additional Documents
             </button>
           )}

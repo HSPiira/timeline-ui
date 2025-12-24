@@ -87,11 +87,11 @@ export function TimelineEvent({
                   e.stopPropagation()
                   onViewDocuments?.(event.id)
                 }}
-                className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-100 dark:bg-amber-950/30 text-amber-700 dark:text-amber-300 rounded-sm hover:bg-amber-200 dark:hover:bg-amber-900/40 transition-colors border border-amber-300 dark:border-amber-700"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-amber-100 dark:bg-amber-950/30 text-amber-700 dark:text-amber-300 rounded-sm hover:bg-amber-200 dark:hover:bg-amber-900/40 transition-colors border border-amber-300 dark:border-amber-700 font-medium"
                 title={`${documentCount} document${documentCount !== 1 ? 's' : ''}`}
               >
-                <FileText className="w-3 h-3" />
-                <span className="text-xs font-medium">{documentCount}</span>
+                <FileText className="w-4 h-4" />
+                <span className="text-sm font-medium">{documentCount}</span>
               </button>
             )}
           </div>

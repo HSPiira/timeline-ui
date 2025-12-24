@@ -114,10 +114,10 @@ export function SubjectsGrid({ data, onEdit }: SubjectsGridProps) {
                     e.stopPropagation()
                     onEdit?.(subject)
                   }}
-                  className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded transition-colors"
+                  className="px-4 py-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded transition-colors font-medium"
                   title="Edit subject"
                 >
-                  <Pencil className="w-3.5 h-3.5" />
+                  <Pencil className="w-4 h-4" />
                 </button>
                 <ArrowRight className="w-4 h-4 text-muted-foreground/60 group-hover:text-primary transition-colors group-hover:translate-x-0.5" />
               </div>

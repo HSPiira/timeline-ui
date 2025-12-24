@@ -198,7 +198,7 @@ export function DocumentList({ subjectId, eventId, readOnly, onDelete, onError }
                 <div className="flex items-center justify-end gap-2">
                   <button
                     onClick={() => handleDownload(doc.id, getDisplayName(doc))}
-                    className="p-2 hover:bg-amber-100 dark:hover:bg-amber-900/30 rounded-sm transition-colors"
+                    className="px-4 py-2 hover:bg-amber-100 dark:hover:bg-amber-900/30 rounded-sm transition-colors font-medium"
                     title="Download"
                   >
                     <Download className="w-4 h-4 text-amber-600 dark:text-amber-400" />
@@ -207,7 +207,7 @@ export function DocumentList({ subjectId, eventId, readOnly, onDelete, onError }
                     <button
                       onClick={() => handleDelete(doc.id)}
                       disabled={deleting === doc.id}
-                      className="p-2 hover:bg-red-100 dark:hover:bg-red-900/20 rounded-sm transition-colors disabled:opacity-50"
+                      className="px-4 py-2 hover:bg-red-100 dark:hover:bg-red-900/20 rounded-sm transition-colors disabled:opacity-50 font-medium"
                       title="Delete"
                     >
                       {deleting === doc.id ? (

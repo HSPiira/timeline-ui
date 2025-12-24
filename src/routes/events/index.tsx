@@ -128,9 +128,9 @@ function EventsPage() {
           </p>
           <button
             onClick={fetchEvents}
-            className="inline-flex items-center gap-1 px-2.5 py-1.5 text-sm bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 rounded-sm font-medium hover:bg-slate-800 dark:hover:bg-slate-200 transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 rounded-sm font-medium hover:bg-slate-800 dark:hover:bg-slate-200 transition-colors"
           >
-            <Loader2 className="w-3 h-3" />
+            <Loader2 className="w-4 h-4" />
             Retry
           </button>
         </div>
@@ -150,8 +150,8 @@ function EventsPage() {
               Browse and manage all timeline events
             </p>
           </div>
-          <button onClick={() => navigate({ to: '/events/create' })} className="flex items-center gap-1 px-2.5 py-1 text-sm bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 rounded-sm font-medium hover:bg-slate-800 dark:hover:bg-slate-200 transition-colors">
-            <Plus className="w-3 h-3" />
+          <button onClick={() => navigate({ to: '/events/create' })} className="flex items-center gap-2 px-4 py-2 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 rounded-sm font-medium hover:bg-slate-800 dark:hover:bg-slate-200 transition-colors">
+            <Plus className="w-4 h-4" />
             Log Event
           </button>
         </div>
@@ -199,10 +199,10 @@ function EventsPage() {
             <p className="text-xs text-muted-foreground mb-3 max-w-md mx-auto">
               Events are recorded actions or state changes. Start logging events to build your timeline history.
             </p>
-            <button 
+            <button
             onClick={() => navigate({ to: '/events/create' })}
-            className="inline-flex items-center gap-1 px-2.5 py-1 text-sm bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 rounded-sm font-medium hover:bg-slate-800 dark:hover:bg-slate-200 transition-colors">
-              <Plus className="w-3 h-3" />
+            className="inline-flex items-center gap-2 px-4 py-2 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 rounded-sm font-medium hover:bg-slate-800 dark:hover:bg-slate-200 transition-colors">
+              <Plus className="w-4 h-4" />
               Log Your First Event
             </button>
           </div>

@@ -369,11 +369,11 @@ function CreateEventPage() {
             <button
               type="submit"
               disabled={loading || schemaLoading}
-              className="inline-flex items-center gap-1 px-3 py-1.5 text-sm bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 rounded-sm font-medium hover:bg-slate-800 dark:hover:bg-slate-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 rounded-sm font-medium hover:bg-slate-800 dark:hover:bg-slate-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <>
-                  <Loader2 className="w-3 h-3 animate-spin" />
+                  <Loader2 className="w-4 h-4 animate-spin" />
                   Creating...
                 </>
               ) : (
@@ -383,7 +383,7 @@ function CreateEventPage() {
             <button
               type="button"
               onClick={() => navigate({ to: '/events' })}
-              className="text-sm text-muted-foreground hover:text-foreground"
+              className="px-4 py-2 border border-input text-foreground/90 rounded-sm font-medium hover:bg-muted/30 transition-colors"
             >
               Cancel
             </button>

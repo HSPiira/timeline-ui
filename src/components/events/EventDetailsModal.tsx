@@ -23,7 +23,7 @@ export function EventDetailsModal({ event, onClose }: EventDetailsModalProps) {
 
           <button
             onClick={onClose}
-            className="p-2 hover:bg-muted rounded-sm transition-colors"
+            className="px-4 py-2 hover:bg-muted rounded-sm transition-colors font-medium"
             title="Close"
             aria-label="Close modal"
           >
