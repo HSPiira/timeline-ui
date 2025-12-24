@@ -348,21 +348,21 @@ function SubjectEventsPage() {
         {/* Documents Tab */}
         {activeTab === 'documents' && (
         <div className="space-y-4">
-          {/* Upload Section */}
-          <div className="bg-card/80 backdrop-blur-sm rounded-sm p-4 border border-border/50">
-            <h2 className="text-sm font-semibold text-foreground mb-4">Upload Documents</h2>
-            <DocumentUpload
-              subjectId={subjectId}
-              onError={(error) => console.error('Upload error:', error)}
-            />
-          </div>
-
           {/* Documents List */}
           <div className="bg-card/80 backdrop-blur-sm rounded-sm p-4 border border-border/50">
             <h2 className="text-sm font-semibold text-foreground mb-4">Documents</h2>
             <DocumentList
               subjectId={subjectId}
               onError={(error) => console.error('Documents error:', error)}
+            />
+          </div>
+
+          {/* Upload Section */}
+          <div className="bg-card/80 backdrop-blur-sm rounded-sm p-4 border border-border/50">
+            <h2 className="text-sm font-semibold text-foreground mb-4">Upload New Document</h2>
+            <DocumentUpload
+              subjectId={subjectId}
+              onError={(error) => console.error('Upload error:', error)}
             />
           </div>
         </div>

@@ -1,4 +1,5 @@
-import { X, User, Clock, FileText } from 'lucide-react'
+import { X, User, Clock, FileText, Code, Eye } from 'lucide-react'
+import { useState } from 'react'
 import { DocumentList } from '@/components/documents/DocumentList'
 import type { EventResponse } from '@/lib/types'
 
@@ -7,7 +8,10 @@ export interface EventDetailsModalProps {
   onClose: () => void
 }
 
+type ViewMode = 'modern' | 'json'
+
 export function EventDetailsModal({ event, onClose }: EventDetailsModalProps) {
+  const [viewMode, setViewMode] = useState<ViewMode>('modern')
   return (
     <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" onClick={onClose} role="presentation">
       <div
@@ -56,12 +60,86 @@ export function EventDetailsModal({ event, onClose }: EventDetailsModalProps) {
 
           {/* Payload */}
           <div>
-            <h3 className="text-sm font-semibold mb-2">Event Data</h3>
-            <div className="p-3 bg-slate-50 dark:bg-slate-900/50 rounded-sm border border-slate-200 dark:border-slate-700">
-              <pre className="text-xs text-foreground/90 overflow-x-auto">
-                {JSON.stringify(event.payload, null, 2)}
-              </pre>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-semibold">Event Data</h3>
+              <div className="flex gap-1">
+                <button
+                  onClick={() => setViewMode('modern')}
+                  className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-sm transition-colors ${
+                    viewMode === 'modern'
+                      ? 'bg-blue-100 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800'
+                      : 'text-muted-foreground hover:bg-muted border border-transparent hover:border-border/50'
+                  }`}
+                  title="Modern view"
+                >
+                  <Eye className="w-3.5 h-3.5" />
+                  Modern
+                </button>
+                <button
+                  onClick={() => setViewMode('json')}
+                  className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-sm transition-colors ${
+                    viewMode === 'json'
+                      ? 'bg-blue-100 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800'
+                      : 'text-muted-foreground hover:bg-muted border border-transparent hover:border-border/50'
+                  }`}
+                  title="JSON view"
+                >
+                  <Code className="w-3.5 h-3.5" />
+                  JSON
+                </button>
+              </div>
             </div>
+
+            {viewMode === 'modern' && event.payload && (
+              <div className="bg-slate-50 dark:bg-slate-900/30 rounded-sm border border-slate-200 dark:border-slate-700 p-3">
+                <div className="space-y-2">
+                  {Object.entries(event.payload).map(([key, value]) => {
+                    const displayValue = (() => {
+                      if (value === null) return <span className="text-muted-foreground italic">null</span>
+                      if (value === undefined) return <span className="text-muted-foreground italic">undefined</span>
+                      if (typeof value === 'boolean') {
+                        return (
+                          <span className={value ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}>
+                            {value ? 'true' : 'false'}
+                          </span>
+                        )
+                      }
+                      if (typeof value === 'number') {
+                        return <span className="text-blue-600 dark:text-blue-400">{value}</span>
+                      }
+                      if (typeof value === 'object') {
+                        return <span className="text-slate-600 dark:text-slate-300 font-mono text-xs">{JSON.stringify(value)}</span>
+                      }
+                      return <span className="text-foreground">{String(value)}</span>
+                    })()
+
+                    return (
+                      <div key={key} className="flex gap-2">
+                        <span className="font-medium text-slate-600 dark:text-slate-400 text-sm min-w-fit">{key}:</span>
+                        <span className="text-foreground text-sm break-words">{displayValue}</span>
+                      </div>
+                    )
+                  })}
+                </div>
+                {Object.keys(event.payload).length === 0 && (
+                  <p className="text-xs text-muted-foreground italic">No data</p>
+                )}
+              </div>
+            )}
+
+            {viewMode === 'json' && event.payload && (
+              <div className="bg-slate-50 dark:bg-slate-900/50 rounded-sm border border-slate-200 dark:border-slate-700 p-3">
+                <pre className="text-xs text-foreground/90 overflow-x-auto">
+                  {JSON.stringify(event.payload, null, 2)}
+                </pre>
+              </div>
+            )}
+
+            {!event.payload && (
+              <div className="bg-slate-50 dark:bg-slate-900/30 rounded-sm border border-slate-200 dark:border-slate-700 p-3">
+                <p className="text-xs text-muted-foreground italic">No payload data</p>
+              </div>
+            )}
           </div>
 
           {/* Documents */}

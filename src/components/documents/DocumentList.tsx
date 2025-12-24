@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import { Download, Trash2, Loader2, AlertCircle, FileIcon } from 'lucide-react'
+import { Download, Trash2, Loader2, AlertCircle, FileIcon, Eye } from 'lucide-react'
 import { timelineApi } from '@/lib/api-client'
+import { DocumentViewer } from './DocumentViewer'
 import type { components } from '@/lib/timeline-api'
 
 export interface DocumentListProps {
@@ -43,6 +44,7 @@ export function DocumentList({ subjectId, eventId, readOnly, onDelete, onError }
   const [loading, setLoading] = useState(true)
   const [deleting, setDeleting] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [viewingDocument, setViewingDocument] = useState<{ id: string; filename: string; type: string } | null>(null)
 
   const fetchDocuments = async () => {
     setLoading(true)
@@ -107,6 +109,16 @@ export function DocumentList({ subjectId, eventId, readOnly, onDelete, onError }
     } finally {
       setDeleting(null)
     }
+  }
+
+  const handleView = (doc: Document) => {
+    const mimeType = getMimeType(doc)
+    const filename = getDisplayName(doc)
+    setViewingDocument({
+      id: doc.id,
+      filename,
+      type: mimeType,
+    })
   }
 
   const handleDownload = async (documentId: string, filename: string) => {
@@ -184,13 +196,17 @@ export function DocumentList({ subjectId, eventId, readOnly, onDelete, onError }
           {documents.map((doc) => (
             <tr key={doc.id} className="hover:bg-amber-50/50 dark:hover:bg-amber-950/20 transition-colors">
               <td className="py-3 px-3">
-                <div className="flex items-center gap-2">
+                <button
+                  onClick={() => handleView(doc)}
+                  className="flex items-center gap-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer group"
+                  title="Click to view"
+                >
                   <span className="text-base">{FILE_ICONS[getMimeType(doc)] || '📎'}</span>
-                  <span className="truncate">{getDisplayName(doc)}</span>
-                </div>
+                  <span className="truncate underline-offset-2 group-hover:underline font-medium text-foreground">{getDisplayName(doc)}</span>
+                </button>
               </td>
-              <td className="py-3 px-3 text-muted-foreground">{(getFileSize(doc) / 1024 / 1024).toFixed(2)}MB</td>
-              <td className="py-3 px-3 text-muted-foreground">
+              <td className="py-3 px-3 text-muted-foreground text-sm">{(getFileSize(doc) / 1024 / 1024).toFixed(2)}MB</td>
+              <td className="py-3 px-3 text-muted-foreground text-sm">
                 {new Date(doc.created_at).toLocaleDateString('en-US', {
                   year: 'numeric',
                   month: 'short',
@@ -200,10 +216,17 @@ export function DocumentList({ subjectId, eventId, readOnly, onDelete, onError }
                 })}
               </td>
               <td className="py-3 px-3">
-                <div className="flex items-center justify-end gap-2">
+                <div className="flex items-center justify-end gap-1">
+                  <button
+                    onClick={() => handleView(doc)}
+                    className="px-3 py-2 hover:bg-blue-100 dark:hover:bg-blue-950/30 rounded-sm transition-colors text-blue-600 dark:text-blue-400 font-medium"
+                    title="View document"
+                  >
+                    <Eye className="w-4 h-4" />
+                  </button>
                   <button
                     onClick={() => handleDownload(doc.id, getDisplayName(doc))}
-                    className="px-4 py-2 hover:bg-amber-100 dark:hover:bg-amber-900/30 rounded-sm transition-colors font-medium"
+                    className="px-3 py-2 hover:bg-amber-100 dark:hover:bg-amber-900/30 rounded-sm transition-colors font-medium"
                     title="Download"
                   >
                     <Download className="w-4 h-4 text-amber-600 dark:text-amber-400" />
@@ -212,7 +235,7 @@ export function DocumentList({ subjectId, eventId, readOnly, onDelete, onError }
                     <button
                       onClick={() => handleDelete(doc.id)}
                       disabled={deleting === doc.id}
-                      className="px-4 py-2 hover:bg-red-100 dark:hover:bg-red-900/20 rounded-sm transition-colors disabled:opacity-50 font-medium"
+                      className="px-3 py-2 hover:bg-red-100 dark:hover:bg-red-900/20 rounded-sm transition-colors disabled:opacity-50 font-medium"
                       title="Delete"
                     >
                       {deleting === doc.id ? (
@@ -228,6 +251,16 @@ export function DocumentList({ subjectId, eventId, readOnly, onDelete, onError }
           ))}
         </tbody>
       </table>
+
+      {/* Document Viewer Modal */}
+      {viewingDocument && (
+        <DocumentViewer
+          documentId={viewingDocument.id}
+          filename={viewingDocument.filename}
+          fileType={viewingDocument.type}
+          onClose={() => setViewingDocument(null)}
+        />
+      )}
     </div>
   )
 }
