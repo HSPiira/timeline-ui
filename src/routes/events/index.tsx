@@ -1,9 +1,10 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { Plus, Calendar, User, Clock, Loader2, AlertCircle, Activity } from 'lucide-react'
+import { Plus, Calendar, User, Clock, Loader2, AlertCircle, Activity, FileText } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useStore } from '@tanstack/react-store'
 import { timelineApi } from '@/lib/api-client'
 import { authStore } from '@/lib/auth-store'
+import { EventDocumentsModal } from '@/components/documents/EventDocumentsModal'
 import type { EventResponse } from '@/lib/types'
 
 export const Route = createFileRoute('/events/')({
@@ -18,6 +19,8 @@ function EventsPage() {
   const [error, setError] = useState<string | null>(null)
   const [filterEventType, setFilterEventType] = useState<string>('')
   const [eventTypes, setEventTypes] = useState<string[]>([])
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(null)
+  const [documentCounts, setDocumentCounts] = useState<Record<string, number>>({})
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -50,6 +53,20 @@ function EventsPage() {
         // Extract unique event types for filter
         const types = [...new Set(data.map((e: EventResponse) => e.event_type))]
         setEventTypes(types)
+
+        // Load document counts for all events
+        const counts: Record<string, number> = {}
+        for (const event of data) {
+          try {
+            const { data: docs } = await timelineApi.documents.listByEvent(event.id)
+            if (Array.isArray(docs)) {
+              counts[event.id] = docs.length
+            }
+          } catch (err) {
+            console.error(`Failed to load documents for event ${event.id}:`, err)
+          }
+        }
+        setDocumentCounts(counts)
       }
     } catch (err) {
       setError('An unexpected error occurred')
@@ -181,62 +198,94 @@ function EventsPage() {
           </div>
         ) : (
           <div className="space-y-2">
-            {events.map((event: EventResponse) => (
-              <div
-                key={event.id}
-                className="bg-card/80 backdrop-blur-sm rounded-sm p-4 border border-border/50 hover:border-border transition-colors"
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start gap-2.5 flex-1">
-                    {/* Event Icon */}
-                    <div className="w-8 h-8 rounded-sm bg-gradient-to-br from-foreground/75 to-foreground/55 flex items-center justify-center shrink-0">
-                      <Calendar className="w-4 h-4 text-background" />
-                    </div>
-
-                    {/* Event Details */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-1.5 mb-1">
-                        <h3 className="font-semibold text-foreground text-sm">
-                          {event.event_type}
-                        </h3>
-                        <span className="px-1.5 py-0.5 text-sm font-medium bg-secondary text-foreground/90 rounded-sm">
-                          {event.id.slice(0, 8)}
-                        </span>
+            {events.map((event: EventResponse) => {
+              const docCount = documentCounts[event.id] || 0
+              const hasDocuments = docCount > 0
+              return (
+                <div
+                  key={event.id}
+                  className="bg-card/80 backdrop-blur-sm rounded-sm p-4 border border-border/50 hover:border-border transition-colors"
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-start gap-2.5 flex-1">
+                      {/* Event Icon */}
+                      <div className="w-8 h-8 rounded-sm bg-gradient-to-br from-foreground/75 to-foreground/55 flex items-center justify-center shrink-0">
+                        <Calendar className="w-4 h-4 text-background" />
                       </div>
 
-                      <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground mb-2">
-                        <div className="flex items-center gap-1">
-                          <User className="w-3 h-3" />
-                          <span>Subject: {event.subject_id.slice(0, 8)}</span>
+                      {/* Event Details */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5 mb-1 flex-wrap">
+                          <h3 className="font-semibold text-foreground text-sm">
+                            {event.event_type}
+                          </h3>
+                          <span className="px-1.5 py-0.5 text-sm font-medium bg-secondary text-foreground/90 rounded-sm">
+                            {event.id.slice(0, 8)}
+                          </span>
+                          {hasDocuments && (
+                            <button
+                              onClick={() => setSelectedEventId(event.id)}
+                              className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-100 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300 rounded-sm hover:bg-blue-200 dark:hover:bg-blue-900/40 transition-colors"
+                              title={`${docCount} document${docCount !== 1 ? 's' : ''}`}
+                            >
+                              <FileText className="w-3 h-3" />
+                              <span className="text-xs font-medium">{docCount}</span>
+                            </button>
+                          )}
                         </div>
-                        <div className="flex items-center gap-1">
-                          <Clock className="w-3 h-3" />
-                          <span>{new Date(event.event_time).toLocaleString()}</span>
+
+                        <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground mb-2">
+                          <div className="flex items-center gap-1">
+                            <User className="w-3 h-3" />
+                            <span>Subject: {event.subject_id.slice(0, 8)}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Clock className="w-3 h-3" />
+                            <span>{new Date(event.event_time).toLocaleString()}</span>
+                          </div>
                         </div>
+
+                        {/* Payload Preview */}
+                        {event.payload && (
+                          <div className="mt-2 p-2 bg-slate-50 dark:bg-slate-900/50 rounded-sm border border-slate-200 dark:border-slate-700">
+                            <pre className="text-xs text-foreground/90 overflow-x-auto">
+                              {JSON.stringify(event.payload, null, 2)}
+                            </pre>
+                          </div>
+                        )}
                       </div>
-
-                      {/* Payload Preview */}
-                      {event.payload && (
-                        <div className="mt-2 p-2 bg-slate-50 dark:bg-slate-900/50 rounded-sm border border-slate-200 dark:border-slate-700">
-                          <pre className="text-xs text-foreground/90 overflow-x-auto">
-                            {JSON.stringify(event.payload, null, 2)}
-                          </pre>
-                        </div>
-                      )}
                     </div>
-                  </div>
 
-                  {/* Actions */}
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    <button className="px-2 py-1 text-sm text-muted-foreground hover:text-foreground hover:bg-slate-100 dark:hover:bg-slate-700 rounded-sm transition-colors">
-                      View Details
-                    </button>
+                    {/* Actions */}
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <button className="px-2 py-1 text-sm text-muted-foreground hover:text-foreground hover:bg-slate-100 dark:hover:bg-slate-700 rounded-sm transition-colors">
+                        View Details
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         )}
+
+        {/* Documents Modal */}
+        {selectedEventId && events.length > 0 && (() => {
+          const event = events.find(e => e.id === selectedEventId)
+          return event ? (
+            <EventDocumentsModal
+              eventId={event.id}
+              subjectId={event.subject_id}
+              eventType={event.event_type}
+              onClose={() => setSelectedEventId(null)}
+              onDocumentsUpdated={() => {
+                // Refresh documents
+                setSelectedEventId(null)
+                fetchEvents()
+              }}
+            />
+          ) : null
+        })()}
 
     </>
   )

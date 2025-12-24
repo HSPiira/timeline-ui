@@ -6,6 +6,7 @@ import type { components } from '@/lib/timeline-api'
 export interface DocumentListProps {
   subjectId?: string
   eventId?: string
+  readOnly?: boolean
   onDelete?: (documentId: string) => void
   onError?: (error: string) => void
 }
@@ -37,7 +38,7 @@ function getFileSize(doc: Document): number {
   return doc.file_size || 0
 }
 
-export function DocumentList({ subjectId, eventId, onDelete, onError }: DocumentListProps) {
+export function DocumentList({ subjectId, eventId, readOnly, onDelete, onError }: DocumentListProps) {
   const [documents, setDocuments] = useState<Document[]>([])
   const [loading, setLoading] = useState(true)
   const [deleting, setDeleting] = useState<string | null>(null)
@@ -202,18 +203,20 @@ export function DocumentList({ subjectId, eventId, onDelete, onError }: Document
                   >
                     <Download className="w-4 h-4 text-muted-foreground" />
                   </button>
-                  <button
-                    onClick={() => handleDelete(doc.id)}
-                    disabled={deleting === doc.id}
-                    className="p-2 hover:bg-red-100 dark:hover:bg-red-900/20 rounded-sm transition-colors disabled:opacity-50"
-                    title="Delete"
-                  >
-                    {deleting === doc.id ? (
-                      <Loader2 className="w-4 h-4 text-red-500 animate-spin" />
-                    ) : (
-                      <Trash2 className="w-4 h-4 text-red-500" />
-                    )}
-                  </button>
+                  {!readOnly && (
+                    <button
+                      onClick={() => handleDelete(doc.id)}
+                      disabled={deleting === doc.id}
+                      className="p-2 hover:bg-red-100 dark:hover:bg-red-900/20 rounded-sm transition-colors disabled:opacity-50"
+                      title="Delete"
+                    >
+                      {deleting === doc.id ? (
+                        <Loader2 className="w-4 h-4 text-red-500 animate-spin" />
+                      ) : (
+                        <Trash2 className="w-4 h-4 text-red-500" />
+                      )}
+                    </button>
+                  )}
                 </div>
               </td>
             </tr>

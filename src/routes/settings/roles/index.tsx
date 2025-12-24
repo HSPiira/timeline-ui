@@ -389,7 +389,6 @@ function RoleFormModal({
   onClose,
   onSuccess,
   onError,
-  allPermissions,
 }: {
   role?: RoleResponse
   onClose: () => void
@@ -400,7 +399,6 @@ function RoleFormModal({
   const [name, setName] = useState(role?.name || '')
   const [description, setDescription] = useState(role?.description || '')
   const [code, setCode] = useState(role?.code || '')
-  const [selectedPermissions, setSelectedPermissions] = useState<Set<string>>(new Set())
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 

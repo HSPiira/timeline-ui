@@ -1,5 +1,7 @@
+import { useState } from 'react'
 import { ChevronDown, ChevronRight, Calendar } from 'lucide-react'
 import { TimelineEvent } from './TimelineEvent'
+import { EventDocumentsModal } from '@/components/documents/EventDocumentsModal'
 import type { EventResponse } from '@/lib/types'
 
 interface RecentActivityProps {
@@ -18,7 +20,12 @@ export function RecentActivity({
   eventsByDate,
   timeline
 }: RecentActivityProps) {
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(null)
   const hasEvents = Object.keys(eventsByDate).length > 0
+
+  const selectedEvent = selectedEventId ?
+    Object.values(eventsByDate).flat().find(e => e.id === selectedEventId) :
+    null
 
   if (!hasEvents) {
     return (
@@ -61,6 +68,7 @@ export function RecentActivity({
                     isHovered={timeline.hoveredEvent === event.id}
                     onToggle={() => timeline.toggleEvent(event.id)}
                     onHover={timeline.setHoveredEvent}
+                    onViewDocuments={setSelectedEventId}
                   />
                 ))}
               </div>
@@ -68,6 +76,20 @@ export function RecentActivity({
           </div>
         )
       })}
+
+      {/* Documents Modal */}
+      {selectedEvent && (
+        <EventDocumentsModal
+          eventId={selectedEvent.id}
+          subjectId={selectedEvent.subject_id}
+          eventType={selectedEvent.event_type}
+          onClose={() => setSelectedEventId(null)}
+          onDocumentsUpdated={() => {
+            // Refresh document count by resetting selection
+            setSelectedEventId(null)
+          }}
+        />
+      )}
     </div>
   )
 }
