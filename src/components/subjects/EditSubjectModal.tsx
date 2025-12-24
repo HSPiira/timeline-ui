@@ -47,16 +47,17 @@ export function EditSubjectModal({
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-background border border-border rounded-sm max-w-md w-full p-6 shadow-xl">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-150">
+      <div className="bg-background border border-border rounded-lg max-w-md w-full p-6 shadow-2xl animate-in zoom-in-95 duration-150">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold text-foreground">
             Edit Subject
           </h2>
           <button
             onClick={onClose}
-            className="text-muted-foreground/70 hover:text-foreground transition-colors"
+            className="relative -mr-2 -mt-2 p-2 text-muted-foreground/70 hover:text-foreground hover:bg-muted/30 rounded-lg transition-colors"
             disabled={loading}
+            aria-label="Close"
           >
             <X className="w-5 h-5" />
           </button>
