@@ -7,6 +7,9 @@ import { authStore } from '@/lib/auth-store'
 import { DocumentUpload } from '@/components/documents/DocumentUpload'
 import { DocumentList } from '@/components/documents/DocumentList'
 import { DocumentViewer } from '@/components/documents/DocumentViewer'
+import { EventCard } from '@/components/events/EventCard'
+import { EventDetailsModal } from '@/components/events/EventDetailsModal'
+import { EventDocumentsModal } from '@/components/documents/EventDocumentsModal'
 import type { SubjectResponse, EventResponse } from '@/lib/types'
 
 export const Route = createFileRoute('/events/subject/$subjectId')({
@@ -24,9 +27,11 @@ function SubjectEventsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [collapsedDates, setCollapsedDates] = useState<Set<string>>(new Set())
-  const [expandedEvents, setExpandedEvents] = useState<Set<string>>(new Set())
   const [activeTab, setActiveTab] = useState<Tab>('events')
   const [viewingDocument, setViewingDocument] = useState<{ id: string; filename: string; type: string } | null>(null)
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(null)
+  const [detailsEventId, setDetailsEventId] = useState<string | null>(null)
+  const [documentCounts, setDocumentCounts] = useState<Record<string, number>>({})
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -74,6 +79,26 @@ function SubjectEventsPage() {
         setError(errorMessage)
       } else if (eventsData) {
         setEvents(eventsData)
+
+        // Load document counts for all events
+        const documentPromises = eventsData.map(async (event) => {
+          try {
+            const { data: docs, error } = await timelineApi.documents.listByEvent(event.id)
+            if (error) {
+              return { eventId: event.id, count: 0 }
+            }
+            return { eventId: event.id, count: Array.isArray(docs) ? docs.length : 0 }
+          } catch (err) {
+            return { eventId: event.id, count: 0 }
+          }
+        })
+
+        const documentResults = await Promise.all(documentPromises)
+        const counts: Record<string, number> = {}
+        documentResults.forEach(({ eventId, count }) => {
+          counts[eventId] = count
+        })
+        setDocumentCounts(counts)
       }
     } catch (err) {
       setError('An unexpected error occurred')
@@ -94,19 +119,6 @@ function SubjectEventsPage() {
       return next
     })
   }
-
-  const toggleEvent = (eventId: string) => {
-    setExpandedEvents((prev) => {
-      const next = new Set(prev)
-      if (next.has(eventId)) {
-        next.delete(eventId)
-      } else {
-        next.add(eventId)
-      }
-      return next
-    })
-  }
-
 
   // Group events by date
   const eventsByDate = events.reduce((acc, event) => {
@@ -237,9 +249,9 @@ function SubjectEventsPage() {
           <div className="flex items-center gap-2 pt-2 border-t border-border">
             <button
               onClick={() => navigate({ to: `/verify/${subjectId}` })}
-              className="inline-flex items-center gap-2 px-3 py-1.5 text-xs bg-primary text-primary-foreground rounded-sm font-medium hover:bg-primary/90 transition-colors"
+              className="inline-flex items-center gap-2 px-4 py-2 text-xs bg-primary text-primary-foreground rounded-sm font-medium hover:bg-primary/90 transition-colors"
             >
-              <Shield className="w-3 h-3" />
+              <Shield className="w-4 h-4" />
               Verify Chain
             </button>
           </div>
@@ -290,7 +302,7 @@ function SubjectEventsPage() {
               </p>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-6">
               {Object.entries(eventsByDate).map(([date, dateEvents]) => {
                 const isDateCollapsed = collapsedDates.has(date)
 
@@ -299,81 +311,28 @@ function SubjectEventsPage() {
                     {/* Date Header */}
                     <button
                       onClick={() => toggleDate(date)}
-                      className="flex items-center gap-2 w-full text-left mb-2 group"
+                      className="flex items-center gap-2 mb-4"
                     >
-                      {isDateCollapsed ? (
-                        <ChevronRight className="w-3 h-3 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300" />
-                      ) : (
-                        <ChevronDown className="w-3 h-3 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300" />
-                      )}
-                      <span className="text-xs font-semibold text-foreground/90">
-                        {date}
-                      </span>
-                      <span className="text-xs text-muted-foreground/70">
-                        ({dateEvents.length} {dateEvents.length === 1 ? 'event' : 'events'})
+                      {isDateCollapsed ? <ChevronRight /> : <ChevronDown />}
+                      <span className="font-semibold">{date}</span>
+                      <span className="text-xs text-muted-foreground">
+                        ({dateEvents.length})
                       </span>
                     </button>
 
                     {/* Events for this date */}
                     {!isDateCollapsed && (
-                      <div className="ml-4 space-y-2">
-                        {dateEvents.map((event, index) => {
-                          const isExpanded = expandedEvents.has(event.id)
-
+                      <div className="ml-6 space-y-2">
+                        {dateEvents.map((event) => {
+                          const docCount = documentCounts[event.id] || 0
                           return (
-                            <div key={event.id} className="flex gap-3">
-                              {/* Timeline dot and line */}
-                              <div className="flex flex-col items-center pt-0.5">
-                                <div className="w-1.5 h-1.5 rounded-full bg-foreground/60" />
-                                {index < dateEvents.length - 1 && (
-                                  <div className="w-0.5 flex-1 bg-secondary mt-1 min-h-[40px]" />
-                                )}
-                              </div>
-
-                              {/* Event content */}
-                              <div className="flex-1 pb-2">
-                                <div
-                                  onClick={() => toggleEvent(event.id)}
-                                  className="p-3 bg-slate-50 dark:bg-slate-900/50 rounded-sm border border-slate-200 dark:border-slate-700 hover:border-border transition-colors cursor-pointer"
-                                >
-                                  <div className="flex items-start justify-between mb-1">
-                                    <div className="flex items-center gap-2">
-                                      <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
-                                        {new Date(event.event_time).toLocaleTimeString('en-US', {
-                                          hour: '2-digit',
-                                          minute: '2-digit',
-                                          second: '2-digit',
-                                        })}
-                                      </span>
-                                      <span className="text-xs font-semibold text-foreground">
-                                        {event.event_type}
-                                      </span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                      <span className="text-xs px-1.5 py-0.5 bg-secondary text-muted-foreground rounded-sm font-mono">
-                                        {event.id.slice(0, 8)}
-                                      </span>
-                                    </div>
-                                  </div>
-
-                                  {/* Payload - shown when expanded */}
-                                  {isExpanded && event.payload && (
-                                    <div className="mt-2 p-2 bg-white dark:bg-slate-800 rounded-sm border border-slate-200 dark:border-slate-700">
-                                      <p className="text-xs font-semibold text-muted-foreground mb-1">
-                                        Event Data
-                                      </p>
-                                      <pre className="text-xs text-foreground/90 overflow-x-auto">
-                                        {JSON.stringify(event.payload, null, 2)}
-                                      </pre>
-                                    </div>
-                                  )}
-
-                                  <div className="mt-1 text-xs text-muted-foreground">
-                                    Click to {isExpanded ? 'collapse' : 'expand'} details
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
+                            <EventCard
+                              key={event.id}
+                              event={event}
+                              documentCount={docCount}
+                              onViewDetails={() => setDetailsEventId(event.id)}
+                              onViewDocuments={() => setSelectedEventId(event.id)}
+                            />
                           )
                         })}
                       </div>
@@ -408,6 +367,34 @@ function SubjectEventsPage() {
           </div>
         </div>
         )}
+
+        {/* Event Details Modal */}
+        {detailsEventId && events.length > 0 && (() => {
+          const event = events.find(e => e.id === detailsEventId)
+          return event ? (
+            <EventDetailsModal
+              event={event}
+              onClose={() => setDetailsEventId(null)}
+            />
+          ) : null
+        })()}
+
+        {/* Event Documents Modal */}
+        {selectedEventId && events.length > 0 && (() => {
+          const event = events.find(e => e.id === selectedEventId)
+          return event ? (
+            <EventDocumentsModal
+              eventId={event.id}
+              subjectId={event.subject_id}
+              eventType={event.event_type}
+              onClose={() => setSelectedEventId(null)}
+              onDocumentsUpdated={() => {
+                setSelectedEventId(null)
+                fetchData()
+              }}
+            />
+          ) : null
+        })()}
     </>
   )
 }

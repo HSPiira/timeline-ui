@@ -58,12 +58,17 @@ export function DocumentList({ subjectId, eventId, readOnly, onDelete, onError }
         return
       }
 
-      if (response.data) {
-        setDocuments(response.data)
-      } else if (response.error) {
+      if (response.error) {
+        console.error('Document fetch error:', response.error)
         const errorMsg = typeof response.error === 'object' && 'message' in response.error ? (response.error as any).message : 'Failed to load documents'
         setError(errorMsg)
         onError?.(errorMsg)
+      } else if (response.data && Array.isArray(response.data)) {
+        console.log(`Loaded ${response.data.length} documents`)
+        setDocuments(response.data)
+      } else {
+        console.log('No documents returned from API:', response.data)
+        setDocuments([])
       }
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : 'Unexpected error loading documents'

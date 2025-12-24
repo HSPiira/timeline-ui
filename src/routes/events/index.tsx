@@ -1,11 +1,12 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { Plus, Calendar, User, Clock, Loader2, AlertCircle, Activity, FileText } from 'lucide-react'
+import { Plus, Loader2, AlertCircle, Activity } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useStore } from '@tanstack/react-store'
 import { timelineApi } from '@/lib/api-client'
 import { authStore } from '@/lib/auth-store'
 import { EventDocumentsModal } from '@/components/documents/EventDocumentsModal'
 import { EventDetailsModal } from '@/components/events/EventDetailsModal'
+import { EventCard } from '@/components/events/EventCard'
 import type { EventResponse } from '@/lib/types'
 
 export const Route = createFileRoute('/events/')({
@@ -210,73 +211,14 @@ function EventsPage() {
           <div className="space-y-2">
             {events.map((event: EventResponse) => {
               const docCount = documentCounts[event.id] || 0
-              const hasDocuments = docCount > 0
               return (
-                <div
+                <EventCard
                   key={event.id}
-                  className="bg-gradient-to-r from-card to-card/50 backdrop-blur-sm rounded-sm p-4 border border-blue-200/50 dark:border-blue-900/50 hover:border-blue-300 dark:hover:border-blue-800 transition-colors shadow-sm hover:shadow-md"
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start gap-2.5 flex-1">
-                      {/* Event Icon */}
-                      <div className="w-8 h-8 rounded-sm bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shrink-0">
-                        <Calendar className="w-4 h-4 text-white" />
-                      </div>
-
-                      {/* Event Details */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-1.5 mb-1 flex-wrap">
-                          <h3 className="font-semibold text-foreground text-sm">
-                            {event.event_type}
-                          </h3>
-                          <span className="px-2 py-0.5 text-xs font-mono bg-slate-700 dark:bg-slate-600 text-slate-100 dark:text-slate-200 rounded-sm">
-                            {event.id.slice(0, 8)}
-                          </span>
-                          {hasDocuments && (
-                            <button
-                              onClick={() => setSelectedEventId(event.id)}
-                              className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-100 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300 rounded-sm hover:bg-blue-200 dark:hover:bg-blue-900/40 transition-colors"
-                              title={`${docCount} document${docCount !== 1 ? 's' : ''}`}
-                            >
-                              <FileText className="w-3 h-3" />
-                              <span className="text-xs font-medium">{docCount}</span>
-                            </button>
-                          )}
-                        </div>
-
-                        <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground mb-2">
-                          <div className="flex items-center gap-1">
-                            <User className="w-3 h-3" />
-                            <span>Subject: {event.subject_id.slice(0, 8)}</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <Clock className="w-3 h-3" />
-                            <span>{new Date(event.event_time).toLocaleString()}</span>
-                          </div>
-                        </div>
-
-                        {/* Payload Preview */}
-                        {event.payload && (
-                          <div className="mt-2 p-2 bg-slate-50 dark:bg-slate-900/50 rounded-sm border border-slate-200 dark:border-slate-700">
-                            <pre className="text-xs text-foreground/90 overflow-x-auto">
-                              {JSON.stringify(event.payload, null, 2)}
-                            </pre>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Actions */}
-                    <div className="flex items-center gap-2 flex-shrink-0">
-                      <button
-                        onClick={() => setDetailsEventId(event.id)}
-                        className="px-3 py-1.5 text-sm font-medium bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-sm transition-all hover:shadow-sm"
-                      >
-                        View Details
-                      </button>
-                    </div>
-                  </div>
-                </div>
+                  event={event}
+                  documentCount={docCount}
+                  onViewDetails={() => setDetailsEventId(event.id)}
+                  onViewDocuments={() => setSelectedEventId(event.id)}
+                />
               )
             })}
           </div>
