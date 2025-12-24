@@ -35,8 +35,13 @@ client.use({
       request.headers.set('Authorization', `Bearer ${authToken}`)
     }
     // Set Content-Type for non-FormData requests
+    // For FormData, let the browser set Content-Type with proper boundary
     if (request.body && !(request.body instanceof FormData)) {
       request.headers.set('Content-Type', 'application/json')
+    } else if (request.body instanceof FormData) {
+      // Explicitly do NOT set Content-Type for FormData
+      // The browser will set it automatically with the correct boundary
+      request.headers.delete('Content-Type')
     }
     return request
   },
@@ -239,8 +244,33 @@ export const timelineApi = {
       client.GET('/documents/{document_id}', {
         params: { path: { document_id: id } },
       }),
-    upload: (data: components['schemas']['Body_upload_document_documents_upload_post']) => {
-      return client.POST('/documents/upload', { body: data })
+    upload: async (data: FormData) => {
+      // Use native fetch for FormData instead of openapi-fetch
+      // because openapi-fetch doesn't handle FormData correctly
+      const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+      const url = `${baseUrl}/documents/upload`
+
+      try {
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Authorization': authToken ? `Bearer ${authToken}` : '',
+          },
+          body: data,
+          // Explicitly do NOT set Content-Type - let browser set it with boundary
+        })
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => null)
+          return { data: null, error: errorData || { message: `Upload failed with status ${response.status}` } }
+        }
+
+        const responseData = await response.json()
+        return { data: responseData, error: null }
+      } catch (err) {
+        const error = err instanceof Error ? err.message : String(err)
+        return { data: null, error: { message: error } }
+      }
     },
     download: (id: string) =>
       client.GET('/documents/{document_id}/download', {

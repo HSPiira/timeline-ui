@@ -19,7 +19,7 @@ interface CreateEventState {
   eventTime: string
   payload: Record<string, any>
   fieldErrors: Record<string, string>
-  documentIds: string[]
+  stagedDocuments: File[]
 }
 
 function CreateEventPage() {
@@ -29,16 +29,24 @@ function CreateEventPage() {
   const [state, setState] = useState<CreateEventState>({
     subjectId: '',
     eventType: '',
-    eventTime: new Date().toISOString().slice(0, 16),
+    eventTime: '',
     payload: {},
     fieldErrors: {},
-    documentIds: [],
+    stagedDocuments: [],
   })
   const [schema, setSchema] = useState<Record<string, any> | null>(null)
   const [schemaVersion, setSchemaVersion] = useState<number | null>(null)
   const [schemaLoading, setSchemaLoading] = useState(false)
   const [loading, setLoading] = useState(false)
   const [apiError, setApiError] = useState<string | null>(null)
+
+  // Initialize event time after hydration (must be deterministic for SSR)
+  useEffect(() => {
+    setState((prev) => ({
+      ...prev,
+      eventTime: new Date().toISOString().slice(0, 16),
+    }))
+  }, [])
 
   // Fetch schema when event type changes
   useEffect(() => {
@@ -81,18 +89,18 @@ function CreateEventPage() {
   const documentFieldName = useMemo(() => {
     if (!schema?.properties) return null
 
-    const requiredFields = (schema.required as string[]) ?? []
+    const allFields = Object.keys(schema.properties)
 
-    // First, check for explicitly named document fields
-    for (const field of requiredFields) {
+    // First, check for explicitly named document fields (required or optional)
+    for (const field of allFields) {
       const fieldName = field.toLowerCase()
       if (['documents', 'document_ids', 'attachments', 'evidence', 'supporting_documents'].includes(fieldName)) {
         return field
       }
     }
 
-    // If no explicit match, look for array fields in required that could be documents
-    for (const field of requiredFields) {
+    // Then look for array fields (required or optional) that could be documents
+    for (const field of allFields) {
       const fieldSchema = schema.properties[field]
       // Check if it's an array of strings (likely IDs)
       if (fieldSchema?.type === 'array' && fieldSchema?.items?.type === 'string') {
@@ -136,11 +144,11 @@ function CreateEventPage() {
 
   // Validate documents if required
   const validateDocuments = useMemo(() => {
-    if (schemaRequiresDocuments && state.documentIds.length === 0) {
+    if (schemaRequiresDocuments && state.stagedDocuments.length === 0) {
       return 'At least one document is required for this event type'
     }
     return null
-  }, [schemaRequiresDocuments, state.documentIds])
+  }, [schemaRequiresDocuments, state.stagedDocuments])
 
   const handlePayloadChange = (newPayload: Record<string, any>) => {
     setState((prev) => ({
@@ -191,10 +199,36 @@ function CreateEventPage() {
         return
       }
 
-      // Include document IDs in payload if documents were uploaded
+      // Upload staged documents first if any
+      let documentIds: string[] = []
+      if (state.stagedDocuments.length > 0 && documentFieldName) {
+        try {
+          documentIds = await Promise.all(
+            state.stagedDocuments.map(async (file) => {
+              const formData = new FormData()
+              formData.append('file', file)
+              formData.append('subject_id', state.subjectId)
+              formData.append('document_type', 'evidence')
+
+              const { data, error } = await timelineApi.documents.upload(formData)
+              if (error) {
+                throw new Error(typeof error === 'object' && 'message' in error ? (error as any).message : 'Failed to upload document')
+              }
+              return (data as any).id
+            })
+          )
+        } catch (err) {
+          const errorMsg = err instanceof Error ? err.message : 'Failed to upload documents'
+          setApiError(errorMsg)
+          setLoading(false)
+          return
+        }
+      }
+
+      // Include document IDs in payload
       const payload = { ...state.payload }
-      if (state.documentIds.length > 0 && documentFieldName) {
-        payload[documentFieldName] = state.documentIds
+      if (documentIds.length > 0 && documentFieldName) {
+        payload[documentFieldName] = documentIds
       }
 
       const eventCreateData: components['schemas']['EventCreate'] = {
@@ -301,8 +335,8 @@ function CreateEventPage() {
               <div className="p-3 bg-background/50 rounded-sm border border-border/50">
                 <EventDocumentUpload
                   subjectId={state.subjectId}
-                  onDocumentsAdded={(docIds) => setState((prev) => ({ ...prev, documentIds: docIds }))}
-                  onError={(error) => setApiError(error)}
+                  onFilesChanged={(files) => setState((prev) => ({ ...prev, stagedDocuments: files }))}
+                  onError={(error) => setApiError(typeof error === 'string' ? error : String(error))}
                   required={schemaRequiresDocuments}
                 />
               </div>
