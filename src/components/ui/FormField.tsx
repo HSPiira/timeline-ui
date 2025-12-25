@@ -24,7 +24,7 @@ export function FormField({
       </label>
       {children}
       {error && (
-        <div className="flex items-center gap-1.5 text-red-600 dark:text-red-400">
+        <div className="flex items-center gap-1.5 text-red-600 dark:text-red-300">
           <AlertCircle className="w-4 h-4 flex-shrink-0" />
           <p className="text-xs font-medium">{error}</p>
         </div>
@@ -84,9 +84,9 @@ export function FormError({ message }: FormErrorProps) {
   if (!message) return null
 
   return (
-    <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-sm flex items-center gap-2">
-      <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 flex-shrink-0" />
-      <p className="text-sm text-red-700 dark:text-red-300">{message}</p>
+    <div className="p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-700 rounded-lg flex items-center gap-2">
+      <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-300 flex-shrink-0" />
+      <p className="text-sm text-red-700 dark:text-red-200">{message}</p>
     </div>
   )
 }
@@ -99,9 +99,9 @@ export function FormSuccess({ message }: FormSuccessProps) {
   if (!message) return null
 
   return (
-    <div className="p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-sm flex items-center gap-2">
-      <div className="w-4 h-4 rounded-full bg-green-600 dark:bg-green-400 flex-shrink-0" />
-      <p className="text-sm text-green-700 dark:text-green-300">{message}</p>
+    <div className="p-3 bg-green-50 dark:bg-green-950/40 border border-green-200 dark:border-green-700 rounded-lg flex items-center gap-2">
+      <div className="w-4 h-4 rounded-full bg-green-600 dark:bg-green-300 flex-shrink-0" />
+      <p className="text-sm text-green-700 dark:text-green-200">{message}</p>
     </div>
   )
 }
