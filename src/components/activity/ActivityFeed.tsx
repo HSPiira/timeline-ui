@@ -1,16 +1,18 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Calendar, Loader2, AlertCircle, Wifi, WifiOff } from 'lucide-react'
+import { Calendar, Loader2, AlertCircle, Wifi, WifiOff, BarChart3 } from 'lucide-react'
 import { useActivityFeed } from '@/hooks/useActivityFeed'
 import { useActivitySubscription, useSimulatedActivityStream } from '@/hooks/useActivitySubscription'
 import { ActivityRenderer } from './ActivityRenderers'
 import { VirtualActivityList } from './VirtualActivityList'
 import { ActivitySearchBar } from './ActivitySearchBar'
+import { ActivityAnalytics } from './ActivityAnalytics'
 import { ActivityProvider, useActivityContext } from '@/context/ActivityContext'
 import type { ActivityFilter, Activity } from '@/lib/types/activity'
 
 interface ActivityFeedProps {
   filter?: ActivityFilter
   limit?: number
+  showAnalytics?: boolean
 }
 
 /**
@@ -33,6 +35,7 @@ interface ActivityFeedContentProps extends ActivityFeedProps {
   enableRealTime?: boolean
   useSimulation?: boolean
   useVirtualScrolling?: boolean
+  showAnalytics?: boolean
 }
 
 /**
@@ -44,9 +47,11 @@ function ActivityFeedContent({
   enableRealTime = true,
   useSimulation = false,
   useVirtualScrolling = false,
+  showAnalytics = false,
 }: ActivityFeedContentProps) {
   const { selected, setSelected, expanded, toggleExpanded } = useActivityContext()
   const [searchQuery, setSearchQuery] = useState('')
+  const [showAnalyticsPanel, setShowAnalyticsPanel] = useState(showAnalytics)
 
   // Merge search query with provided filter
   const mergedFilter = useMemo<ActivityFilter>(() => ({
@@ -189,6 +194,21 @@ function ActivityFeedContent({
 
       {/* Search bar */}
       <ActivitySearchBar onSearch={setSearchQuery} delay={300} />
+
+      {/* Analytics panel toggle and display */}
+      {hasActivities && (
+        <>
+          <button
+            onClick={() => setShowAnalyticsPanel(!showAnalyticsPanel)}
+            className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors rounded-xs hover:bg-muted/20"
+          >
+            <BarChart3 className="w-4 h-4" />
+            {showAnalyticsPanel ? 'Hide' : 'Show'} Analytics
+          </button>
+
+          {showAnalyticsPanel && <ActivityAnalytics activities={feed.items} compact={false} />}
+        </>
+      )}
 
       {/* Activity items - Virtual or Standard */}
       {useVirtualScrolling ? (
