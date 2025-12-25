@@ -3,6 +3,8 @@ import { useState } from 'react'
 import { useStore } from '@tanstack/react-store'
 import { authStore, authActions } from '@/lib/auth-store'
 import { useRedirectIfAuthenticated } from '@/lib/hooks'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
 
 export const Route = createFileRoute('/login')({
   component: LoginPage,
@@ -67,13 +69,12 @@ function LoginPage() {
               >
                 Tenant Code
               </label>
-              <input
+              <Input
                 id="tenant-code"
                 type="text"
                 value={tenantCode}
                 onChange={(e) => setTenantCode(e.target.value)}
                 required
-                className="w-full px-3 py-2 border border-input rounded-xs focus:ring-2 focus:ring-ring focus:border-transparent bg-background text-foreground"
                 placeholder="e.g. acme-corp"
               />
             </div>
@@ -85,13 +86,12 @@ function LoginPage() {
               >
                 Username
               </label>
-              <input
+              <Input
                 id="username"
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
-                className="w-full px-3 py-2 border border-input rounded-xs focus:ring-2 focus:ring-ring focus:border-transparent bg-background text-foreground"
                 placeholder="username"
               />
             </div>
@@ -103,24 +103,24 @@ function LoginPage() {
               >
                 Password
               </label>
-              <input
+              <Input
                 id="password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full px-3 py-2 border border-input rounded-xs focus:ring-2 focus:ring-ring focus:border-transparent bg-background text-foreground"
                 placeholder="••••••••"
               />
             </div>
 
-            <button
+            <Button
               type="submit"
               disabled={authState.isLoading}
-              className="w-full px-4 py-2.5 bg-primary text-primary-foreground rounded-xs font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              isLoading={authState.isLoading}
+              className="w-full"
             >
               {authState.isLoading ? 'Signing in...' : 'Sign In'}
-            </button>
+            </Button>
           </form>
 
           {/* Register Link */}

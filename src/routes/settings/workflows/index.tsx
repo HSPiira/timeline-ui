@@ -3,11 +3,12 @@ import { useState, useEffect } from 'react'
 import { useRequireAuth } from '@/hooks/useRequireAuth'
 import { useToast } from '@/hooks/useToast'
 import { timelineApi } from '@/lib/api-client'
-import { Plus, Play, Pause, Trash2, AlertCircle, Loader2, CheckCircle } from 'lucide-react'
+import { Plus, Play, Pause, Trash2, CheckCircle } from 'lucide-react'
 import { WorkflowFormModal } from '@/components/workflows/WorkflowFormModal'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import type { components } from '@/lib/timeline-api'
 import { Button } from '@/components/ui/button'
+import { LoadingIcon, ErrorIcon } from '@/components/ui/icons'
 export const Route = createFileRoute('/settings/workflows/')({
   component: WorkflowsPage,
 })
@@ -162,7 +163,7 @@ function WorkflowsPage() {
     return (
       <div className="flex items-center justify-center py-8">
         <div className="flex items-center gap-2 text-muted-foreground">
-          <Loader2 className="w-4 h-4 animate-spin" />
+          <LoadingIcon />
           <span>Loading workflows...</span>
         </div>
       </div>
@@ -190,7 +191,7 @@ function WorkflowsPage() {
       {/* Error Alert */}
       {error && (
         <div className="mb-3 p-2.5 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xs flex gap-2">
-          <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+          <ErrorIcon className="text-red-600 dark:text-red-400 mt-0.5" />
           <div className="flex-1">
             <h3 className="font-semibold text-red-900 dark:text-red-200 text-sm">Error</h3>
             <p className="text-sm text-red-800 dark:text-red-300 mt-0.5">{error}</p>
@@ -201,7 +202,7 @@ function WorkflowsPage() {
       {/* No Access Notice */}
       {hasNoAccess && (
         <div className="mb-3 p-2.5 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xs flex gap-2">
-          <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+          <ErrorIcon className="text-amber-600 dark:text-amber-400 mt-0.5" />
           <div className="flex-1">
             <h3 className="font-semibold text-amber-900 dark:text-amber-200 text-sm">Limited Access</h3>
             <p className="text-sm text-amber-800 dark:text-amber-300 mt-0.5">
@@ -353,7 +354,7 @@ function WorkflowsPage() {
                           title={hasNoAccess ? 'No permission to delete' : 'Delete'}
                         >
                           {deleting === workflow.id ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
+                            <LoadingIcon />
                           ) : (
                             <Trash2 className="w-4 h-4" />
                           )}

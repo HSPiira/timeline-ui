@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { Plus, Loader2, AlertCircle, Activity, ChevronDown, ChevronRight, Calendar } from 'lucide-react'
+import { Plus, Activity, ChevronDown, ChevronRight, Calendar } from 'lucide-react'
+import { LoadingIcon, ErrorIcon } from '@/components/ui/icons'
 import { useEffect, useState } from 'react'
 import { useStore } from '@tanstack/react-store'
 import { timelineApi } from '@/lib/api-client'
@@ -134,7 +135,7 @@ function EventsPage() {
     return (
       <div className="min-h-[calc(100vh-4rem)] bg-background flex items-center justify-center">
         <div className="flex items-center gap-2 text-muted-foreground">
-          <Loader2 className="w-4 h-4 animate-spin" />
+          <LoadingIcon />
           <span className="text-sm">Loading events...</span>
         </div>
       </div>
@@ -146,7 +147,7 @@ function EventsPage() {
       <div className="min-h-[calc(100vh-4rem)] bg-background flex items-center justify-center">
         <div className="text-center max-w-md px-4">
           <div className="w-12 h-12 rounded-xs bg-red-100 dark:bg-red-900/20 flex items-center justify-center mx-auto mb-2">
-            <AlertCircle className="w-6 h-6 text-red-600 dark:text-red-400" />
+            <ErrorIcon className="w-6 h-6 text-red-600 dark:text-red-400" />
           </div>
           <h3 className="text-sm font-semibold text-foreground mb-1">
             Unable to Load Events

@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { useEffect, useId } from 'react'
 import { X } from 'lucide-react'
 
 interface ModalProps {
@@ -64,11 +65,39 @@ export function Modal({
   zIndex = 50,
   closeButton = true,
 }: ModalProps) {
+  const titleId = useId()
+
+  // Handle Escape key to close modal
+  useEffect(() => {
+    if (!isOpen) return
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onClose()
+      }
+    }
+
+    document.addEventListener('keydown', handleEscape)
+    return () => document.removeEventListener('keydown', handleEscape)
+  }, [isOpen, onClose])
+
+  // Prevent body scroll when modal is open
+  useEffect(() => {
+    if (!isOpen) return
+
+    const originalOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+
+    return () => {
+      document.body.style.overflow = originalOverflow
+    }
+  }, [isOpen])
+
   if (!isOpen) return null
 
   return (
     <div
-      className="modal-backdrop-animate fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[var(--z-index)]"
+      className="modal-backdrop-animate fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-(--z-index)"
       style={{ '--z-index': zIndex } as any}
       onClick={onClose}
       role="presentation"
@@ -76,13 +105,17 @@ export function Modal({
       <div
         className={`modal-content-animate bg-background border border-border rounded-xs ${maxWidth} w-full max-h-[90vh] overflow-auto p-4 sm:p-6 shadow-2xl`}
         onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={title ? titleId : undefined}
       >
         {/* Header */}
         {(title || closeButton) && (
           <div className="flex items-center justify-between mb-6">
-            {title && <h2 className="text-xl font-semibold text-foreground">{title}</h2>}
+            {title && <h2 id={titleId} className="text-xl font-semibold text-foreground">{title}</h2>}
             {closeButton && (
               <button
+                type="button"
                 onClick={onClose}
                 className="relative -mr-2 -mt-2 p-2 text-muted-foreground/70 hover:text-foreground hover:bg-muted/30 rounded-xs transition-colors"
                 aria-label="Close modal"

@@ -29,10 +29,8 @@ const ALLOWED_TYPES = [
 ]
 
 export function EventDocumentUpload({
-  subjectId,
   onFilesChanged,
   onError,
-  required = false,
 }: EventDocumentUploadProps) {
   const [stagedFiles, setStagedFiles] = useState<StagedFile[]>([])
   const [isDragging, setIsDragging] = useState(false)
@@ -63,7 +61,7 @@ export function EventDocumentUpload({
       }
 
       const stagedFile: StagedFile = {
-        id: `${Date.now()}-${Math.random()}`,
+        id: crypto.randomUUID(),
         file,
       }
 
@@ -146,7 +144,7 @@ export function EventDocumentUpload({
           {stagedFiles.map((stagedFile) => (
             <div key={stagedFile.id} className="flex items-center gap-2.5 p-2.5 bg-card rounded-xs border border-border/50">
               {/* Status Icon */}
-              <div className="flex-shrink-0">
+              <div className="shrink-0">
                 <div className="w-4 h-4 rounded-full border-2 border-primary border-t-transparent animate-spin" />
               </div>
 
@@ -160,7 +158,7 @@ export function EventDocumentUpload({
               {/* Remove Button */}
               <button
                 onClick={() => removeFile(stagedFile.id)}
-                className="flex-shrink-0 p-1 hover:bg-muted rounded-xs transition-colors"
+                className="shrink-0 p-1 hover:bg-muted rounded-xs transition-colors"
                 aria-label="Remove file"
               >
                 <X className="w-3 h-3 text-muted-foreground" />

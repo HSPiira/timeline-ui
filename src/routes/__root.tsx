@@ -16,7 +16,7 @@ import TanStackQueryDevtools from '@/integrations/tanstack-query/devtools'
 import { authStore, authActions } from '@/lib/auth-store'
 import { ThemeToggle } from '@/components/theme/theme-toggler'
 import { ThemeProvider } from '@/components/theme/theme-provider'
-import { SettingsMenu } from '@/components/header/SettingsMenu'
+import { SettingsButton } from '@/components/header/SettingsButton'
 import { ToastContainer } from '@/components/toast/ToastContainer'
 
 import appCss from '@/styles.css?url'
@@ -136,7 +136,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
                     <span className="text-sm font-medium text-muted-foreground">
                       {authState.user.username}
                     </span>
-                    <SettingsMenu />
+                    <SettingsButton />
                     <ThemeToggle variant="ghost" size="default" />
                     <button
                       onClick={handleLogout}

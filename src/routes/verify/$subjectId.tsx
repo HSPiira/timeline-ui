@@ -27,7 +27,6 @@ interface VisualizationEvent extends EventResponse {
 
 function VerifyPage() {
   const authState = useRequireAuth()
-  const navigate = useNavigate()
   const { subjectId } = Route.useParams()
 
   const [loading, setLoading] = useState(true)
@@ -165,14 +164,14 @@ function VerifyPage() {
       {/* Error Alert */}
       {error && (
         <div className="mb-3 p-2.5 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xs flex gap-2">
-          <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+          <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
           <div className="flex-1">
             <h3 className="font-semibold text-red-900 dark:text-red-200 text-xs">Verification Failed</h3>
             <p className="text-xs text-red-800 dark:text-red-300 mt-0.5">{error}</p>
           </div>
           <button
             onClick={verifyChain}
-            className="px-2.5 py-0.5 text-xs bg-red-600 text-white rounded hover:bg-red-700 transition-colors flex-shrink-0"
+            className="px-2.5 py-0.5 text-xs bg-red-600 text-white rounded hover:bg-red-700 transition-colors shrink-0"
           >
             Retry
           </button>

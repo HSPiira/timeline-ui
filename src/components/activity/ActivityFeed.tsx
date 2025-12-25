@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Calendar, Loader2, AlertCircle, Wifi, WifiOff, BarChart3 } from 'lucide-react'
+import { Calendar, Wifi, WifiOff, BarChart3 } from 'lucide-react'
 import { useActivityFeed } from '@/hooks/useActivityFeed'
 import { useActivitySubscription, useSimulatedActivityStream } from '@/hooks/useActivitySubscription'
 import { useActivityNotifications } from '@/hooks/useActivityNotifications'
@@ -8,6 +8,8 @@ import { VirtualActivityList } from './VirtualActivityList'
 import { ActivitySearchBar } from './ActivitySearchBar'
 import { ActivityAnalytics } from './ActivityAnalytics'
 import { ActivityProvider, useActivityContext } from '@/context/ActivityContext'
+import { Button } from '@/components/ui/button'
+import { LoadingIcon, ErrorIcon } from '@/components/ui/icons'
 import type { ActivityFilter, Activity } from '@/lib/types/activity'
 
 interface ActivityFeedProps {
@@ -130,7 +132,7 @@ function ActivityFeedContent({
     return (
       <div className="flex items-center justify-center py-12">
         <div className="flex flex-col items-center gap-3 text-muted-foreground">
-          <Loader2 className="w-6 h-6 animate-spin" />
+          <LoadingIcon size="lg" />
           <span className="text-sm">Loading activities...</span>
         </div>
       </div>
@@ -141,7 +143,7 @@ function ActivityFeedContent({
     return (
       <div className="flex items-center justify-center py-8">
         <div className="flex items-center gap-3 text-red-600 dark:text-red-400">
-          <AlertCircle className="w-5 h-5 flex-shrink-0" />
+          <ErrorIcon />
           <span className="text-sm">{error}</span>
         </div>
       </div>
@@ -162,7 +164,7 @@ function ActivityFeedContent({
             )}
             {wsStatus === 'connecting' && (
               <>
-                <Loader2 className="w-3 h-3 animate-spin text-amber-600 dark:text-amber-400" />
+                <LoadingIcon size="sm" className="text-amber-600 dark:text-amber-400" />
                 <span className="text-muted-foreground">Connecting...</span>
               </>
             )}
@@ -196,13 +198,15 @@ function ActivityFeedContent({
           <ActivitySearchBar onSearch={setSearchQuery} delay={300} />
         </div>
         {hasActivities && (
-          <button
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={() => setShowAnalyticsPanel(!showAnalyticsPanel)}
-            className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors rounded-xs hover:bg-muted/20 whitespace-nowrap"
+            className="gap-2 whitespace-nowrap"
           >
             <BarChart3 className="w-4 h-4" />
             {showAnalyticsPanel ? 'Hide' : 'Show'} Analytics
-          </button>
+          </Button>
         )}
       </div>
 
@@ -245,7 +249,6 @@ function ActivityFeedContent({
                 key={activity.id}
                 activity={activity}
                 isSelected={selected === activity.id}
-                isExpanded={expanded.has(activity.id)}
                 onSelect={setSelected}
                 onExpand={toggleExpanded}
               />
@@ -257,20 +260,22 @@ function ActivityFeedContent({
       {/* Load more button */}
       {hasActivities && feed.hasMore && (
         <div className="flex justify-center pt-4">
-          <button
+          <Button
+            variant="outline"
+            size="sm"
             onClick={fetchMore}
             disabled={loading}
-            className="px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/30 rounded-xs transition-colors disabled:opacity-50"
+            isLoading={loading}
           >
             {loading ? (
-              <div className="flex items-center gap-2">
-                <Loader2 className="w-3 h-3 animate-spin" />
+              <>
+                <LoadingIcon size="sm" />
                 Loading more...
-              </div>
+              </>
             ) : (
               `Load More (${feed.total - feed.items.length} remaining)`
             )}
-          </button>
+          </Button>
         </div>
       )}
 
@@ -313,18 +318,10 @@ function ActivityFeedByDateContent({
   filter,
   limit,
   showAnalytics = false,
-  enableNotifications = true,
 }: ActivityFeedProps) {
-  const { selected, setSelected, expanded, toggleExpanded } = useActivityContext()
+  const { selected, setSelected, toggleExpanded } = useActivityContext()
   const [searchQuery, setSearchQuery] = useState('')
   const [showAnalyticsPanel, setShowAnalyticsPanel] = useState(showAnalytics)
-
-  // Initialize notifications
-  const { notifyNewActivity } = useActivityNotifications({
-    enableNotifications,
-    showForActions: ['created', 'verified'],
-    autoCloseDuration: 5000,
-  })
 
   // Merge search query with provided filter
   const mergedFilter = useMemo<ActivityFilter>(() => ({
@@ -333,7 +330,7 @@ function ActivityFeedByDateContent({
   }), [filter, searchQuery])
 
   const { feed, loading, error } = useActivityFeed({
-    limit: 1000, // Load all for grouping
+    limit: limit || 100,
     filter: mergedFilter,
     autoFetch: true,
   })
@@ -377,7 +374,7 @@ function ActivityFeedByDateContent({
     return (
       <div className="flex items-center justify-center py-12">
         <div className="flex flex-col items-center gap-3 text-muted-foreground">
-          <Loader2 className="w-6 h-6 animate-spin" />
+          <LoadingIcon size="lg" />
           <span className="text-sm">Loading activities...</span>
         </div>
       </div>
@@ -388,7 +385,7 @@ function ActivityFeedByDateContent({
     return (
       <div className="flex items-center justify-center py-8">
         <div className="flex items-center gap-3 text-red-600 dark:text-red-400">
-          <AlertCircle className="w-5 h-5 flex-shrink-0" />
+          <ErrorIcon />
           <span className="text-sm">{error}</span>
         </div>
       </div>
@@ -403,13 +400,15 @@ function ActivityFeedByDateContent({
           <ActivitySearchBar onSearch={setSearchQuery} delay={300} />
         </div>
         {hasActivities && (
-          <button
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={() => setShowAnalyticsPanel(!showAnalyticsPanel)}
-            className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors rounded-xs hover:bg-muted/20 whitespace-nowrap"
+            className="gap-2 whitespace-nowrap"
           >
             <BarChart3 className="w-4 h-4" />
             {showAnalyticsPanel ? 'Hide' : 'Show'} Analytics
-          </button>
+          </Button>
         )}
       </div>
 
@@ -440,9 +439,11 @@ function ActivityFeedByDateContent({
         return (
           <div key={date}>
             {/* Date header with collapse toggle */}
-            <button
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={() => toggleDateCollapsed(date)}
-              className="flex items-center gap-2 mb-3 px-2 py-1 hover:bg-muted/30 rounded-xs transition-colors"
+              className="gap-2 mb-3 justify-start"
             >
               <span
                 className={`transform transition-transform ${
@@ -455,7 +456,7 @@ function ActivityFeedByDateContent({
               <span className="text-xs text-muted-foreground">
                 ({activities.length})
               </span>
-            </button>
+            </Button>
 
             {/* Activities list */}
             {!isCollapsed && (
@@ -465,7 +466,6 @@ function ActivityFeedByDateContent({
                     key={activity.id}
                     activity={activity}
                     isSelected={selected === activity.id}
-                    isExpanded={expanded.has(activity.id)}
                     onSelect={setSelected}
                     onExpand={toggleExpanded}
                   />

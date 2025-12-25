@@ -1,9 +1,11 @@
-import { useState } from 'react'
-import { X, Plus, Loader2 } from 'lucide-react'
+import { Plus, X } from 'lucide-react'
+import { useEffect, useId, useState } from 'react'
+import { timelineApi } from '@/lib/api-client'
+import { getApiErrorMessage } from '@/lib/api-utils'
+import type { components } from '@/lib/timeline-api'
 import { DocumentList } from './DocumentList'
 import { EventDocumentUpload } from './EventDocumentUpload'
-import { timelineApi } from '@/lib/api-client'
-import type { components } from '@/lib/timeline-api'
+import { LoadingIcon } from '@/components/ui/icons'
 
 export interface EventDocumentsModalProps {
   eventId: string
@@ -20,10 +22,23 @@ export function EventDocumentsModal({
   onClose,
   onDocumentsUpdated
 }: EventDocumentsModalProps) {
+  const titleId = useId()
   const [showUpload, setShowUpload] = useState(false)
   const [stagedFiles, setStagedFiles] = useState<File[]>([])
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  // Handle Escape key to close modal
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && !uploading) {
+        onClose()
+      }
+    }
+
+    document.addEventListener('keydown', handleEscape)
+    return () => document.removeEventListener('keydown', handleEscape)
+  }, [onClose, uploading])
 
   const handleFilesChanged = (files: File[]) => {
     setStagedFiles(files)
@@ -37,8 +52,8 @@ export function EventDocumentsModal({
     setError(null)
 
     try {
-      // Upload all documents
-      const documentIds = await Promise.all(
+      // Upload all documents with allSettled to handle partial failures
+      const results = await Promise.allSettled(
         stagedFiles.map(async (file) => {
           const formData = new FormData()
           formData.append('file', file)
@@ -47,11 +62,37 @@ export function EventDocumentsModal({
 
           const { data, error } = await timelineApi.documents.upload(formData)
           if (error) {
-            throw new Error(typeof error === 'object' && 'message' in error ? (error as any).message : 'Failed to upload document')
+            throw new Error(getApiErrorMessage(error, 'Failed to upload document'))
           }
-          return (data as any).id
+          if (!data || typeof data !== 'object' || !('id' in data)) {
+            throw new Error('Invalid response from server')
+          }
+          return data.id
         })
       )
+
+      // Collect successful uploads and failed files
+      const documentIds: string[] = []
+      const failures: string[] = []
+
+      results.forEach((result, idx) => {
+        if (result.status === 'fulfilled') {
+          documentIds.push(result.value)
+        } else {
+          failures.push(`${stagedFiles[idx].name}: ${result.reason.message}`)
+        }
+      })
+
+      // If all failed, show error and abort
+      if (documentIds.length === 0) {
+        setError(`All document uploads failed:\n${failures.join('\n')}`)
+        return
+      }
+
+      // If some failed, warn user but proceed with successful uploads
+      if (failures.length > 0) {
+        setError(`Some files failed to upload:\n${failures.join('\n')}\n\nProceeding with ${documentIds.length} successful upload(s).`)
+      }
 
       // Create a new "document_update" event to maintain audit trail
       const eventCreateData: components['schemas']['EventCreate'] = {
@@ -70,11 +111,7 @@ export function EventDocumentsModal({
       const { error: createError } = await timelineApi.events.create(eventCreateData)
 
       if (createError) {
-        const errorMessage =
-          typeof createError === 'object' && 'message' in createError
-            ? (createError as any).message
-            : 'Failed to create document update event'
-        setError(errorMessage)
+        setError(getApiErrorMessage(createError, 'Failed to create document update event'))
         return
       }
 
@@ -91,19 +128,24 @@ export function EventDocumentsModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" onClick={onClose} role="presentation">
+    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" onClick={onClose} onKeyDown={(e) => e.key === 'Escape' && !uploading && onClose()} role="presentation">
       <div
         className="bg-background border border-amber-200 dark:border-amber-900 rounded-xs shadow-xl max-w-2xl w-full max-h-[90vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
+        onKeyDown={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-amber-200 dark:border-amber-900 bg-gradient-to-r from-amber-50 to-amber-100/50 dark:from-amber-950/30 dark:to-amber-900/20">
+        <div className="flex items-center justify-between p-4 border-b border-amber-200 dark:border-amber-900 bg-linear-to-r from-amber-50 to-amber-100/50 dark:from-amber-950/30 dark:to-amber-900/20">
           <div>
-            <h2 className="font-semibold text-foreground">Event Documents</h2>
+            <h2 id={titleId} className="font-semibold text-foreground">Event Documents</h2>
             <p className="text-xs text-muted-foreground mt-0.5">{eventId.slice(0, 8)}</p>
           </div>
 
           <button
+            type="button"
             onClick={onClose}
             className="px-4 py-2 hover:bg-muted rounded-xs transition-colors font-medium"
             title="Close"
@@ -125,12 +167,12 @@ export function EventDocumentsModal({
           {/* Current Documents */}
           <div>
             <h3 className="text-sm font-medium mb-3">Current Documents</h3>
-            <DocumentList eventId={eventId} readOnly={true} />
+            <DocumentList eventId={eventId} readOnly />
           </div>
 
           {/* Upload Section */}
           {showUpload && (
-            <div className="p-3 bg-gradient-to-r from-blue-50 to-blue-100/50 dark:from-blue-950/30 dark:to-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xs space-y-3">
+            <div className="p-3 bg-linear-to-r from-blue-50 to-blue-100/50 dark:from-blue-950/30 dark:to-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xs space-y-3">
               <div>
                 <h4 className="text-sm font-medium text-blue-900 dark:text-blue-200 mb-2">Add Additional Documents</h4>
                 <p className="text-xs text-blue-800 dark:text-blue-300 mb-3">
@@ -146,13 +188,14 @@ export function EventDocumentsModal({
 
               <div className="flex items-center gap-2 pt-2">
                 <button
+                  type="button"
                   onClick={handleUploadDocuments}
                   disabled={stagedFiles.length === 0 || uploading}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white rounded-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:shadow-sm"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-linear-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white rounded-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:shadow-sm"
                 >
                   {uploading ? (
                     <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <LoadingIcon />
                       Uploading...
                     </>
                   ) : (
@@ -163,6 +206,7 @@ export function EventDocumentsModal({
                   )}
                 </button>
                 <button
+                  type="button"
                   onClick={() => {
                     setShowUpload(false)
                     setStagedFiles([])
@@ -180,6 +224,7 @@ export function EventDocumentsModal({
           {/* Show Upload Button */}
           {!showUpload && (
             <button
+              type="button"
               onClick={() => setShowUpload(true)}
               className="w-full px-4 py-2 text-sm border-2 border-dashed border-amber-400 dark:border-amber-600 text-amber-700 dark:text-amber-300 rounded-xs hover:bg-amber-50 dark:hover:bg-amber-950/20 transition-all font-medium hover:border-amber-500 dark:hover:border-amber-500"
             >

@@ -1,8 +1,11 @@
 import { useState } from 'react'
-import { Loader2, Plus, Trash2, Eye, EyeOff } from 'lucide-react'
+import { Plus, Trash2, Eye, EyeOff } from 'lucide-react'
 import { Modal } from '@/components/ui/Modal'
 import { FormError } from '@/components/ui/FormField'
-import { Button } from '@/components/ui/Button'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Select } from '@/components/ui/select'
+import { LoadingIcon } from '@/components/ui/icons'
 
 interface SchemaField {
   id: string
@@ -150,7 +153,7 @@ export function SchemaFormModal({ onClose, onSubmit, title }: SchemaFormModalPro
 
       Object.entries(schema.properties).forEach(([name, propSchema]: [string, any]) => {
         const field: SchemaField = {
-          id: Date.now().toString() + Math.random(),
+          id: crypto.randomUUID(),
           name,
           type: 'string',
           required: requiredFields.includes(name),
@@ -359,17 +362,14 @@ export function SchemaFormModal({ onClose, onSubmit, title }: SchemaFormModalPro
                 <label className="block text-sm font-medium text-foreground/90 mb-2">
                   Event Type <span className="text-destructive">*</span>
                 </label>
-                <input
+                <Input
                   type="text"
                   value={eventType}
                   onChange={(e) => setEventType(e.target.value)}
                   placeholder="e.g., user_created, order_placed, payment_received"
-                  className="w-full px-3 py-2 bg-background border border-input rounded-xs text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
                   disabled={loading}
+                  helperText="Alphanumeric characters and underscores only (will be lowercase)"
                 />
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Alphanumeric characters and underscores only (will be lowercase)
-                </p>
               </div>
 
               {/* Fields Summary */}
@@ -486,7 +486,7 @@ export function SchemaFormModal({ onClose, onSubmit, title }: SchemaFormModalPro
 
                   {showJsonPreview && (
                     <div className="p-3 bg-background/50 border border-border rounded-xs overflow-auto max-h-40">
-                      <pre className="text-xs font-mono text-muted-foreground whitespace-pre-wrap break-words">
+                      <pre className="text-xs font-mono text-muted-foreground whitespace-pre-wrap wrap-break-word">
                         {JSON.stringify(jsonSchema, null, 2)}
                       </pre>
                     </div>
@@ -501,17 +501,14 @@ export function SchemaFormModal({ onClose, onSubmit, title }: SchemaFormModalPro
                 <label className="block text-sm font-medium text-foreground/90 mb-2">
                   Event Type <span className="text-destructive">*</span>
                 </label>
-                <input
+                <Input
                   type="text"
                   value={eventType}
                   onChange={(e) => setEventType(e.target.value)}
                   placeholder="e.g., user_created, order_placed, payment_received"
-                  className="w-full px-3 py-2 bg-background border border-input rounded-xs text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
                   disabled={loading}
+                  helperText="Alphanumeric characters and underscores only (will be lowercase)"
                 />
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Alphanumeric characters and underscores only (will be lowercase)
-                </p>
               </div>
 
               <div>
@@ -542,7 +539,7 @@ export function SchemaFormModal({ onClose, onSubmit, title }: SchemaFormModalPro
             >
               {loading ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <LoadingIcon />
                   Creating...
                 </>
               ) : (
@@ -579,29 +576,27 @@ export function SchemaFormModal({ onClose, onSubmit, title }: SchemaFormModalPro
               <label className="block text-sm font-medium text-foreground/90 mb-2">
                 Field Name <span className="text-destructive">*</span>
               </label>
-              <input
+              <Input
                 type="text"
                 value={editingField.name}
                 onChange={(e) => setEditingField({ ...editingField, name: e.target.value })}
                 placeholder="e.g., user_email"
-                className="w-full px-3 py-2 bg-background border border-input rounded-xs text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
               />
             </div>
 
           {/* Type */}
           <div>
             <label className="block text-sm font-medium text-foreground/90 mb-2">Type</label>
-            <select
+            <Select
               value={editingField.type}
               onChange={(e) => setEditingField({ ...editingField, type: e.target.value })}
-              className="w-full px-3 py-2 bg-background border border-input rounded-xs text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             >
               {FIELD_TYPES.map((t) => (
                 <option key={t.value} value={t.value}>
                   {t.label}
                 </option>
               ))}
-            </select>
+            </Select>
           </div>
 
           {/* Description */}
@@ -609,12 +604,11 @@ export function SchemaFormModal({ onClose, onSubmit, title }: SchemaFormModalPro
             <label className="block text-sm font-medium text-foreground/90 mb-2">
               Description (optional)
             </label>
-            <input
+            <Input
               type="text"
               value={editingField.description}
               onChange={(e) => setEditingField({ ...editingField, description: e.target.value })}
               placeholder="What does this field represent?"
-              className="w-full px-3 py-2 bg-background border border-input rounded-xs text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
 
@@ -638,7 +632,7 @@ export function SchemaFormModal({ onClose, onSubmit, title }: SchemaFormModalPro
               <div className="space-y-2 mb-2">
                 {(editingField.enum || []).map((value, idx) => (
                   <div key={idx} className="flex items-center gap-2">
-                    <input
+                    <Input
                       type="text"
                       value={value}
                       onChange={(e) => {
@@ -646,7 +640,7 @@ export function SchemaFormModal({ onClose, onSubmit, title }: SchemaFormModalPro
                         newEnum[idx] = e.target.value
                         setEditingField({ ...editingField, enum: newEnum })
                       }}
-                      className="flex-1 px-3 py-2 bg-background border border-input rounded-xs text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                      className="flex-1"
                     />
                     <button
                       type="button"
@@ -685,7 +679,7 @@ export function SchemaFormModal({ onClose, onSubmit, title }: SchemaFormModalPro
                 <label className="block text-sm font-medium text-foreground/90 mb-2">
                   Minimum (optional)
                 </label>
-                <input
+                <Input
                   type="number"
                   value={editingField.minimum !== undefined ? editingField.minimum : ''}
                   onChange={(e) =>
@@ -695,14 +689,13 @@ export function SchemaFormModal({ onClose, onSubmit, title }: SchemaFormModalPro
                     })
                   }
                   placeholder="e.g., 0"
-                  className="w-full px-3 py-2 bg-background border border-input rounded-xs text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-foreground/90 mb-2">
                   Maximum (optional)
                 </label>
-                <input
+                <Input
                   type="number"
                   value={editingField.maximum !== undefined ? editingField.maximum : ''}
                   onChange={(e) =>
@@ -712,7 +705,6 @@ export function SchemaFormModal({ onClose, onSubmit, title }: SchemaFormModalPro
                     })
                   }
                   placeholder="e.g., 100"
-                  className="w-full px-3 py-2 bg-background border border-input rounded-xs text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                 />
               </div>
             </div>
@@ -724,7 +716,7 @@ export function SchemaFormModal({ onClose, onSubmit, title }: SchemaFormModalPro
               <label className="block text-sm font-medium text-foreground/90 mb-2">
                 Format (optional)
               </label>
-              <select
+              <Select
                 value={editingField.format || ''}
                 onChange={(e) =>
                   setEditingField({
@@ -732,7 +724,6 @@ export function SchemaFormModal({ onClose, onSubmit, title }: SchemaFormModalPro
                     format: e.target.value || undefined,
                   })
                 }
-                className="w-full px-3 py-2 bg-background border border-input rounded-xs text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
               >
                 <option value="">None</option>
                 {STRING_FORMATS.map((f) => (
@@ -740,7 +731,7 @@ export function SchemaFormModal({ onClose, onSubmit, title }: SchemaFormModalPro
                     {f.label}
                   </option>
                 ))}
-              </select>
+              </Select>
             </div>
           )}
 
@@ -750,7 +741,7 @@ export function SchemaFormModal({ onClose, onSubmit, title }: SchemaFormModalPro
               <label className="block text-sm font-medium text-foreground/90 mb-2">
                 Regex Pattern (optional)
               </label>
-              <input
+              <Input
                 type="text"
                 value={editingField.pattern || ''}
                 onChange={(e) =>
@@ -760,11 +751,8 @@ export function SchemaFormModal({ onClose, onSubmit, title }: SchemaFormModalPro
                   })
                 }
                 placeholder="e.g., ^[A-Z]{2}\\d{3}$"
-                className="w-full px-3 py-2 bg-background border border-input rounded-xs text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                helperText="For custom validation patterns. Examples: email regex, zipcode format, etc."
               />
-              <p className="mt-1 text-xs text-muted-foreground">
-                For custom validation patterns. Examples: email regex, zipcode format, etc.
-              </p>
             </div>
           )}
 

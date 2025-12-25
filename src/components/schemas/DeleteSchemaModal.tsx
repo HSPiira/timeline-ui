@@ -1,14 +1,16 @@
-import { useState } from 'react'
-import { AlertTriangle, Loader2, X } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { AlertTriangle, X } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { LoadingIcon } from '@/components/ui/icons'
 
-interface DeleteConfirmModalProps {
+export interface DeleteConfirmModalProps {
   isOpen: boolean
   title: string
   message: string
   itemLabel: string
   details?: Record<string, string | number>
   warning?: string
-  onConfirm: () => Promise<void>
+  onConfirm: () => void | Promise<void>
   onClose: () => void
   isDestructive?: boolean
 }
@@ -26,6 +28,28 @@ export function DeleteConfirmModal({
 }: DeleteConfirmModalProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  // Reset state when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setLoading(false)
+      setError(null)
+    }
+  }, [isOpen])
+
+  // Handle Escape key to close modal
+  useEffect(() => {
+    if (!isOpen) return
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && !loading) {
+        onClose()
+      }
+    }
+
+    document.addEventListener('keydown', handleEscape)
+    return () => document.removeEventListener('keydown', handleEscape)
+  }, [isOpen, onClose, loading])
 
   if (!isOpen) return null
 
@@ -45,12 +69,23 @@ export function DeleteConfirmModal({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-background border border-border rounded-xs max-w-md w-full shadow-xl p-6">
+    <div
+      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+      onClick={loading ? undefined : onClose}
+      role="presentation"
+    >
+      <div
+        className="bg-background border border-border rounded-xs max-w-md w-full shadow-xl p-6"
+        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-title"
+        aria-describedby="modal-description"
+      >
         {/* Header */}
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-start gap-3">
-            <div className={`w-10 h-10 rounded-xs flex items-center justify-center flex-shrink-0 ${
+            <div className={`w-10 h-10 rounded-xs flex items-center justify-center shrink-0 ${
               isDestructive
                 ? 'bg-red-100 dark:bg-red-950/30'
                 : 'bg-yellow-100 dark:bg-yellow-950/30'
@@ -62,17 +97,19 @@ export function DeleteConfirmModal({
               }`} />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-foreground">{title}</h2>
-              <p className="text-sm text-muted-foreground mt-0.5">{message}</p>
+              <h2 id="modal-title" className="text-lg font-semibold text-foreground">{title}</h2>
+              <p id="modal-description" className="text-sm text-muted-foreground mt-0.5">{message}</p>
             </div>
           </div>
-          <button
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={onClose}
             disabled={loading}
-            className="text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
+            aria-label="Close modal"
           >
             <X className="w-5 h-5" />
-          </button>
+          </Button>
         </div>
 
         {/* Details */}
@@ -116,31 +153,32 @@ export function DeleteConfirmModal({
 
         {/* Actions */}
         <div className="flex items-center gap-2 pt-2 border-t border-border">
-          <button
+          <Button
+            variant="outline"
+            size="sm"
             onClick={onClose}
             disabled={loading}
-            className="flex-1 px-3 py-1.5 text-sm text-foreground hover:bg-muted rounded-xs font-medium transition-colors disabled:opacity-50"
+            className="flex-1"
           >
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button
+            variant={isDestructive ? 'destructive' : 'primary'}
+            size="sm"
             onClick={handleConfirm}
             disabled={loading}
-            className={`flex-1 px-3 py-1.5 text-sm text-white rounded-xs font-medium transition-colors disabled:opacity-50 inline-flex items-center justify-center gap-2 ${
-              isDestructive
-                ? 'bg-red-600 hover:bg-red-700'
-                : 'bg-yellow-600 hover:bg-yellow-700'
-            }`}
+            isLoading={loading}
+            className="flex-1"
           >
             {loading ? (
               <>
-                <Loader2 className="w-3 h-3 animate-spin" />
+                <LoadingIcon size="sm" />
                 <span>Confirming...</span>
               </>
             ) : (
               `Confirm ${itemLabel}`
             )}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

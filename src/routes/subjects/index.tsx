@@ -238,7 +238,7 @@ function SubjectsPage() {
 
         {/* Content */}
         {isLoading && (
-          <div className="min-h-[300px] bg-background flex items-center justify-center">
+          <div className="min-h-75 bg-background flex items-center justify-center">
             <div className="flex items-center gap-3 text-muted-foreground">
               <Loader2 className="w-5 h-5 animate-spin" />
               <span>Loading subjects...</span>
@@ -247,7 +247,7 @@ function SubjectsPage() {
         )}
 
         {isError && (
-          <div className="min-h-[300px] bg-background flex items-center justify-center">
+          <div className="min-h-75 bg-background flex items-center justify-center">
             <div className="text-center max-w-md px-4">
               <div className="w-16 h-16 rounded-xs bg-red-100 dark:bg-red-900/20 flex items-center justify-center mx-auto mb-4">
                 <AlertCircle className="w-8 h-8 text-destructive" />
@@ -412,7 +412,7 @@ function CreateSubjectModal({
   
               {error && (
                 <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-xs flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4 text-destructive flex-shrink-0" />
+                  <AlertCircle className="w-4 h-4 text-destructive shrink-0" />
                   <p className="text-sm text-destructive">{error}</p>
                 </div>
               )}

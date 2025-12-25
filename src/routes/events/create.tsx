@@ -122,9 +122,6 @@ function CreateEventPage() {
     return null
   }, [schema])
 
-  // Documents are now optional - users can add them after event creation
-  const schemaRequiresDocuments = false
-
   // Validate payload against schema
   const validatePayload = useMemo(() => {
     const errors: Record<string, string> = {}
@@ -141,9 +138,6 @@ function CreateEventPage() {
 
     return errors
   }, [schema, state.payload])
-
-  // Documents are now optional
-  const validateDocuments = null
 
   const handlePayloadChange = (newPayload: Record<string, any>) => {
     setState((prev) => ({
@@ -271,7 +265,7 @@ function CreateEventPage() {
           {/* API Error Alert */}
           {apiError && (
             <div className="p-2.5 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xs flex gap-2">
-              <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+              <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
               <div>
                 <h3 className="font-semibold text-red-900 dark:text-red-200 text-sm">Error</h3>
                 <p className="text-sm text-red-800 dark:text-red-300">{apiError}</p>

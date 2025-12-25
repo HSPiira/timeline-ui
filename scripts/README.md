@@ -17,6 +17,7 @@ Utilities for creating test data in the Timeline application.
 2. Navigate to `/subjects`
 3. Open browser developer console (F12)
 4. Run:
+
 ```javascript
 createDummySubjects()
 ```
@@ -39,6 +40,7 @@ npx tsx scripts/seed-subjects.ts <YOUR_AUTH_TOKEN>
 ```
 
 Example:
+
 ```bash
 npx tsx scripts/seed-subjects.ts eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```

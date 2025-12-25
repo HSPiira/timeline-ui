@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { FileText, AlertCircle } from 'lucide-react'
+import { useCallback, useEffect, useState } from 'react'
+import { FileText, Loader2 } from 'lucide-react'
 import { timelineApi } from '@/lib/api-client'
 import type { EventResponse } from '@/lib/types'
 
@@ -24,14 +24,8 @@ export function TimelineEvent({
   const [loadingDocuments, setLoadingDocuments] = useState(false)
   const showPayload = isExpanded || isHovered
 
-  // Load document count when event is visible
-  useEffect(() => {
-    if (isExpanded || isHovered) {
-      checkDocuments()
-    }
-  }, [isExpanded, isHovered])
-
-  const checkDocuments = async () => {
+  const checkDocuments = useCallback(async () => {
+    if (documentCount !== null) return // Already fetched 
     setLoadingDocuments(true)
     try {
       const { data, error } = await timelineApi.documents.listByEvent(event.id)
@@ -43,7 +37,14 @@ export function TimelineEvent({
     } finally {
       setLoadingDocuments(false)
     }
-  }
+  }, [documentCount, event.id])
+
+  // Load document count when event is visible
+  useEffect(() => {
+    if (isExpanded || isHovered) {
+      checkDocuments()
+    }
+  }, [isExpanded, isHovered, checkDocuments])
 
   const hasDocuments = documentCount !== null && documentCount > 0
 
@@ -70,7 +71,7 @@ export function TimelineEvent({
                 minute: '2-digit'
               })}
             </span>
-            <span className="font-mono text-xs bg-gradient-to-r from-slate-600 to-slate-700 dark:from-slate-700 dark:to-slate-800 text-slate-100 px-2 py-0.5 rounded-xs">
+            <span className="font-mono text-xs bg-linear-to-r from-slate-600 to-slate-700 dark:from-slate-700 dark:to-slate-800 text-slate-100 px-2 py-0.5 rounded-xs">
               {event.subject_id.slice(0, 8)}
             </span>
             <span className="text-sm font-semibold text-blue-700 dark:text-blue-300">{event.event_type}</span>
@@ -78,7 +79,7 @@ export function TimelineEvent({
             {/* Document Indicator */}
             {loadingDocuments && (
               <div className="text-xs text-muted-foreground">
-                <AlertCircle className="w-3 h-3 inline animate-pulse" />
+                <Loader2 className="w-3 h-3 inline animate-spin" />
               </div>
             )}
             {hasDocuments && !loadingDocuments && (

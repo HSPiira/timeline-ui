@@ -2,7 +2,8 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useState, useEffect } from 'react'
 import { useRequireAuth } from '@/hooks/useRequireAuth'
 import { timelineApi } from '@/lib/api-client'
-import { Plus, Eye, Trash2, AlertCircle, Loader2, CheckCircle } from 'lucide-react'
+import { Plus, Eye, Trash2, CheckCircle } from 'lucide-react'
+import { LoadingIcon, ErrorIcon } from '@/components/ui/icons'
 import { SchemaFormModal } from '@/components/schemas/SchemaFormModal'
 import { SchemaViewModal } from '@/components/schemas/SchemaViewModal'
 import { DeleteSchemaModal } from '@/components/schemas/DeleteSchemaModal'
@@ -120,7 +121,7 @@ function SchemasPage() {
     return (
       <div className="flex items-center justify-center py-8">
         <div className="flex items-center gap-2 text-muted-foreground">
-          <Loader2 className="w-4 h-4 animate-spin" />
+          <LoadingIcon />
           <span>Loading schemas...</span>
         </div>
       </div>
@@ -162,7 +163,7 @@ function SchemasPage() {
       {/* Error Alert */}
       {error && (
         <div className="mb-3 p-2.5 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xs flex gap-2">
-          <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+          <ErrorIcon className="text-red-600 dark:text-red-400 mt-0.5" />
           <div className="flex-1">
             <h3 className="font-semibold text-red-900 dark:text-red-200 text-sm">Error</h3>
             <p className="text-sm text-red-800 dark:text-red-300 mt-0.5">{error}</p>

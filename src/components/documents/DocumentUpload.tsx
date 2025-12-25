@@ -1,7 +1,10 @@
 import { useState, useRef } from 'react'
-import { Upload, X, AlertCircle, CheckCircle, Loader2 } from 'lucide-react'
+import { Upload, X, CheckCircle } from 'lucide-react'
 import { timelineApi } from '@/lib/api-client'
+import { getApiErrorMessage } from '@/lib/api-utils'
 import { useToast } from '@/hooks/useToast'
+import { Select } from '@/components/ui/select'
+import { LoadingIcon, ErrorIcon } from '@/components/ui/icons'
 
 export interface DocumentUploadProps {
   subjectId?: string
@@ -116,11 +119,7 @@ export function DocumentUpload({
           documentType: uploadingFile.documentType,
         })
 
-        const errorMessage = typeof error === 'object' && 'message' in error
-          ? (error as any).message
-          : typeof error === 'object' && 'detail' in error
-          ? (error as any).detail
-          : 'Upload failed'
+        const errorMessage = getApiErrorMessage(error, 'Upload failed')
 
         setFiles((prev) => prev.map((f) => (f.id === uploadingFile.id ? { ...f, status: 'error', error: errorMessage, progress: 0 } : f)))
         onError?.(errorMessage)
@@ -159,10 +158,13 @@ export function DocumentUpload({
       }
 
       newFiles.push(uploadingFile)
-      uploadFile(file, uploadingFile)
     })
 
     setFiles((prev) => [...prev, ...newFiles])
+    // Start uploads after files are added to state
+    newFiles.forEach((uploadingFile) => {  
+      uploadFile(uploadingFile.file, uploadingFile)  
+    })
   }
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -201,10 +203,9 @@ export function DocumentUpload({
         <label className="block text-sm font-medium text-foreground/90 mb-2">
           Document Type
         </label>
-        <select
+        <Select
           value={documentType}
           onChange={(e) => setDocumentType(e.target.value)}
-          className="w-full px-3 py-2 bg-background border border-input rounded-xs text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
         >
           <option value="evidence">Evidence</option>
           <option value="invoice">Invoice</option>
@@ -213,7 +214,7 @@ export function DocumentUpload({
           <option value="certificate">Certificate</option>
           <option value="report">Report</option>
           <option value="other">Other</option>
-        </select>
+        </Select>
       </div>
 
       {/* Upload Area */}
@@ -257,10 +258,10 @@ export function DocumentUpload({
           {files.map((uploadingFile) => (
             <div key={uploadingFile.id} className="flex items-center gap-3 p-3 bg-card rounded-xs border border-border/50">
               {/* Status Icon */}
-              <div className="flex-shrink-0">
-                {uploadingFile.status === 'uploading' && <Loader2 className="w-5 h-5 text-primary animate-spin" />}
+              <div className="shrink-0">
+                {uploadingFile.status === 'uploading' && <LoadingIcon size="lg" className="text-primary" />}
                 {uploadingFile.status === 'success' && <CheckCircle className="w-5 h-5 text-green-500" />}
-                {uploadingFile.status === 'error' && <AlertCircle className="w-5 h-5 text-red-500" />}
+                {uploadingFile.status === 'error' && <ErrorIcon className="text-red-500" />}
               </div>
 
               {/* File Info */}
@@ -288,7 +289,7 @@ export function DocumentUpload({
               {uploadingFile.status !== 'uploading' && (
                 <button
                   onClick={() => removeFile(uploadingFile.id)}
-                  className="flex-shrink-0 p-1 hover:bg-muted rounded-xs transition-colors"
+                  className="shrink-0 p-1 hover:bg-muted rounded-xs transition-colors"
                   aria-label="Remove file"
                 >
                   <X className="w-4 h-4 text-muted-foreground" />

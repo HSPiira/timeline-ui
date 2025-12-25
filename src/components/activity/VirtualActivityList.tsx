@@ -1,11 +1,11 @@
 import { useVirtualizer } from '@tanstack/react-virtual'
-import { useRef, useMemo } from 'react'
+import { useRef } from 'react'
 import type { Activity } from '@/lib/types/activity'
 import { ActivityRenderer } from './ActivityRenderers'
 
 interface VirtualActivityListProps {
   activities: Activity[]
-  selectedId?: string
+  selectedId?: string | null
   expandedIds?: Set<string>
   onSelect?: (id: string) => void
   onExpand?: (id: string) => void
@@ -23,16 +23,12 @@ interface VirtualActivityListProps {
 export function VirtualActivityList({
   activities,
   selectedId,
-  expandedIds = new Set(),
   onSelect,
   onExpand,
   height = 600,
   itemHeight = 100,
 }: VirtualActivityListProps) {
   const parentRef = useRef<HTMLDivElement>(null)
-
-  // Memoize expanded items to avoid virtualizer recalculations
-  const expandedSet = useMemo(() => expandedIds, [expandedIds])
 
   const virtualizer = useVirtualizer({
     count: activities.length,
@@ -56,7 +52,7 @@ export function VirtualActivityList({
   return (
     <div
       ref={parentRef}
-      className="h-96 overflow-y-auto rounded-xs border border-border/50 bg-card/50"
+      className="overflow-y-auto rounded-xs border border-border/50 bg-card/50"
       style={{
         height,
       }}
@@ -73,15 +69,18 @@ export function VirtualActivityList({
           return (
             <div
               key={virtualItem.key}
-              style={{
-                transform: `translateY(${virtualItem.start}px)`,
+              style={{  
+                position: 'absolute',  
+                top: 0,  
+                left: 0,  
+                width: '100%',  
+                transform: `translateY(${virtualItem.start}px)`,  
               }}
               className="px-3 py-2"
             >
               <ActivityRenderer
                 activity={activity}
                 isSelected={selectedId === activity.id}
-                isExpanded={expandedSet.has(activity.id)}
                 onSelect={onSelect}
                 onExpand={onExpand}
               />

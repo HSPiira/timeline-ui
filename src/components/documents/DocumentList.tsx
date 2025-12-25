@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Download, Trash2, Loader2, AlertCircle, FileIcon, Eye } from 'lucide-react'
+import { Download, Trash2, FileIcon, Eye } from 'lucide-react'
 import { timelineApi } from '@/lib/api-client'
+import { getApiErrorMessage } from '@/lib/api-utils'
 import { DocumentViewer } from './DocumentViewer'
 import { useToast } from '@/hooks/useToast'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { SkeletonDocumentList } from '@/components/ui/Skeleton'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { LoadingIcon, ErrorIcon } from '@/components/ui/icons'
 import type { components } from '@/lib/timeline-api'
 
 export interface DocumentListProps {
@@ -67,15 +69,12 @@ export function DocumentList({ subjectId, eventId, readOnly, onDelete, onError }
       }
 
       if (response.error) {
-        console.error('Document fetch error:', response.error)
-        const errorMsg = typeof response.error === 'object' && 'message' in response.error ? (response.error as any).message : 'Failed to load documents'
+        const errorMsg = getApiErrorMessage(response.error, 'Failed to load documents')
         setError(errorMsg)
         onError?.(errorMsg)
       } else if (response.data && Array.isArray(response.data)) {
-        console.log(`Loaded ${response.data.length} documents`)
         setDocuments(response.data)
       } else {
-        console.log('No documents returned from API:', response.data)
         setDocuments([])
       }
     } catch (err) {
@@ -107,7 +106,7 @@ export function DocumentList({ subjectId, eventId, readOnly, onDelete, onError }
       const { error: deleteError } = await timelineApi.documents.delete(documentId)
 
       if (deleteError) {
-        const errorMsg = typeof deleteError === 'object' && 'message' in deleteError ? (deleteError as any).message : 'Failed to delete document'
+        const errorMsg = getApiErrorMessage(deleteError, 'Failed to delete document')
         setError(errorMsg)
         onError?.(errorMsg)
         toast.error('Failed to delete', errorMsg)
@@ -142,7 +141,7 @@ export function DocumentList({ subjectId, eventId, readOnly, onDelete, onError }
       const { data, error: downloadError } = await timelineApi.documents.download(documentId)
 
       if (downloadError) {
-        const errorMsg = typeof downloadError === 'object' && 'message' in downloadError ? (downloadError as any).message : 'Failed to download document'
+        const errorMsg = getApiErrorMessage(downloadError, 'Failed to download document')
         setError(errorMsg)
         onError?.(errorMsg)
         return
@@ -172,7 +171,7 @@ export function DocumentList({ subjectId, eventId, readOnly, onDelete, onError }
   if (error && documents.length === 0) {
     return (
       <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xs flex gap-3">
-        <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+        <ErrorIcon className="text-red-600 dark:text-red-400 mt-0.5" />
         <div>
           <h3 className="font-semibold text-red-900 dark:text-red-200 text-sm">Error loading documents</h3>
           <p className="text-xs text-red-800 dark:text-red-300">{error}</p>
@@ -194,7 +193,7 @@ export function DocumentList({ subjectId, eventId, readOnly, onDelete, onError }
   return (
     <div className="overflow-x-auto rounded-xs border border-amber-200 dark:border-amber-800">
       <table className="w-full text-xs sm:text-sm min-w-max">
-        <thead className="bg-gradient-to-r from-amber-50 to-amber-100/50 dark:from-amber-950/30 dark:to-amber-900/20 sticky top-0">
+        <thead className="bg-linear-to-r from-amber-50 to-amber-100/50 dark:from-amber-950/30 dark:to-amber-900/20 sticky top-0">
           <tr className="border-b border-amber-200 dark:border-amber-800">
             <th className="text-left py-2 sm:py-3 px-2 sm:px-3 font-medium text-amber-900 dark:text-amber-200 whitespace-nowrap">Name</th>
             <th className="text-left py-2 sm:py-3 px-2 sm:px-3 font-medium text-amber-900 dark:text-amber-200 whitespace-nowrap">Size</th>
@@ -211,7 +210,7 @@ export function DocumentList({ subjectId, eventId, readOnly, onDelete, onError }
                   className="flex items-center gap-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer group"
                   title="Click to view"
                 >
-                  <span className="text-sm sm:text-base flex-shrink-0">{FILE_ICONS[getMimeType(doc)] || '📎'}</span>
+                  <span className="text-sm sm:text-base shrink-0">{FILE_ICONS[getMimeType(doc)] || '📎'}</span>
                   <span className="truncate underline-offset-2 group-hover:underline font-medium text-foreground">{getDisplayName(doc)}</span>
                 </button>
               </td>
@@ -253,7 +252,7 @@ export function DocumentList({ subjectId, eventId, readOnly, onDelete, onError }
                       title="Delete"
                     >
                       {deleting === doc.id ? (
-                        <Loader2 className="w-3 sm:w-4 h-3 sm:h-4 text-red-500 animate-spin" />
+                        <LoadingIcon size="sm" className="text-red-500" />
                       ) : (
                         <Trash2 className="w-3 sm:w-4 h-3 sm:h-4 text-red-500" />
                       )}

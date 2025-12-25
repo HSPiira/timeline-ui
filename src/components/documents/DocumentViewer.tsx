@@ -1,6 +1,8 @@
-import { useEffect, useState } from 'react'
-import { Download, Printer, AlertCircle, Loader2, File as FileIcon, X } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
+import { Download, Printer, File as FileIcon, X } from 'lucide-react'
 import { timelineApi } from '@/lib/api-client'
+import { getApiErrorMessage } from '@/lib/api-utils'
+import { LoadingIcon, ErrorIcon } from '@/components/ui/icons'
 
 export interface DocumentViewerProps {
   documentId: string
@@ -16,6 +18,18 @@ export function DocumentViewer({ documentId, filename, fileType, onClose }: Docu
   const [error, setError] = useState<string | null>(null)
   const [content, setContent] = useState<Blob | null>(null)
 
+  // Handle Escape key to close modal
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onClose()
+      }
+    }
+
+    document.addEventListener('keydown', handleEscape)
+    return () => document.removeEventListener('keydown', handleEscape)
+  }, [onClose])
+
   useEffect(() => {
     const loadDocument = async () => {
       setState('loading')
@@ -25,8 +39,7 @@ export function DocumentViewer({ documentId, filename, fileType, onClose }: Docu
         const { data, error: fetchError } = await timelineApi.documents.download(documentId)
 
         if (fetchError) {
-          const errorMsg = typeof fetchError === 'object' && 'message' in fetchError ? (fetchError as { message: string }).message : 'Failed to load document'
-          setError(errorMsg)
+          setError(getApiErrorMessage(fetchError, 'Failed to load document'))
           setState('error')
           return
         }
@@ -67,13 +80,26 @@ export function DocumentViewer({ documentId, filename, fileType, onClose }: Docu
   const isPdf = fileType === 'application/pdf'
   const isPreviewable = isImage || isPdf
 
+  const imageUrl = useMemo(() => {
+    if (state === 'ready' && isImage && content instanceof Blob) {
+      return URL.createObjectURL(content)
+    }
+  }, [state, isImage, content])
+
+  useEffect(() => {
+    return () => {
+      if (imageUrl) {
+        URL.revokeObjectURL(imageUrl)
+      }
+    }
+  }, [imageUrl])
+
   const handleDownload = async () => {
     try {
       const { data, error: downloadError } = await timelineApi.documents.download(documentId)
 
       if (downloadError) {
-        const errorMsg = typeof downloadError === 'object' && 'message' in downloadError ? (downloadError as { message: string }).message : 'Failed to download'
-        setError(errorMsg)
+        setError(getApiErrorMessage(downloadError, 'Failed to download'))
         return
       }
 
@@ -112,15 +138,18 @@ export function DocumentViewer({ documentId, filename, fileType, onClose }: Docu
       <div
         className="bg-background border border-border rounded-xs shadow-xl max-w-4xl w-full max-h-[90vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="document-viewer-title"
       >
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-border">
           <div className="flex-1 min-w-0">
-            <h2 className="font-semibold text-foreground truncate">{filename}</h2>
+            <h2 id="document-viewer-title" className="font-semibold text-foreground truncate">{filename}</h2>
             <p className="text-xs text-muted-foreground">{fileType}</p>
           </div>
 
-          <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="flex items-center gap-2 shrink-0">
             {isImage && (
               <button onClick={handlePrint} className="px-4 py-2 hover:bg-muted rounded-xs transition-colors font-medium" title="Print">
                 <Printer className="w-4 h-4 text-muted-foreground" />
@@ -139,14 +168,14 @@ export function DocumentViewer({ documentId, filename, fileType, onClose }: Docu
         <div className="flex-1 overflow-auto flex items-center justify-center bg-muted/20">
           {state === 'loading' && (
             <div className="flex items-center gap-2 text-muted-foreground">
-              <Loader2 className="w-5 h-5 animate-spin" />
+              <LoadingIcon size="lg" />
               <span>Loading document...</span>
             </div>
           )}
 
           {state === 'error' && (
             <div className="flex flex-col items-center gap-3 text-center p-8">
-              <AlertCircle className="w-12 h-12 text-red-500" />
+              <ErrorIcon className="w-12 h-12 text-red-500" />
               <div>
                 <h3 className="font-semibold text-foreground">Unable to load document</h3>
                 <p className="text-sm text-muted-foreground mt-1">{error}</p>
@@ -162,9 +191,9 @@ export function DocumentViewer({ documentId, filename, fileType, onClose }: Docu
 
           {state === 'ready' && (
             <>
-              {isImage && content instanceof Blob && (
+              {isImage && imageUrl && (
                 <img
-                  src={URL.createObjectURL(content)}
+                  src={imageUrl}
                   alt={filename}
                   className="max-w-full max-h-full object-contain"
                 />

@@ -1,26 +1,35 @@
-import { Calendar, User, FileText, Workflow, Shield, Badge } from 'lucide-react'
+import { Calendar, User, FileText, Workflow, Shield, Badge, type LucideIcon } from 'lucide-react'
 import type { Activity } from '@/lib/types/activity'
-import { ACTIVITY_CONFIG, RESOURCE_ICONS, formatActivityTime } from '@/lib/types/activity'
+import { ACTIVITY_CONFIG, formatActivityTime } from '@/lib/types/activity'
 
 interface ActivityRendererProps {
   activity: Activity
   isSelected?: boolean
-  isExpanded?: boolean
   onSelect?: (id: string) => void
   onExpand?: (id: string) => void
 }
 
 /**
- * EventActivityRenderer - Renders event activities
+ * Renderer configuration for each resource type
+ * Maps resource type to its icon and color styling
  */
-export function EventActivityRenderer({
-  activity,
-  isSelected,
-  isExpanded,
-  onSelect,
-  onExpand,
-}: ActivityRendererProps) {
+const RENDERER_CONFIG: Record<Activity['resourceType'], { icon: LucideIcon; color: string }> = {
+  event: { icon: Calendar, color: 'text-blue-600 dark:text-blue-400' },
+  subject: { icon: User, color: 'text-purple-600 dark:text-purple-400' },
+  document: { icon: FileText, color: 'text-amber-600 dark:text-amber-400' },
+  workflow: { icon: Workflow, color: 'text-cyan-600 dark:text-cyan-400' },
+  permission: { icon: Shield, color: 'text-green-600 dark:text-green-400' },
+  role: { icon: Badge, color: 'text-blue-600 dark:text-blue-400' },
+}
+
+/**
+ * Generic Resource Activity Renderer - Renders any resource type activity
+ * Replaces all specific renderers (Event, Subject, Document, etc.) with a single reusable component
+ */
+function ResourceActivityRenderer({ activity, isSelected, onSelect, onExpand }: ActivityRendererProps) {
   const config = ACTIVITY_CONFIG[activity.action]
+  const resourceConfig = RENDERER_CONFIG[activity.resourceType]
+  const Icon = resourceConfig?.icon
 
   return (
     <ActivityCardContainer
@@ -32,7 +41,7 @@ export function EventActivityRenderer({
     >
       <div className="flex-1">
         <div className="flex items-center gap-2 mb-1">
-          <Calendar className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+          {Icon && <Icon className={`w-3.5 h-3.5 ${resourceConfig.color}`} />}
           <span className="font-medium text-sm text-foreground">
             {activity.resourceName}
           </span>
@@ -49,208 +58,30 @@ export function EventActivityRenderer({
 }
 
 /**
- * SubjectActivityRenderer - Renders subject activities
+ * Specific renderer exports for backward compatibility
+ * All use the same generic ResourceActivityRenderer internally
  */
-export function SubjectActivityRenderer({
-  activity,
-  isSelected,
-  isExpanded,
-  onSelect,
-  onExpand,
-}: ActivityRendererProps) {
-  const config = ACTIVITY_CONFIG[activity.action]
-
-  return (
-    <ActivityCardContainer
-      activity={activity}
-      config={config}
-      isSelected={isSelected}
-      onSelect={onSelect}
-      onExpand={onExpand}
-    >
-      <div className="flex-1">
-        <div className="flex items-center gap-2 mb-1">
-          <User className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
-          <span className="font-medium text-sm text-foreground">
-            {activity.resourceName}
-          </span>
-          <span className="text-xs text-muted-foreground font-mono">
-            {activity.resourceId.slice(0, 8)}
-          </span>
-        </div>
-        {activity.description && (
-          <p className="text-xs text-muted-foreground">{activity.description}</p>
-        )}
-      </div>
-    </ActivityCardContainer>
-  )
-}
-
-/**
- * DocumentActivityRenderer - Renders document activities
- */
-export function DocumentActivityRenderer({
-  activity,
-  isSelected,
-  isExpanded,
-  onSelect,
-  onExpand,
-}: ActivityRendererProps) {
-  const config = ACTIVITY_CONFIG[activity.action]
-
-  return (
-    <ActivityCardContainer
-      activity={activity}
-      config={config}
-      isSelected={isSelected}
-      onSelect={onSelect}
-      onExpand={onExpand}
-    >
-      <div className="flex-1">
-        <div className="flex items-center gap-2 mb-1">
-          <FileText className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-          <span className="font-medium text-sm text-foreground">
-            {activity.resourceName}
-          </span>
-          <span className="text-xs text-muted-foreground font-mono">
-            {activity.resourceId.slice(0, 8)}
-          </span>
-        </div>
-        {activity.description && (
-          <p className="text-xs text-muted-foreground">{activity.description}</p>
-        )}
-      </div>
-    </ActivityCardContainer>
-  )
-}
-
-/**
- * WorkflowActivityRenderer - Renders workflow activities
- */
-export function WorkflowActivityRenderer({
-  activity,
-  isSelected,
-  isExpanded,
-  onSelect,
-  onExpand,
-}: ActivityRendererProps) {
-  const config = ACTIVITY_CONFIG[activity.action]
-
-  return (
-    <ActivityCardContainer
-      activity={activity}
-      config={config}
-      isSelected={isSelected}
-      onSelect={onSelect}
-      onExpand={onExpand}
-    >
-      <div className="flex-1">
-        <div className="flex items-center gap-2 mb-1">
-          <Workflow className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400" />
-          <span className="font-medium text-sm text-foreground">
-            {activity.resourceName}
-          </span>
-          <span className="text-xs text-muted-foreground font-mono">
-            {activity.resourceId.slice(0, 8)}
-          </span>
-        </div>
-        {activity.description && (
-          <p className="text-xs text-muted-foreground">{activity.description}</p>
-        )}
-      </div>
-    </ActivityCardContainer>
-  )
-}
-
-/**
- * PermissionActivityRenderer - Renders permission activities
- */
-export function PermissionActivityRenderer({
-  activity,
-  isSelected,
-  isExpanded,
-  onSelect,
-  onExpand,
-}: ActivityRendererProps) {
-  const config = ACTIVITY_CONFIG[activity.action]
-
-  return (
-    <ActivityCardContainer
-      activity={activity}
-      config={config}
-      isSelected={isSelected}
-      onSelect={onSelect}
-      onExpand={onExpand}
-    >
-      <div className="flex-1">
-        <div className="flex items-center gap-2 mb-1">
-          <Shield className="w-3.5 h-3.5 text-green-600 dark:text-green-400" />
-          <span className="font-medium text-sm text-foreground">
-            {activity.resourceName}
-          </span>
-          <span className="text-xs text-muted-foreground font-mono">
-            {activity.resourceId.slice(0, 8)}
-          </span>
-        </div>
-        {activity.description && (
-          <p className="text-xs text-muted-foreground">{activity.description}</p>
-        )}
-      </div>
-    </ActivityCardContainer>
-  )
-}
-
-/**
- * RoleActivityRenderer - Renders role activities
- */
-export function RoleActivityRenderer({
-  activity,
-  isSelected,
-  isExpanded,
-  onSelect,
-  onExpand,
-}: ActivityRendererProps) {
-  const config = ACTIVITY_CONFIG[activity.action]
-
-  return (
-    <ActivityCardContainer
-      activity={activity}
-      config={config}
-      isSelected={isSelected}
-      onSelect={onSelect}
-      onExpand={onExpand}
-    >
-      <div className="flex-1">
-        <div className="flex items-center gap-2 mb-1">
-          <Badge className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-          <span className="font-medium text-sm text-foreground">
-            {activity.resourceName}
-          </span>
-          <span className="text-xs text-muted-foreground font-mono">
-            {activity.resourceId.slice(0, 8)}
-          </span>
-        </div>
-        {activity.description && (
-          <p className="text-xs text-muted-foreground">{activity.description}</p>
-        )}
-      </div>
-    </ActivityCardContainer>
-  )
-}
+export const EventActivityRenderer = ResourceActivityRenderer
+export const SubjectActivityRenderer = ResourceActivityRenderer
+export const DocumentActivityRenderer = ResourceActivityRenderer
+export const WorkflowActivityRenderer = ResourceActivityRenderer
+export const PermissionActivityRenderer = ResourceActivityRenderer
+export const RoleActivityRenderer = ResourceActivityRenderer
 
 /**
  * Activity Renderers Registry - Strategy pattern
+ * All resource types now use the same generic ResourceActivityRenderer
  */
 export const ActivityRenderers: Record<
   Activity['resourceType'],
   React.ComponentType<ActivityRendererProps>
 > = {
-  event: EventActivityRenderer,
-  subject: SubjectActivityRenderer,
-  document: DocumentActivityRenderer,
-  workflow: WorkflowActivityRenderer,
-  permission: PermissionActivityRenderer,
-  role: RoleActivityRenderer,
+  event: ResourceActivityRenderer,
+  subject: ResourceActivityRenderer,
+  document: ResourceActivityRenderer,
+  workflow: ResourceActivityRenderer,
+  permission: ResourceActivityRenderer,
+  role: ResourceActivityRenderer,
 }
 
 /**
@@ -270,7 +101,6 @@ export function ActivityRenderer(props: ActivityRendererProps) {
 function DefaultActivityRenderer({
   activity,
   isSelected,
-  isExpanded,
   onSelect,
   onExpand,
 }: ActivityRendererProps) {
@@ -309,7 +139,6 @@ function ActivityCardContainer({
   config,
   isSelected,
   onSelect,
-  onExpand,
   children,
 }: ActivityRendererProps & {
   config: (typeof ACTIVITY_CONFIG)[keyof typeof ACTIVITY_CONFIG]
@@ -327,7 +156,7 @@ function ActivityCardContainer({
       <div className="flex items-start gap-3">
         {/* Priority indicator */}
         <div
-          className={`w-1 h-1 rounded-full mt-2 flex-shrink-0 ${
+          className={`w-1 h-1 rounded-full mt-2 shrink-0 ${
             activity.priority === 'high'
               ? 'bg-red-500'
               : activity.priority === 'medium'
@@ -340,7 +169,7 @@ function ActivityCardContainer({
         <div className="flex-1 min-w-0">{children}</div>
 
         {/* Action badge and time */}
-        <div className="flex items-center gap-2 flex-shrink-0">
+        <div className="flex items-center gap-2 shrink-0">
           <span className={`text-xs px-2 py-1 rounded-xs font-medium ${config.color}`}>
             {config.label}
           </span>

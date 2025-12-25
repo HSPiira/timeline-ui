@@ -1,7 +1,8 @@
-import { X, AlertCircle } from 'lucide-react'
-import { useState } from 'react'
-import { DocumentUpload } from './DocumentUpload'
+import { X } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { DocumentList } from './DocumentList'
+import { DocumentUpload } from './DocumentUpload'
+import { ErrorIcon } from '@/components/ui/icons'
 
 interface DocumentAttachmentModalProps {
   isOpen: boolean
@@ -24,6 +25,20 @@ export function DocumentAttachmentModal({
   const [uploadError, setUploadError] = useState<string | null>(null)
   const [refreshKey, setRefreshKey] = useState(0)
 
+  // Handle Escape key to close modal
+  useEffect(() => {
+    if (!isOpen) return
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onClose()
+      }
+    }
+
+    document.addEventListener('keydown', handleEscape)
+    return () => document.removeEventListener('keydown', handleEscape)
+  }, [isOpen, onClose])
+
   if (!isOpen) return null
 
   const handleUploadComplete = () => {
@@ -38,24 +53,35 @@ export function DocumentAttachmentModal({
     setUploadError(error)
   }
 
-  return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-background border border-border rounded-xs max-w-2xl w-full max-h-[90vh] overflow-auto p-6 shadow-xl">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h2 className="text-xl font-semibold text-foreground">
-              Attach Documents
-            </h2>
-            <p className="text-xs text-muted-foreground mt-1">
-              Event: {eventType} {eventId.slice(0, 8)}...
-            </p>
-          </div>
+  return (  
+    <div 
+      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"  
+      role="presentation"  
+      onClick={onClose}  
+    >  
+      <div 
+        className="bg-background border border-border rounded-xs max-w-2xl w-full max-h-[90vh] overflow-auto p-6 shadow-xl"  
+        role="dialog"  
+        aria-modal="true"  
+        aria-labelledby="modal-title"  
+        onClick={(e) => e.stopPropagation()}  
+      >  
+        <div className="flex items-center justify-between mb-6">  
+          <div>  
+            <h2 id="modal-title" className="text-xl font-semibold text-foreground">  
+              Attach Documents  
+            </h2>  
+            <p className="text-xs text-muted-foreground mt-1">  
+              Event: {eventType} {eventId.slice(0, 8)}...  
+            </p>  
+          </div>  
           <button
             onClick={onClose}
             className="text-muted-foreground/70 hover:text-foreground transition-colors"
+            aria-label="Close modal"
           >
             <X className="w-5 h-5" />
-          </button>
+          </button>  
         </div>
 
         {/* Tabs */}
@@ -85,7 +111,7 @@ export function DocumentAttachmentModal({
         {/* Error Alert */}
         {uploadError && (
           <div className="mb-4 p-3 bg-destructive/10 border border-destructive/20 rounded-xs flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 text-destructive flex-shrink-0" />
+            <ErrorIcon size="md" className="text-destructive" />
             <p className="text-sm text-destructive">
               {typeof uploadError === 'string' ? uploadError : JSON.stringify(uploadError)}
             </p>
@@ -95,6 +121,11 @@ export function DocumentAttachmentModal({
         {/* Content */}
         {activeTab === 'upload' && (
           <div className="space-y-4">
+            {!subjectId && (  
+              <div className="p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-sm text-sm text-amber-800 dark:text-amber-300">  
+                Document upload requires a subject. This event may not have an associated subject.  
+              </div>  
+            )}
             <DocumentUpload
               subjectId={subjectId}
               eventId={eventId}

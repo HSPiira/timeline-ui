@@ -1,5 +1,6 @@
-import { X, User, Clock, FileText, Code, Eye } from 'lucide-react'
+import { Clock, Code, Eye, FileText, User, X } from 'lucide-react'
 import { useState } from 'react'
+import { Modal } from '@/components/ui/Modal'
 import { DocumentList } from '@/components/documents/DocumentList'
 import type { EventResponse } from '@/lib/types'
 
@@ -13,30 +14,27 @@ type ViewMode = 'modern' | 'json'
 export function EventDetailsModal({ event, onClose }: EventDetailsModalProps) {
   const [viewMode, setViewMode] = useState<ViewMode>('modern')
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" onClick={onClose} role="presentation">
-      <div
-        className="bg-background border border-blue-200 dark:border-blue-900 rounded-xs shadow-xl max-w-3xl w-full max-h-[90vh] flex flex-col"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-blue-200 dark:border-blue-900 bg-gradient-to-r from-blue-50 to-blue-100/50 dark:from-blue-950/30 dark:to-blue-900/20">
-          <div>
-            <h2 className="font-semibold text-foreground text-lg">{event.event_type}</h2>
-            <p className="text-xs text-muted-foreground mt-1">Event ID: {event.id}</p>
-          </div>
-
-          <button
-            onClick={onClose}
-            className="px-4 py-2 hover:bg-muted rounded-xs transition-colors font-medium"
-            title="Close"
-            aria-label="Close modal"
-          >
-            <X className="w-4 h-4 text-muted-foreground" />
-          </button>
+    <Modal isOpen={true} onClose={onClose} maxWidth="max-w-3xl" closeButton={false}>
+      {/* Custom Header with gradient background */}
+      <div className="flex items-center justify-between mb-4 pb-4 border-b border-blue-200 dark:border-blue-900 bg-linear-to-r from-blue-50 to-blue-100/50 dark:from-blue-950/30 dark:to-blue-900/20 -mx-4 sm:-mx-6 -mt-4 sm:-mt-6 px-4 sm:px-6 pt-4 sm:pt-6 rounded-t-xs">
+        <div>
+          <h2 className="font-semibold text-foreground text-lg">{event.event_type}</h2>
+          <p className="text-xs text-muted-foreground mt-1">Event ID: {event.id}</p>
         </div>
 
-        {/* Content */}
-        <div className="flex-1 overflow-auto p-4 space-y-4">
+        <button
+          type="button"
+          onClick={onClose}
+          className="px-4 py-2 hover:bg-muted rounded-xs transition-colors font-medium"
+          title="Close"
+          aria-label="Close modal"
+        >
+          <X className="w-4 h-4 text-muted-foreground" />
+        </button>
+      </div>
+
+      {/* Content */}
+      <div className="space-y-4">
           {/* Event Metadata */}
           <div className="grid grid-cols-2 gap-4">
             <div className="p-3 bg-muted/50 rounded-xs border border-border/50">
@@ -64,6 +62,7 @@ export function EventDetailsModal({ event, onClose }: EventDetailsModalProps) {
               <h3 className="text-sm font-semibold">Event Data</h3>
               <div className="flex gap-1">
                 <button
+                  type="button"
                   onClick={() => setViewMode('modern')}
                   className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-xs transition-colors ${
                     viewMode === 'modern'
@@ -76,6 +75,7 @@ export function EventDetailsModal({ event, onClose }: EventDetailsModalProps) {
                   Modern
                 </button>
                 <button
+                  type="button"
                   onClick={() => setViewMode('json')}
                   className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-xs transition-colors ${
                     viewMode === 'json'
@@ -116,7 +116,7 @@ export function EventDetailsModal({ event, onClose }: EventDetailsModalProps) {
                     return (
                       <div key={key} className="flex gap-2">
                         <span className="font-medium text-slate-600 dark:text-slate-400 text-sm min-w-fit">{key}:</span>
-                        <span className="text-foreground text-sm break-words">{displayValue}</span>
+                        <span className="text-foreground text-sm wrap-break-word">{displayValue}</span>
                       </div>
                     )
                   })}
@@ -142,16 +142,15 @@ export function EventDetailsModal({ event, onClose }: EventDetailsModalProps) {
             )}
           </div>
 
-          {/* Documents */}
-          <div>
-            <h3 className="text-sm font-semibold mb-2 flex items-center gap-2">
-              <FileText className="w-4 h-4" />
-              Linked Documents
-            </h3>
-            <DocumentList eventId={event.id} readOnly={true} />
-          </div>
+        {/* Documents */}
+        <div>
+          <h3 className="text-sm font-semibold mb-2 flex items-center gap-2">
+            <FileText className="w-4 h-4" />
+            Linked Documents
+          </h3>
+          <DocumentList eventId={event.id} readOnly={true} />
         </div>
       </div>
-    </div>
+    </Modal>
   )
 }

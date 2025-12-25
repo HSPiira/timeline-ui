@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { Loader2, X } from 'lucide-react'
+import { X } from 'lucide-react'
 import { useToast } from '@/hooks/useToast'
 import { FormField, FormInput, FormError } from '@/components/ui/FormField'
 import { Button } from '@/components/ui/Button'
+import { LoadingIcon } from '@/components/ui/icons'
 
 interface EditSubjectModalProps {
   isOpen: boolean
@@ -98,7 +99,7 @@ export function EditSubjectModal({
             >
               {loading ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <LoadingIcon />
                   Updating...
                 </>
               ) : (

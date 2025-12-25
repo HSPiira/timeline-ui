@@ -1,8 +1,12 @@
 import { useState, useEffect } from 'react'
-import { Loader2, AlertCircle, Plus, Trash2 } from 'lucide-react'
+import { Plus, Trash2 } from 'lucide-react'
 import { timelineApi } from '@/lib/api-client'
 import type { components } from '@/lib/timeline-api'
 import { Modal } from '../ui/Modal'
+import { Input } from '../ui/input'
+import { Select } from '../ui/select'
+import { Button } from '../ui/Button'
+import { LoadingIcon, ErrorIcon } from '../ui/icons'
 
 type WorkflowCreate = components['schemas']['WorkflowCreate']
 
@@ -136,7 +140,7 @@ export function WorkflowFormModal({ onClose, onSubmit, title }: WorkflowFormModa
           {/* Error Alert */}
           {error && (
             <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-xs flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 text-destructive flex-shrink-0" />
+              <ErrorIcon size="md" className="text-destructive" />
               <p className="text-sm text-destructive">{error}</p>
             </div>
           )}
@@ -146,7 +150,7 @@ export function WorkflowFormModal({ onClose, onSubmit, title }: WorkflowFormModa
             <label className="block text-sm font-medium text-foreground/90 mb-2">
               Workflow Name <span className="text-destructive">*</span>
             </label>
-            <input
+            <Input
               type="text"
               value={state.name}
               onChange={(e) =>
@@ -157,12 +161,9 @@ export function WorkflowFormModal({ onClose, onSubmit, title }: WorkflowFormModa
                 }))
               }
               placeholder="e.g., Alert on high priority events"
-              className="w-full px-3 py-2 bg-background border border-input rounded-xs text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
               disabled={loading}
+              error={state.fieldErrors.name}
             />
-            {state.fieldErrors.name && (
-              <p className="text-xs text-destructive mt-1">{state.fieldErrors.name}</p>
-            )}
           </div>
 
           {/* Description */}
@@ -190,7 +191,7 @@ export function WorkflowFormModal({ onClose, onSubmit, title }: WorkflowFormModa
               <label className="block text-sm font-medium text-foreground/90 mb-2">
                 Event Type <span className="text-destructive">*</span>
               </label>
-              <select
+              <Select
                 value={state.triggerEventType}
                 onChange={(e) =>
                   setState((prev) => ({
@@ -199,8 +200,9 @@ export function WorkflowFormModal({ onClose, onSubmit, title }: WorkflowFormModa
                     fieldErrors: { ...prev.fieldErrors, triggerEventType: '' },
                   }))
                 }
-                className="w-full px-3 py-2 bg-background border border-input rounded-xs text-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
                 disabled={loading || loadingEventTypes}
+                error={state.fieldErrors.triggerEventType}
+                helperText="This workflow will be triggered when an event of this type is created"
               >
                 <option value="">Select event type...</option>
                 {eventTypes.map((type) => (
@@ -208,15 +210,7 @@ export function WorkflowFormModal({ onClose, onSubmit, title }: WorkflowFormModa
                     {type}
                   </option>
                 ))}
-              </select>
-              {state.fieldErrors.triggerEventType && (
-                <p className="text-xs text-destructive mt-1">
-                  {state.fieldErrors.triggerEventType}
-                </p>
-              )}
-              <p className="text-xs text-muted-foreground mt-1">
-                This workflow will be triggered when an event of this type is created
-              </p>
+              </Select>
             </div>
           </div>
 
@@ -224,15 +218,16 @@ export function WorkflowFormModal({ onClose, onSubmit, title }: WorkflowFormModa
           <div className="border-t border-border pt-4">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-semibold text-foreground/90">Actions</h3>
-              <button
+              <Button
                 type="button"
                 onClick={addAction}
                 disabled={loading}
-                className="flex items-center gap-1 px-2 py-1 text-xs bg-primary text-primary-foreground rounded-xs hover:bg-primary/90 transition-colors disabled:opacity-50"
+                size="sm"
+                variant="primary"
               >
                 <Plus className="w-3 h-3" />
                 Add Action
-              </button>
+              </Button>
             </div>
 
             {state.fieldErrors.actions && (
@@ -262,24 +257,24 @@ export function WorkflowFormModal({ onClose, onSubmit, title }: WorkflowFormModa
                       </button>
                     </div>
 
-                    <select
+                    <Select
                       value={action.action_type}
                       onChange={(e) =>
                         updateAction(action.id, { action_type: e.target.value })
                       }
-                      className="w-full px-2 py-1 bg-background border border-input rounded-xs text-sm focus:outline-none focus:ring-1 focus:ring-ring disabled:opacity-50"
                       disabled={loading}
+                      className="text-sm"
                     >
                       <option value="create_event">Create Event</option>
                       <option value="send_email">Send Email</option>
                       <option value="update_subject">Update Subject</option>
-                    </select>
+                    </Select>
 
-                    <input
+                    <Input
                       type="text"
                       placeholder="Action parameters (JSON format)"
-                      className="w-full px-2 py-1 bg-background border border-input rounded-xs text-xs focus:outline-none focus:ring-1 focus:ring-ring disabled:opacity-50"
                       disabled={loading}
+                      className="text-xs"
                     />
                   </div>
                 ))}
@@ -309,28 +304,28 @@ export function WorkflowFormModal({ onClose, onSubmit, title }: WorkflowFormModa
 
         {/* Actions */}
         <div className="flex items-center gap-3 pt-4 border-t border-border">
-          <button
+          <Button
             type="submit"
             disabled={loading}
-            className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-xs font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1"
           >
             {loading ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <LoadingIcon />
                 Creating...
               </>
             ) : (
               'Create Workflow'
             )}
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
             onClick={onClose}
             disabled={loading}
-            className="px-4 py-2 border border-input text-foreground/90 rounded-xs font-medium hover:bg-muted/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            variant="outline"
           >
             Cancel
-          </button>
+          </Button>
         </div>
       </form>
     </Modal>
