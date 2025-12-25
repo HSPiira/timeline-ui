@@ -27,17 +27,15 @@ export function EventCard({
 
           {/* Event Details */}
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-1 sm:gap-1.5 mb-1 flex-wrap">
+            <div className="flex items-center gap-1 sm:gap-1.5 mb-2 flex-wrap">
               <h3 className="font-semibold text-foreground text-xs sm:text-sm truncate">
                 {event.event_type}
               </h3>
               <span className="px-1.5 sm:px-2 py-0.5 text-xs font-mono bg-slate-700 dark:bg-slate-600 text-slate-100 dark:text-slate-200 rounded-xs flex-shrink-0">
                 {event.id.slice(0, 8)}
               </span>
-            </div>
 
-            {/* Document Count and View Details - Row 2 */}
-            <div className="flex items-center gap-1 sm:gap-1.5 mb-2 flex-wrap">
+              {/* Document Count and View Details - Same Row */}
               {hasDocuments && (
                 <button
                   onClick={onViewDocuments}
