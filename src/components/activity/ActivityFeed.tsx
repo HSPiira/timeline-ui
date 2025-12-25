@@ -280,10 +280,20 @@ function ActivityFeedContent({
  * Activity Feed by Date Groups
  * Organizes activities into collapsible date groups
  */
-export function ActivityFeedByDate({ filter, limit = 20 }: ActivityFeedProps) {
+export function ActivityFeedByDate({
+  filter,
+  limit = 20,
+  showAnalytics,
+  enableNotifications,
+}: ActivityFeedProps) {
   return (
     <ActivityProvider>
-      <ActivityFeedByDateContent filter={filter} limit={limit} />
+      <ActivityFeedByDateContent
+        filter={filter}
+        limit={limit}
+        showAnalytics={showAnalytics}
+        enableNotifications={enableNotifications}
+      />
     </ActivityProvider>
   )
 }
@@ -291,11 +301,32 @@ export function ActivityFeedByDate({ filter, limit = 20 }: ActivityFeedProps) {
 /**
  * Activity Feed by Date Content
  */
-function ActivityFeedByDateContent({ filter, limit }: ActivityFeedProps) {
+function ActivityFeedByDateContent({
+  filter,
+  limit,
+  showAnalytics = false,
+  enableNotifications = true,
+}: ActivityFeedProps) {
   const { selected, setSelected, expanded, toggleExpanded } = useActivityContext()
+  const [searchQuery, setSearchQuery] = useState('')
+  const [showAnalyticsPanel, setShowAnalyticsPanel] = useState(showAnalytics)
+
+  // Initialize notifications
+  const { notifyNewActivity } = useActivityNotifications({
+    enableNotifications,
+    showForActions: ['created', 'verified'],
+    autoCloseDuration: 5000,
+  })
+
+  // Merge search query with provided filter
+  const mergedFilter = useMemo<ActivityFilter>(() => ({
+    ...filter,
+    search: searchQuery || filter?.search,
+  }), [filter, searchQuery])
+
   const { feed, loading, error } = useActivityFeed({
     limit: 1000, // Load all for grouping
-    filter,
+    filter: mergedFilter,
     autoFetch: true,
   })
 
@@ -372,6 +403,25 @@ function ActivityFeedByDateContent({ filter, limit }: ActivityFeedProps) {
 
   return (
     <div className="space-y-6">
+      {/* Search bar */}
+      <ActivitySearchBar onSearch={setSearchQuery} delay={300} />
+
+      {/* Analytics panel toggle and display */}
+      {hasActivities && (
+        <>
+          <button
+            onClick={() => setShowAnalyticsPanel(!showAnalyticsPanel)}
+            className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors rounded-xs hover:bg-muted/20"
+          >
+            <BarChart3 className="w-4 h-4" />
+            {showAnalyticsPanel ? 'Hide' : 'Show'} Analytics
+          </button>
+
+          {showAnalyticsPanel && <ActivityAnalytics activities={feed.items} compact={false} />}
+        </>
+      )}
+
+      {/* Grouped activities by date */}
       {Object.entries(groupedActivities).map(([date, activities]) => {
         const isCollapsed = collapsedDates.has(date)
 

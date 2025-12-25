@@ -225,7 +225,11 @@ function HomePage() {
             Recent Activity
           </h2>
           <div className="bg-card/80 backdrop-blur-sm rounded-xs border border-indigo-100/40 dark:border-indigo-900/30 p-4">
-            <ActivityFeedByDate />
+            <ActivityFeedByDate
+              limit={50}
+              enableNotifications={true}
+              showAnalytics={true}
+            />
           </div>
         </div>
     </>
