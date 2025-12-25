@@ -28,9 +28,9 @@ export function ConfirmDialog({
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-150">
-      <div className="bg-background border border-border rounded-lg max-w-md w-full p-6 shadow-2xl animate-in zoom-in-95 duration-150">
+      <div className="bg-background border border-border rounded-lg max-w-md w-full p-4 sm:p-6 shadow-2xl animate-in zoom-in-95 duration-150">
         {/* Header */}
-        <div className="flex items-start gap-3 mb-4">
+        <div className="flex items-start gap-3 mb-4 gap-2 sm:gap-3">
           <div className={`flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center ${
             isDestructive
               ? 'bg-destructive/10 text-destructive'

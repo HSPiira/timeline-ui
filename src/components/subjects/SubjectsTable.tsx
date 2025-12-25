@@ -165,42 +165,44 @@ import {
   
     return (
       <div className="bg-card/80 backdrop-blur-sm rounded-lg border border-border overflow-hidden">
-        <table className="w-full">
-          <thead className="bg-muted/50 border-b border-border">
-            {table.getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <th
-                    key={header.id}
-                    className="px-4 py-3 text-left text-sm font-semibold text-foreground"
-                  >
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </th>
-                ))}
-              </tr>
-            ))}
-          </thead>
-          <tbody className="divide-y divide-border">
-            {table.getRowModel().rows.map((row) => (
-              <tr
-                key={row.id}
-                onClick={() => handleSubjectClick(row.original.id)}
-                className="hover:bg-muted/50 transition-colors cursor-pointer focus-within:bg-muted/30"
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id} className="px-4 py-3 text-sm">
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-max">
+            <thead className="bg-muted/50 border-b border-border sticky top-0">
+              {table.getHeaderGroups().map((headerGroup) => (
+                <tr key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <th
+                      key={header.id}
+                      className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-semibold text-foreground whitespace-nowrap"
+                    >
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </th>
+                  ))}
+                </tr>
+              ))}
+            </thead>
+            <tbody className="divide-y divide-border">
+              {table.getRowModel().rows.map((row) => (
+                <tr
+                  key={row.id}
+                  onClick={() => handleSubjectClick(row.original.id)}
+                  className="hover:bg-muted/50 transition-colors cursor-pointer focus-within:bg-muted/30"
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <td key={cell.id} className="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm">
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     )
   }

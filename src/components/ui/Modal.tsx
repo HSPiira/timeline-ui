@@ -74,7 +74,7 @@ export function Modal({
       role="presentation"
     >
       <div
-        className={`modal-content-animate bg-background border border-border rounded-lg ${maxWidth} w-full max-h-[90vh] overflow-auto p-6 shadow-2xl`}
+        className={`modal-content-animate bg-background border border-border rounded-lg ${maxWidth} w-full max-h-[90vh] overflow-auto p-4 sm:p-6 shadow-2xl`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
