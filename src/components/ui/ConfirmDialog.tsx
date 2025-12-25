@@ -1,4 +1,5 @@
 import { AlertCircle, X } from 'lucide-react'
+import { Button } from './Button'
 
 export interface ConfirmDialogProps {
   isOpen: boolean
@@ -59,24 +60,22 @@ export function ConfirmDialog({
 
         {/* Actions */}
         <div className="flex items-center gap-3">
-          <button
+          <Button
             onClick={onConfirm}
             disabled={isLoading}
-            className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
-              isDestructive
-                ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90'
-                : 'bg-primary text-primary-foreground hover:bg-primary/90'
-            }`}
+            variant={isDestructive ? 'destructive' : 'primary'}
+            className="flex-1"
           >
             {confirmText}
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={onCancel}
             disabled={isLoading}
-            className="flex-1 px-4 py-2 border border-input text-foreground/90 rounded-lg font-medium hover:bg-muted/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            variant="outline"
+            className="flex-1"
           >
             {cancelText}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

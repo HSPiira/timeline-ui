@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Loader2, X } from 'lucide-react'
 import { useToast } from '@/hooks/useToast'
 import { FormField, FormInput, FormError } from '@/components/ui/FormField'
+import { Button } from '@/components/ui/Button'
 
 interface EditSubjectModalProps {
   isOpen: boolean
@@ -90,10 +91,10 @@ export function EditSubjectModal({
           </div>
 
           <div className="flex items-center gap-3 mt-6">
-            <button
+            <Button
               type="submit"
               disabled={loading}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1"
             >
               {loading ? (
                 <>
@@ -103,15 +104,16 @@ export function EditSubjectModal({
               ) : (
                 'Update Subject'
               )}
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
               onClick={onClose}
               disabled={loading}
-              className="px-4 py-2 border border-input text-foreground/90 rounded-sm font-medium hover:bg-muted/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              variant="outline"
+              className="flex-1"
             >
               Cancel
-            </button>
+            </Button>
           </div>
         </form>
       </div>
