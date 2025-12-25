@@ -148,20 +148,6 @@ function ActivityFeedContent({
     )
   }
 
-  if (!hasActivities) {
-    return (
-      <div className="bg-card/80 backdrop-blur-sm rounded-xs p-12 border border-border/50 text-center">
-        <Calendar className="w-12 h-12 text-muted-foreground/50 mx-auto mb-3" />
-        <h3 className="text-lg font-semibold text-foreground mb-2">
-          No activities yet
-        </h3>
-        <p className="text-muted-foreground">
-          Activities will appear here as events occur in the system
-        </p>
-      </div>
-    )
-  }
-
   return (
     <div className="space-y-3">
       {/* Connection status indicator */}
@@ -204,7 +190,7 @@ function ActivityFeedContent({
         </div>
       )}
 
-      {/* Search bar and Analytics toggle */}
+      {/* Search bar and Analytics toggle - Always visible */}
       <div className="flex items-end gap-2">
         <div className="flex-1">
           <ActivitySearchBar onSearch={setSearchQuery} delay={300} />
@@ -225,32 +211,51 @@ function ActivityFeedContent({
         <ActivityAnalytics activities={feed.items} compact={false} />
       )}
 
-      {/* Activity items - Virtual or Standard */}
-      {useVirtualScrolling ? (
-        <VirtualActivityList
-          activities={feed.items}
-          selectedId={selected}
-          expandedIds={expanded}
-          onSelect={setSelected}
-          onExpand={toggleExpanded}
-          height={600}
-          itemHeight={100}
-        />
-      ) : (
-        feed.items.map(activity => (
-          <ActivityRenderer
-            key={activity.id}
-            activity={activity}
-            isSelected={selected === activity.id}
-            isExpanded={expanded.has(activity.id)}
-            onSelect={setSelected}
-            onExpand={toggleExpanded}
-          />
-        ))
+      {/* Empty state - shown when no activities to display */}
+      {!hasActivities && (
+        <div className="bg-card/80 backdrop-blur-sm rounded-xs p-12 border border-border/50 text-center">
+          <Calendar className="w-12 h-12 text-muted-foreground/50 mx-auto mb-3" />
+          <h3 className="text-lg font-semibold text-foreground mb-2">
+            {searchQuery ? 'No activities found' : 'No activities yet'}
+          </h3>
+          <p className="text-muted-foreground">
+            {searchQuery
+              ? `No activities match "${searchQuery}". Try adjusting your search.`
+              : 'Activities will appear here as events occur in the system'}
+          </p>
+        </div>
+      )}
+
+      {/* Activity items - Virtual or Standard - Only shown when activities exist */}
+      {hasActivities && (
+        <>
+          {useVirtualScrolling ? (
+            <VirtualActivityList
+              activities={feed.items}
+              selectedId={selected}
+              expandedIds={expanded}
+              onSelect={setSelected}
+              onExpand={toggleExpanded}
+              height={600}
+              itemHeight={100}
+            />
+          ) : (
+            feed.items.map(activity => (
+              <ActivityRenderer
+                key={activity.id}
+                activity={activity}
+                isSelected={selected === activity.id}
+                isExpanded={expanded.has(activity.id)}
+                onSelect={setSelected}
+                onExpand={toggleExpanded}
+              />
+            ))
+          )}
+        </>
       )}
 
       {/* Load more button */}
-      {feed.hasMore && (
+      {hasActivities && feed.hasMore && (
         <div className="flex justify-center pt-4">
           <button
             onClick={fetchMore}
@@ -390,23 +395,9 @@ function ActivityFeedByDateContent({
     )
   }
 
-  if (!hasActivities) {
-    return (
-      <div className="bg-card/80 backdrop-blur-sm rounded-xs p-12 border border-border/50 text-center">
-        <Calendar className="w-12 h-12 text-muted-foreground/50 mx-auto mb-3" />
-        <h3 className="text-lg font-semibold text-foreground mb-2">
-          No activities yet
-        </h3>
-        <p className="text-muted-foreground">
-          Activities will appear here as events occur in the system
-        </p>
-      </div>
-    )
-  }
-
   return (
     <div className="space-y-6">
-      {/* Search bar and Analytics toggle */}
+      {/* Search bar and Analytics toggle - Always visible */}
       <div className="flex items-end gap-2">
         <div className="flex-1">
           <ActivitySearchBar onSearch={setSearchQuery} delay={300} />
@@ -427,8 +418,23 @@ function ActivityFeedByDateContent({
         <ActivityAnalytics activities={feed.items} compact={false} />
       )}
 
+      {/* Empty state messages */}
+      {!hasActivities && (
+        <div className="bg-card/80 backdrop-blur-sm rounded-xs p-12 border border-border/50 text-center">
+          <Calendar className="w-12 h-12 text-muted-foreground/50 mx-auto mb-3" />
+          <h3 className="text-lg font-semibold text-foreground mb-2">
+            {searchQuery ? 'No activities found' : 'No activities yet'}
+          </h3>
+          <p className="text-muted-foreground">
+            {searchQuery
+              ? `No activities match "${searchQuery}". Try adjusting your search.`
+              : 'Activities will appear here as events occur in the system'}
+          </p>
+        </div>
+      )}
+
       {/* Grouped activities by date */}
-      {Object.entries(groupedActivities).map(([date, activities]) => {
+      {hasActivities && Object.entries(groupedActivities).map(([date, activities]) => {
         const isCollapsed = collapsedDates.has(date)
 
         return (
