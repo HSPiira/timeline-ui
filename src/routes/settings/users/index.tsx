@@ -308,7 +308,6 @@ function UsersPage() {
                             }}
                             disabled={isSaving}
                             variant="outline"
-                            size="sm"
                             className="w-full sm:w-auto"
                           >
                             Cancel
@@ -316,7 +315,6 @@ function UsersPage() {
                           <Button
                             onClick={() => handleSaveRoles(user.id)}
                             disabled={isSaving}
-                            size="sm"
                             className="w-full sm:w-auto flex items-center justify-center gap-2"
                           >
                             {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
@@ -364,7 +362,6 @@ function UsersPage() {
                                 }))
                               }
                             }}
-                            size="sm"
                             className="mt-3 w-full sm:w-auto flex items-center justify-center gap-2"
                           >
                             <Shield className="w-4 h-4" />

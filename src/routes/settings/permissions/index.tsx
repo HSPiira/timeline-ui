@@ -196,7 +196,6 @@ function PermissionsPage() {
         {!hasNoAccess && (
           <Button
             onClick={() => setShowCreateModal(true)}
-            size="sm"
             variant="primary"
           >
             <Plus className="w-4 h-4" />
@@ -244,7 +243,6 @@ function PermissionsPage() {
           {!hasNoAccess && !filterResource && (
             <Button
               onClick={() => setShowCreateModal(true)}
-              size="sm"
               variant="primary"
             >
               <Plus className="w-4 h-4" />
@@ -497,7 +495,7 @@ function PermissionFormModal({
             <Button
               type="submit"
               disabled={loading || !resource || !action}
-              className="w-full sm:w-auto"
+              className="w-full sm:w-auto flex items-center justify-center gap-2"
             >
               {loading && <Loader2 className="w-4 h-4 animate-spin" />}
               Create Permission
@@ -573,7 +571,6 @@ function ViewRolesModal({
         <Button
           onClick={onClose}
           disabled={loading}
-          variant="primary"
         >
           Close
         </Button>

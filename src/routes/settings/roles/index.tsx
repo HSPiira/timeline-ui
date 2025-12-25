@@ -225,7 +225,6 @@ function RolesPage() {
         {!hasNoAccess && (
           <Button
             onClick={() => setShowCreateModal(true)}
-            size="sm"
             variant="primary"
           >
             <Plus className="w-4 h-4" />
@@ -258,7 +257,6 @@ function RolesPage() {
           {!hasNoAccess && (
             <Button
               onClick={() => setShowCreateModal(true)}
-              size="sm"
               variant="primary"
             >
               <Plus className="w-4 h-4" />
