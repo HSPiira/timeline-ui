@@ -4,6 +4,7 @@ import { useActivityFeed } from '@/hooks/useActivityFeed'
 import { useActivitySubscription, useSimulatedActivityStream } from '@/hooks/useActivitySubscription'
 import { ActivityRenderer } from './ActivityRenderers'
 import { VirtualActivityList } from './VirtualActivityList'
+import { ActivitySearchBar } from './ActivitySearchBar'
 import { ActivityProvider, useActivityContext } from '@/context/ActivityContext'
 import type { ActivityFilter, Activity } from '@/lib/types/activity'
 
@@ -45,9 +46,17 @@ function ActivityFeedContent({
   useVirtualScrolling = false,
 }: ActivityFeedContentProps) {
   const { selected, setSelected, expanded, toggleExpanded } = useActivityContext()
+  const [searchQuery, setSearchQuery] = useState('')
+
+  // Merge search query with provided filter
+  const mergedFilter = useMemo<ActivityFilter>(() => ({
+    ...filter,
+    search: searchQuery || filter?.search,
+  }), [filter, searchQuery])
+
   const { feed, loading, error, fetchMore, addActivity } = useActivityFeed({
     limit,
-    filter,
+    filter: mergedFilter,
     autoFetch: true,
   })
   const [wsStatus, setWsStatus] = useState<'connecting' | 'connected' | 'disconnected'>(
@@ -177,6 +186,9 @@ function ActivityFeedContent({
           </span>
         </div>
       )}
+
+      {/* Search bar */}
+      <ActivitySearchBar onSearch={setSearchQuery} delay={300} />
 
       {/* Activity items - Virtual or Standard */}
       {useVirtualScrolling ? (
