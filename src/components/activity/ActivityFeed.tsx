@@ -204,22 +204,25 @@ function ActivityFeedContent({
         </div>
       )}
 
-      {/* Search bar */}
-      <ActivitySearchBar onSearch={setSearchQuery} delay={300} />
-
-      {/* Analytics panel toggle and display */}
-      {hasActivities && (
-        <>
+      {/* Search bar and Analytics toggle */}
+      <div className="flex items-end gap-2">
+        <div className="flex-1">
+          <ActivitySearchBar onSearch={setSearchQuery} delay={300} />
+        </div>
+        {hasActivities && (
           <button
             onClick={() => setShowAnalyticsPanel(!showAnalyticsPanel)}
-            className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors rounded-xs hover:bg-muted/20"
+            className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors rounded-xs hover:bg-muted/20 whitespace-nowrap"
           >
             <BarChart3 className="w-4 h-4" />
             {showAnalyticsPanel ? 'Hide' : 'Show'} Analytics
           </button>
+        )}
+      </div>
 
-          {showAnalyticsPanel && <ActivityAnalytics activities={feed.items} compact={false} />}
-        </>
+      {/* Analytics panel display */}
+      {hasActivities && showAnalyticsPanel && (
+        <ActivityAnalytics activities={feed.items} compact={false} />
       )}
 
       {/* Activity items - Virtual or Standard */}
@@ -403,22 +406,25 @@ function ActivityFeedByDateContent({
 
   return (
     <div className="space-y-6">
-      {/* Search bar */}
-      <ActivitySearchBar onSearch={setSearchQuery} delay={300} />
-
-      {/* Analytics panel toggle and display */}
-      {hasActivities && (
-        <>
+      {/* Search bar and Analytics toggle */}
+      <div className="flex items-end gap-2">
+        <div className="flex-1">
+          <ActivitySearchBar onSearch={setSearchQuery} delay={300} />
+        </div>
+        {hasActivities && (
           <button
             onClick={() => setShowAnalyticsPanel(!showAnalyticsPanel)}
-            className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors rounded-xs hover:bg-muted/20"
+            className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors rounded-xs hover:bg-muted/20 whitespace-nowrap"
           >
             <BarChart3 className="w-4 h-4" />
             {showAnalyticsPanel ? 'Hide' : 'Show'} Analytics
           </button>
+        )}
+      </div>
 
-          {showAnalyticsPanel && <ActivityAnalytics activities={feed.items} compact={false} />}
-        </>
+      {/* Analytics panel display */}
+      {hasActivities && showAnalyticsPanel && (
+        <ActivityAnalytics activities={feed.items} compact={false} />
       )}
 
       {/* Grouped activities by date */}
