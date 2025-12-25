@@ -1,8 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useEffect, useState, useMemo, useCallback } from 'react'
 import { useRequireAuth } from '@/hooks/useRequireAuth'
-import { useTimelineState } from '@/hooks/useTimelineState'
-import { RecentActivity } from '@/components/dashboard/RecentActivity'
+import { ActivityFeedByDate } from '@/components/activity/ActivityFeed'
 import { StatsGrid } from '@/components/dashboard/StatsGrid'
 import { timelineApi } from '@/lib/api-client'
 import { Loader2, AlertCircle } from 'lucide-react'
@@ -25,7 +24,6 @@ interface FetchError {
 
 function HomePage() {
   const authState = useRequireAuth()
-  const timeline = useTimelineState()
 
   const [data, setData] = useState<DashboardData>({
     events: [],
@@ -34,22 +32,6 @@ function HomePage() {
   })
   const [loading, setLoading] = useState(true)
   const [errors, setErrors] = useState<FetchError[]>([])
-
-  // Group events by date
-  const eventsByDate = useMemo(() => {
-    return data.events.reduce((acc: Record<string, EventResponse[]>, event) => {
-      const date = new Date(event.event_time).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      })
-      if (!acc[date]) {
-        acc[date] = []
-      }
-      acc[date].push(event)
-      return acc
-    }, {})
-  }, [data.events])
 
   // Calculate today's events
   const eventsToday = useMemo(() => {
@@ -243,18 +225,9 @@ function HomePage() {
             Recent Activity
           </h2>
           <div className="bg-card/80 backdrop-blur-sm rounded-xs border border-indigo-100/40 dark:border-indigo-900/30 p-4">
-          {loading && Object.keys(eventsByDate).length === 0 ? (
-            <div className="flex items-center justify-center py-12">
-              <div className="flex items-center gap-3 text-muted-foreground">
-                <Loader2 className="w-5 h-5 animate-spin" />
-                <span>Loading events...</span>
-              </div>
-            </div>
-          ) : (
-            <RecentActivity eventsByDate={eventsByDate} timeline={timeline} />
-          )}
+            <ActivityFeedByDate />
           </div>
-          </div>
+        </div>
     </>
   )
 }
