@@ -3,14 +3,14 @@ import { useEffect, useState } from 'react'
 import { useRequireAuth } from '@/hooks/useRequireAuth'
 import { timelineApi } from '@/lib/api-client'
 import {
-  AlertCircle,
   Loader2,
   Shield,
-  X,
   ChevronDown,
   ChevronRight,
   CheckCircle,
 } from 'lucide-react'
+import { FormError } from '@/components/ui/FormField'
+import { Button } from '@/components/ui/Button'
 import type { components } from '@/lib/timeline-api'
 
 export const Route = createFileRoute('/settings/users/')({
@@ -177,25 +177,16 @@ function UsersPage() {
   return (
     <>
       {/* Error Alert */}
-      {error && (
-        <div className="mb-3 p-2.5 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-sm flex gap-2">
-          <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
-          <div className="flex-1">
-            <h3 className="font-semibold text-red-900 dark:text-red-200 text-sm">Error</h3>
-            <p className="text-sm text-red-800 dark:text-red-300 mt-0.5">{error}</p>
-          </div>
-        </div>
-      )}
+      {error && <FormError message={error} />}
 
       {/* Limited Access Warning */}
       {hasNoAccess && (
-        <div className="mb-3 p-2.5 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-sm flex gap-2">
-          <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+        <div className="mb-3 p-3 bg-amber-50 dark:bg-amber-900/40 border border-amber-200 dark:border-amber-700 rounded-lg flex gap-2">
           <div className="flex-1">
-            <h3 className="font-semibold text-amber-900 dark:text-amber-200 text-sm">
+            <h3 className="font-semibold text-amber-900 dark:text-amber-100 text-sm">
               Limited Access
             </h3>
-            <p className="text-sm text-amber-800 dark:text-amber-300 mt-0.5">
+            <p className="text-sm text-amber-800 dark:text-amber-200 mt-0.5">
               You don't have permission to manage users. You can view but cannot modify.
             </p>
           </div>
@@ -210,7 +201,7 @@ function UsersPage() {
 
       {/* Users List */}
       {tenantUsers.length === 0 ? (
-        <div className="text-center py-8 bg-card/80 rounded-sm border border-border/50 p-4">
+        <div className="text-center py-8 bg-card/80 rounded-lg border border-border/50 p-4">
           <h3 className="text-sm font-semibold text-foreground mb-1">No users found</h3>
           <p className="text-sm text-muted-foreground">No users in this tenant</p>
         </div>
@@ -226,7 +217,7 @@ function UsersPage() {
             return (
               <div
                 key={user.id}
-                className="bg-card/80 rounded-sm border border-border/50 overflow-hidden"
+                className="bg-card/80 rounded-lg border border-border/50 overflow-hidden"
               >
                 {/* User Header */}
                 <button
@@ -306,8 +297,8 @@ function UsersPage() {
                         </div>
 
                         {/* Action Buttons */}
-                        <div className="flex gap-2 pt-2 border-t border-border">
-                          <button
+                        <div className="flex gap-2 pt-2 border-t border-border flex-col sm:flex-row">
+                          <Button
                             onClick={() => {
                               setEditingUserId(null)
                               setSelectedRoles((prev) => ({
@@ -316,18 +307,21 @@ function UsersPage() {
                               }))
                             }}
                             disabled={isSaving}
-                            className="px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-sm transition-colors disabled:opacity-50"
+                            variant="outline"
+                            size="sm"
+                            className="w-full sm:w-auto"
                           >
                             Cancel
-                          </button>
-                          <button
+                          </Button>
+                          <Button
                             onClick={() => handleSaveRoles(user.id)}
                             disabled={isSaving}
-                            className="px-3 py-1.5 text-sm font-medium bg-primary text-primary-foreground rounded-sm hover:bg-primary/90 transition-colors disabled:opacity-50 flex items-center gap-2"
+                            size="sm"
+                            className="w-full sm:w-auto flex items-center justify-center gap-2"
                           >
                             {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
                             Save Roles
-                          </button>
+                          </Button>
                         </div>
                       </div>
                     ) : (
@@ -360,7 +354,7 @@ function UsersPage() {
                         )}
 
                         {!hasNoAccess && (
-                          <button
+                          <Button
                             onClick={() => {
                               setEditingUserId(user.id)
                               if (!selectedRoles[user.id]) {
@@ -370,11 +364,12 @@ function UsersPage() {
                                 }))
                               }
                             }}
-                            className="mt-3 px-3 py-1.5 text-sm font-medium bg-primary text-primary-foreground rounded-sm hover:bg-primary/90 transition-colors flex items-center gap-2"
+                            size="sm"
+                            className="mt-3 w-full sm:w-auto flex items-center justify-center gap-2"
                           >
                             <Shield className="w-4 h-4" />
                             Edit Roles
-                          </button>
+                          </Button>
                         )}
                       </div>
                     )}
@@ -387,8 +382,8 @@ function UsersPage() {
       )}
 
       {/* Note */}
-      <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-sm">
-        <p className="text-xs text-blue-800 dark:text-blue-300">
+      <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/40 border border-blue-200 dark:border-blue-700 rounded-lg">
+        <p className="text-xs text-blue-800 dark:text-blue-200">
           Note: This shows tenant users. The user management panel integrates role-based access control
           directly, allowing administrators to assign or revoke roles instantly.
         </p>

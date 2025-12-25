@@ -4,16 +4,17 @@ import { useRequireAuth } from '@/hooks/useRequireAuth'
 import { useToast } from '@/hooks/useToast'
 import { timelineApi } from '@/lib/api-client'
 import {
-  AlertCircle,
   Loader2,
   Plus,
   Trash2,
   SquarePen,
   Shield,
   CheckCircle,
-  X,
 } from 'lucide-react'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
+import { Modal } from '@/components/ui/Modal'
+import { FormError } from '@/components/ui/FormField'
+import { Button } from '@/components/ui/Button'
 import type { components } from '@/lib/timeline-api'
 
 export const Route = createFileRoute('/settings/roles/')({
@@ -199,25 +200,16 @@ function RolesPage() {
       )}
 
       {/* Error Alert */}
-      {error && (
-        <div className="mb-3 p-2.5 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-sm flex gap-2">
-          <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
-          <div className="flex-1">
-            <h3 className="font-semibold text-red-900 dark:text-red-200 text-sm">Error</h3>
-            <p className="text-sm text-red-800 dark:text-red-300 mt-0.5">{error}</p>
-          </div>
-        </div>
-      )}
+      {error && <FormError message={error} />}
 
       {/* Limited Access Warning */}
       {hasNoAccess && (
-        <div className="mb-3 p-2.5 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-sm flex gap-2">
-          <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+        <div className="mb-3 p-3 bg-amber-50 dark:bg-amber-900/40 border border-amber-200 dark:border-amber-700 rounded-lg flex gap-2">
           <div className="flex-1">
-            <h3 className="font-semibold text-amber-900 dark:text-amber-200 text-sm">
+            <h3 className="font-semibold text-amber-900 dark:text-amber-100 text-sm">
               Limited Access
             </h3>
-            <p className="text-sm text-amber-800 dark:text-amber-300 mt-0.5">
+            <p className="text-sm text-amber-800 dark:text-amber-200 mt-0.5">
               You don't have permission to manage roles. You can view but cannot create or modify.
             </p>
           </div>
@@ -225,19 +217,20 @@ function RolesPage() {
       )}
 
       {/* Header */}
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
         <div>
           <h1 className="text-lg font-bold text-foreground">Roles</h1>
           <p className="text-sm text-muted-foreground mt-0.5">Manage roles and their permissions</p>
         </div>
         {!hasNoAccess && (
-          <button
+          <Button
             onClick={() => setShowCreateModal(true)}
-            className="inline-flex items-center gap-2 px-3 py-1.5 text-xs bg-primary text-primary-foreground rounded-sm font-medium hover:bg-primary/90 transition-colors"
+            size="sm"
+            variant="primary"
           >
-            <Plus className="w-3 h-3" />
+            <Plus className="w-4 h-4" />
             Create Role
-          </button>
+          </Button>
         )}
       </div>
 
@@ -257,24 +250,25 @@ function RolesPage() {
 
       {/* Roles Table */}
       {roles.length === 0 ? (
-        <div className="text-center py-8 bg-card/80 rounded-sm border border-border/50 p-4">
+        <div className="text-center py-8 bg-card/80 rounded-lg border border-border/50 p-4">
           <h3 className="text-sm font-semibold text-foreground mb-1">No roles yet</h3>
           <p className="text-sm text-muted-foreground mb-3">
             {hasNoAccess ? 'You do not have permission to view roles.' : 'Create your first role'}
           </p>
           {!hasNoAccess && (
-            <button
+            <Button
               onClick={() => setShowCreateModal(true)}
-              className="inline-flex items-center gap-2 px-3 py-1.5 text-xs bg-primary text-primary-foreground rounded-sm font-medium hover:bg-primary/90 transition-colors"
+              size="sm"
+              variant="primary"
             >
-              <Plus className="w-3 h-3" />
+              <Plus className="w-4 h-4" />
               Create Role
-            </button>
+            </Button>
           )}
         </div>
       ) : (
-        <div className="overflow-x-auto bg-card/80 rounded-sm border border-border/50">
-          <table className="w-full text-sm">
+        <div className="overflow-x-auto bg-card/80 rounded-lg border border-border/50">
+          <table className="w-full text-xs sm:text-sm min-w-max">
             <thead>
               <tr className="border-b border-border">
                 <th className="text-left py-2 px-2.5 font-medium text-muted-foreground text-sm">
@@ -331,8 +325,8 @@ function RolesPage() {
                     )}
                   </td>
                   <td className="py-2 px-2.5 text-right">
-                    <div className="flex items-center justify-end gap-1">
-                      <button
+                    <div className="flex items-center justify-end gap-0.5">
+                      <Button
                         onClick={() => {
                           setManagingPermissions(role as RoleWithPermissions)
                         }}
@@ -344,11 +338,12 @@ function RolesPage() {
                               ? 'No permission'
                               : 'Manage permissions'
                         }
-                        className="p-1 text-muted-foreground hover:text-foreground hover:bg-muted rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        size="sm"
+                        variant="ghost"
                       >
                         <Shield className="w-4 h-4" />
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         onClick={() => setEditingRole(role)}
                         disabled={role.is_system || hasNoAccess}
                         title={
@@ -358,11 +353,12 @@ function RolesPage() {
                               ? 'No permission'
                               : 'Edit'
                         }
-                        className="p-1 text-muted-foreground hover:text-foreground hover:bg-muted rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        size="sm"
+                        variant="ghost"
                       >
                         <SquarePen className="w-4 h-4" />
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         onClick={() => handleDeleteClick(role)}
                         disabled={deletingRoleId === role.id || role.is_system || hasNoAccess}
                         title={
@@ -372,14 +368,15 @@ function RolesPage() {
                               ? 'No permission'
                               : 'Delete'
                         }
-                        className="p-1 text-muted-foreground hover:text-red-600 dark:hover:text-red-400 hover:bg-muted rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        size="sm"
+                        variant="ghost"
                       >
                         {deletingRoleId === role.id ? (
                           <Loader2 className="w-4 h-4 animate-spin" />
                         ) : (
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 className="w-4 h-4 text-red-500" />
                         )}
-                      </button>
+                      </Button>
                     </div>
                   </td>
                 </tr>
@@ -477,31 +474,15 @@ function RoleFormModal({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-background border border-border rounded-sm max-w-2xl w-full max-h-[90vh] overflow-auto p-6 shadow-xl">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold text-foreground">
-            {role ? 'Edit Role' : 'Create Role'}
-          </h2>
-          <button
-            onClick={onClose}
-            disabled={loading}
-            className="p-1 text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
-        {/* Error Alert */}
-        {error && (
-          <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-sm flex gap-2">
-            <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
-            <div className="flex-1">
-              <p className="text-sm text-red-800 dark:text-red-300">{error}</p>
-            </div>
-          </div>
-        )}
+    <Modal
+      isOpen={true}
+      onClose={onClose}
+      title={role ? 'Edit Role' : 'Create Role'}
+      maxWidth="max-w-2xl"
+      closeButton={!loading}
+    >
+      {/* Error Alert */}
+      {error && <FormError message={error} />}
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-5">
@@ -553,27 +534,27 @@ function RoleFormModal({
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-2 justify-end">
-            <button
+          <div className="flex gap-2 justify-end flex-col sm:flex-row">
+            <Button
               type="button"
               onClick={onClose}
               disabled={loading}
-              className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-sm transition-colors disabled:opacity-50"
+              variant="outline"
+              className="w-full sm:w-auto"
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
               disabled={loading}
-              className="px-4 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-sm hover:bg-primary/90 transition-colors disabled:opacity-50 flex items-center gap-2"
+              className="w-full sm:w-auto"
             >
               {loading && <Loader2 className="w-4 h-4 animate-spin" />}
               {role ? 'Update Role' : 'Create Role'}
-            </button>
+            </Button>
           </div>
         </form>
-      </div>
-    </div>
+    </Modal>
   )
 }
 
@@ -666,32 +647,17 @@ function ManageRolePermissionsModal({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-background border border-border rounded-sm max-w-3xl w-full max-h-[90vh] overflow-auto p-6 shadow-xl">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h2 className="text-xl font-semibold text-foreground">Manage Permissions</h2>
-            <p className="text-sm text-muted-foreground mt-0.5">{role.name}</p>
-          </div>
-          <button
-            onClick={onClose}
-            disabled={loading}
-            className="p-1 text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
+    <Modal
+      isOpen={true}
+      onClose={onClose}
+      title="Manage Permissions"
+      maxWidth="max-w-3xl"
+      closeButton={!loading}
+    >
+      <p className="text-sm text-muted-foreground mb-4">{role.name}</p>
 
-        {/* Error Alert */}
-        {error && (
-          <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-sm flex gap-2">
-            <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
-            <div className="flex-1">
-              <p className="text-sm text-red-800 dark:text-red-300">{error}</p>
-            </div>
-          </div>
-        )}
+      {/* Error Alert */}
+      {error && <FormError message={error} />}
 
         {/* Permissions Grid */}
         <div className="space-y-4 mb-6">
@@ -732,27 +698,27 @@ function ManageRolePermissionsModal({
           ))}
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex gap-2 justify-end">
-          <button
-            type="button"
-            onClick={onClose}
-            disabled={loading}
-            className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-sm transition-colors disabled:opacity-50"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            onClick={handleSave}
-            disabled={loading}
-            className="px-4 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-sm hover:bg-primary/90 transition-colors disabled:opacity-50 flex items-center gap-2"
-          >
-            {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-            Save Permissions
-          </button>
-        </div>
+      {/* Action Buttons */}
+      <div className="flex gap-2 justify-end flex-col sm:flex-row pt-4 border-t border-border">
+        <Button
+          type="button"
+          onClick={onClose}
+          disabled={loading}
+          variant="outline"
+          className="w-full sm:w-auto"
+        >
+          Cancel
+        </Button>
+        <Button
+          type="button"
+          onClick={handleSave}
+          disabled={loading}
+          className="w-full sm:w-auto"
+        >
+          {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+          Save Permissions
+        </Button>
       </div>
-    </div>
+    </Modal>
   )
 }
