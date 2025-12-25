@@ -1,6 +1,8 @@
 import { useState } from 'react'
-import { Loader2, AlertCircle, Plus, Trash2, Eye, EyeOff } from 'lucide-react'
+import { Loader2, Plus, Trash2, Eye, EyeOff } from 'lucide-react'
 import { Modal } from '@/components/ui/Modal'
+import { FormError } from '@/components/ui/FormField'
+import { Button } from '@/components/ui/Button'
 
 interface SchemaField {
   id: string
@@ -324,41 +326,30 @@ export function SchemaFormModal({ onClose, onSubmit, title }: SchemaFormModalPro
   return (
     <>
       <Modal isOpen={true} onClose={onClose} title={title} maxWidth="max-w-3xl" closeButton={!loading}>
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
           {/* Error Alert */}
-          {error && (
-            <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-sm flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 text-destructive flex-shrink-0" />
-              <p className="text-sm text-destructive">{error}</p>
-            </div>
-          )}
+          {error && <FormError message={error} />}
 
           {/* Mode Toggle */}
           <div className="flex items-center gap-2">
-            <button
+            <Button
               type="button"
               onClick={() => editMode === 'json' ? switchToFormMode() : null}
-              className={`px-3 py-1.5 text-xs rounded-sm font-medium transition-colors ${
-                editMode === 'form'
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-muted text-foreground/70 hover:text-foreground'
-              }`}
+              variant={editMode === 'form' ? 'primary' : 'ghost'}
+              size="sm"
               disabled={editMode === 'form'}
             >
               Form
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
               onClick={() => editMode === 'form' ? switchToJsonMode() : null}
-              className={`px-3 py-1.5 text-xs rounded-sm font-medium transition-colors ${
-                editMode === 'json'
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-muted text-foreground/70 hover:text-foreground'
-              }`}
+              variant={editMode === 'json' ? 'primary' : 'ghost'}
+              size="sm"
               disabled={editMode === 'json'}
             >
               JSON
-            </button>
+            </Button>
           </div>
 
           {editMode === 'form' ? (
@@ -385,15 +376,16 @@ export function SchemaFormModal({ onClose, onSubmit, title }: SchemaFormModalPro
               <div>
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-semibold text-foreground/90">Event Fields</h3>
-              <button
+              <Button
                 type="button"
                 onClick={startAddingField}
                 disabled={loading}
-                className="flex items-center gap-1 px-2 py-1 text-xs bg-primary text-primary-foreground rounded-sm hover:bg-primary/90 transition-colors disabled:opacity-50"
+                size="sm"
+                variant="primary"
               >
                 <Plus className="w-3 h-3" />
                 Add Field
-              </button>
+              </Button>
             </div>
 
             {fields.length === 0 ? (
@@ -452,20 +444,22 @@ export function SchemaFormModal({ onClose, onSubmit, title }: SchemaFormModalPro
                       </div>
 
                       <div className="flex items-center gap-2 ml-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button
+                        <Button
                           type="button"
                           onClick={() => startEditingField(field.id)}
-                          className="px-2 py-1 text-xs bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 rounded hover:bg-blue-200 dark:hover:bg-blue-900/30 transition-colors"
+                          size="sm"
+                          variant="outline"
                         >
                           Edit
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                           type="button"
                           onClick={() => removeField(field.id)}
-                          className="p-1 hover:bg-red-100 dark:hover:bg-red-900/20 rounded transition-colors"
+                          size="sm"
+                          variant="ghost"
                         >
                           <Trash2 className="w-4 h-4 text-red-500" />
-                        </button>
+                        </Button>
                       </div>
                     </div>
                   )
@@ -540,11 +534,11 @@ export function SchemaFormModal({ onClose, onSubmit, title }: SchemaFormModalPro
           )}
 
           {/* Actions */}
-          <div className="flex items-center gap-3 pt-4 border-t border-border">
-            <button
+          <div className="flex items-center gap-3 pt-4 border-t border-border flex-col sm:flex-row">
+            <Button
               type="submit"
               disabled={loading || (editMode === 'form' ? fields.length === 0 : !jsonEdit.trim())}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 w-full sm:w-auto"
             >
               {loading ? (
                 <>
@@ -554,15 +548,16 @@ export function SchemaFormModal({ onClose, onSubmit, title }: SchemaFormModalPro
               ) : (
                 'Create Schema'
               )}
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
               onClick={onClose}
               disabled={loading}
-              className="px-4 py-2 border border-input text-foreground/90 rounded-sm font-medium hover:bg-muted/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              variant="outline"
+              className="flex-1 w-full sm:w-auto"
             >
               Cancel
-            </button>
+            </Button>
           </div>
         </form>
       </Modal>
@@ -666,7 +661,7 @@ export function SchemaFormModal({ onClose, onSubmit, title }: SchemaFormModalPro
                   </div>
                 ))}
               </div>
-              <button
+              <Button
                 type="button"
                 onClick={() => {
                   setEditingField({
@@ -674,11 +669,12 @@ export function SchemaFormModal({ onClose, onSubmit, title }: SchemaFormModalPro
                     enum: [...(editingField.enum || []), ''],
                   })
                 }}
-                className="flex items-center gap-1 px-2 py-1 text-xs bg-primary text-primary-foreground rounded-sm hover:bg-primary/90 transition-colors"
+                size="sm"
+                variant="primary"
               >
                 <Plus className="w-3 h-3" />
                 Add Value
-              </button>
+              </Button>
             </div>
           )}
 
@@ -773,19 +769,20 @@ export function SchemaFormModal({ onClose, onSubmit, title }: SchemaFormModalPro
           )}
 
           {/* Actions */}
-          <div className="flex items-center gap-3 pt-4 border-t border-border">
-            <button
+          <div className="flex items-center gap-3 pt-4 border-t border-border flex-col sm:flex-row">
+            <Button
               onClick={saveField}
-              className="flex-1 px-4 py-2 bg-primary text-primary-foreground rounded-sm font-medium hover:bg-primary/90 transition-colors"
+              className="flex-1 w-full sm:w-auto"
             >
               Save Field
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => setEditingField(null)}
-              className="px-4 py-2 border border-input text-foreground/90 rounded-sm font-medium hover:bg-muted/30 transition-colors"
+              variant="outline"
+              className="flex-1 w-full sm:w-auto"
             >
               Cancel
-            </button>
+            </Button>
           </div>
         </div>
       )}

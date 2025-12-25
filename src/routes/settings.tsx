@@ -1,6 +1,7 @@
 import { createFileRoute, Outlet, useLocation, useNavigate } from '@tanstack/react-router'
 import { useRequireAuth } from '@/hooks/useRequireAuth'
 import { Shield, Database, Zap, Users } from 'lucide-react'
+import { Button } from '@/components/ui/Button'
 
 export const Route = createFileRoute('/settings')({
   component: SettingsLayout,
@@ -52,10 +53,10 @@ function SettingsLayout() {
   ]
 
   return (
-    <div className="flex gap-6 items-start">
+    <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 items-start">
       {/* Sidebar */}
-      <div className="w-64 flex-shrink-0">
-        <div className="p-4 sticky top-16 h-fit">
+      <div className="w-full lg:w-64 lg:flex-shrink-0">
+        <div className="p-3 lg:p-4 lg:sticky lg:top-16 lg:h-fit rounded-lg border border-border">
           <h2 className="text-md font-semibold text-foreground mb-4">Settings</h2>
           <nav className="space-y-1">
             {menuItems.map((item) => {
@@ -65,7 +66,7 @@ function SettingsLayout() {
                 <button
                   key={item.path}
                   onClick={() => navigate({ to: item.path })}
-                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-sm transition-colors text-left ${
+                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-left ${
                     active
                       ? 'bg-primary/10 border border-primary/30'
                       : 'hover:bg-muted border border-transparent'
@@ -76,9 +77,6 @@ function SettingsLayout() {
                     <div className={`text-sm font-medium ${active ? 'text-foreground' : 'text-foreground/80'}`}>
                       {item.label}
                     </div>
-                    {/* <div className="text-xs text-muted-foreground truncate">
-                      {item.description}
-                    </div> */}
                   </div>
                 </button>
               )
@@ -88,7 +86,7 @@ function SettingsLayout() {
       </div>
 
       {/* Content */}
-      <div className="flex-1 min-w-0">
+      <div className="flex-1 min-w-0 w-full">
         <Outlet />
       </div>
     </div>
