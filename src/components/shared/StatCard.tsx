@@ -38,7 +38,7 @@ export function StatCard({
     const colors = getColorScheme(label)
 
     return (
-        <div className={`${colors.bg} rounded-sm p-6 border ${colors.border} transition-all hover:shadow-md hover:border-opacity-100`}>
+        <div className={`${colors.bg} rounded-xs p-6 border ${colors.border} transition-all hover:shadow-md hover:border-opacity-100`}>
           <div className="flex justify-between">
             <div>
               <p className="text-sm text-muted-foreground">{label}</p>

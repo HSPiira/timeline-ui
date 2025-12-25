@@ -22,7 +22,7 @@ export function ChainVisualization({ events, tamperedIndices }: ChainVisualizati
           <div key={event.id}>
             {/* Event Node */}
             <div
-              className={`relative p-4 border rounded-sm transition-colors ${
+              className={`relative p-4 border rounded-xs transition-colors ${
                 tampered
                   ? 'bg-red-50 dark:bg-red-900/10 border-red-200 dark:border-red-800'
                   : 'bg-background border-border hover:bg-muted/50'
@@ -47,12 +47,12 @@ export function ChainVisualization({ events, tamperedIndices }: ChainVisualizati
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-xs font-semibold text-muted-foreground">Event {index}</span>
                     {genesis && (
-                      <span className="px-1.5 py-0.5 text-xs font-medium bg-primary/20 text-primary rounded-sm">
+                      <span className="px-1.5 py-0.5 text-xs font-medium bg-primary/20 text-primary rounded-xs">
                         Genesis
                       </span>
                     )}
                     {tampered && (
-                      <span className="px-1.5 py-0.5 text-xs font-medium bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-sm">
+                      <span className="px-1.5 py-0.5 text-xs font-medium bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-xs">
                         Tampered
                       </span>
                     )}

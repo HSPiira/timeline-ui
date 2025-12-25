@@ -145,7 +145,7 @@ function EventsPage() {
     return (
       <div className="min-h-[calc(100vh-4rem)] bg-background flex items-center justify-center">
         <div className="text-center max-w-md px-4">
-          <div className="w-12 h-12 rounded-sm bg-red-100 dark:bg-red-900/20 flex items-center justify-center mx-auto mb-2">
+          <div className="w-12 h-12 rounded-xs bg-red-100 dark:bg-red-900/20 flex items-center justify-center mx-auto mb-2">
             <AlertCircle className="w-6 h-6 text-red-600 dark:text-red-400" />
           </div>
           <h3 className="text-sm font-semibold text-foreground mb-1">
@@ -156,7 +156,7 @@ function EventsPage() {
           </p>
           <button
             onClick={fetchEvents}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 rounded-sm font-medium hover:bg-slate-800 dark:hover:bg-slate-200 transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 rounded-xs font-medium hover:bg-slate-800 dark:hover:bg-slate-200 transition-colors"
           >
             <Loader2 className="w-4 h-4" />
             Retry
@@ -178,7 +178,7 @@ function EventsPage() {
               Browse and manage all timeline events
             </p>
           </div>
-          <button onClick={() => navigate({ to: '/events/create' })} className="flex items-center gap-2 px-4 py-2 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 rounded-sm font-medium hover:bg-slate-800 dark:hover:bg-slate-200 transition-colors">
+          <button onClick={() => navigate({ to: '/events/create' })} className="flex items-center gap-2 px-4 py-2 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 rounded-xs font-medium hover:bg-slate-800 dark:hover:bg-slate-200 transition-colors">
             <Plus className="w-4 h-4" />
             Log Event
           </button>
@@ -186,7 +186,7 @@ function EventsPage() {
 
         {/* Filters */}
         {eventTypes.length > 0 && (
-          <div className="bg-card/80 backdrop-blur-sm rounded-sm p-2.5 border border-border/50 mb-3">
+          <div className="bg-card/80 backdrop-blur-sm rounded-xs p-2.5 border border-border/50 mb-3">
             <div className="flex flex-wrap items-center gap-2">
               <label className="text-sm font-medium text-foreground/90">
                 Filter by type:
@@ -194,7 +194,7 @@ function EventsPage() {
               <select
                 value={filterEventType}
                 onChange={(e) => setFilterEventType(e.target.value)}
-                className="px-2.5 py-1 bg-background border border-input rounded-sm text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                className="px-2.5 py-1 bg-background border border-input rounded-xs text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
               >
                 <option value="">All Event Types</option>
                 {eventTypes.map((type) => (
@@ -217,7 +217,7 @@ function EventsPage() {
 
         {/* Empty State or Events Timeline */}
         {events.length === 0 ? (
-          <div className="bg-card/80 backdrop-blur-sm rounded-sm border border-border/50">
+          <div className="bg-card/80 backdrop-blur-sm rounded-xs border border-border/50">
             <EmptyState
               icon={Calendar}
               title="No events yet"
@@ -229,7 +229,7 @@ function EventsPage() {
             />
           </div>
         ) : (
-          <div className="bg-card/80 backdrop-blur-sm rounded-sm p-4 border border-border/50">
+          <div className="bg-card/80 backdrop-blur-sm rounded-xs p-4 border border-border/50">
             <h2 className="text-sm font-semibold text-foreground mb-4">
               Event Timeline
             </h2>

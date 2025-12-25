@@ -38,7 +38,7 @@ function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="w-full max-w-md">
-        <div className="bg-card shadow-xl rounded-2xl p-8 border">
+        <div className="bg-card shadow-xl rounded-xs p-8 border">
           {/* Logo */}
           <div className="flex justify-center mb-6">
             <img src="/logo.svg" alt="Timeline" className="w-16 h-16" />
@@ -51,7 +51,7 @@ function LoginPage() {
 
           {/* Error Message */}
           {authState.error && (
-            <div className="mb-4 p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
+            <div className="mb-4 p-3 bg-destructive/10 border border-destructive/20 rounded-xs">
               <p className="text-sm text-destructive">
                 {authState.error}
               </p>
@@ -73,7 +73,7 @@ function LoginPage() {
                 value={tenantCode}
                 onChange={(e) => setTenantCode(e.target.value)}
                 required
-                className="w-full px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-background text-foreground"
+                className="w-full px-3 py-2 border border-input rounded-xs focus:ring-2 focus:ring-ring focus:border-transparent bg-background text-foreground"
                 placeholder="e.g. acme-corp"
               />
             </div>
@@ -91,7 +91,7 @@ function LoginPage() {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
-                className="w-full px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-background text-foreground"
+                className="w-full px-3 py-2 border border-input rounded-xs focus:ring-2 focus:ring-ring focus:border-transparent bg-background text-foreground"
                 placeholder="username"
               />
             </div>
@@ -109,7 +109,7 @@ function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-background text-foreground"
+                className="w-full px-3 py-2 border border-input rounded-xs focus:ring-2 focus:ring-ring focus:border-transparent bg-background text-foreground"
                 placeholder="••••••••"
               />
             </div>
@@ -117,7 +117,7 @@ function LoginPage() {
             <button
               type="submit"
               disabled={authState.isLoading}
-              className="w-full px-4 py-2.5 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full px-4 py-2.5 bg-primary text-primary-foreground rounded-xs font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {authState.isLoading ? 'Signing in...' : 'Sign In'}
             </button>

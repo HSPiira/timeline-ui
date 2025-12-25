@@ -127,7 +127,7 @@ export function ThemeToggle({
                 className={`
                   flex items-center gap-3 px-3 py-2.5 cursor-pointer
                   transition-all duration-200 ease-in-out
-                  rounded-md group
+                  rounded-xs group
                 `}
               >
                 <div className="flex items-center justify-center w-5 h-5">

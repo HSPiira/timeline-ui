@@ -78,7 +78,7 @@ export function JsonSchemaForm({
               <select
                 value={fieldValue}
                 onChange={(e) => handleChange(fieldName, e.target.value)}
-                className={`w-full px-3 py-2 bg-background border rounded-sm text-sm ${
+                className={`w-full px-3 py-2 bg-background border rounded-xs text-sm ${
                   fieldError ? 'border-red-500' : 'border-input'
                 }`}
                 required={isReq}
@@ -96,7 +96,7 @@ export function JsonSchemaForm({
                 value={fieldValue}
                 onChange={(e) => handleChange(fieldName, parseFloat(e.target.value) || '')}
                 placeholder={fieldSchema.default ? `(default: ${fieldSchema.default})` : ''}
-                className={`w-full px-3 py-2 bg-background border rounded-sm text-sm ${
+                className={`w-full px-3 py-2 bg-background border rounded-xs text-sm ${
                   fieldError ? 'border-red-500' : 'border-input'
                 }`}
                 required={isReq}
@@ -108,7 +108,7 @@ export function JsonSchemaForm({
                 value={fieldValue}
                 onChange={(e) => handleChange(fieldName, e.target.value)}
                 placeholder={fieldSchema.default ? `(default: ${fieldSchema.default})` : ''}
-                className={`w-full px-3 py-2 bg-background border rounded-sm text-sm ${
+                className={`w-full px-3 py-2 bg-background border rounded-xs text-sm ${
                   fieldError ? 'border-red-500' : 'border-input'
                 }`}
                 required={isReq}

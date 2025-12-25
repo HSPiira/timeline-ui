@@ -40,7 +40,7 @@ export function DocumentAttachmentModal({
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-background border border-border rounded-sm max-w-2xl w-full max-h-[90vh] overflow-auto p-6 shadow-xl">
+      <div className="bg-background border border-border rounded-xs max-w-2xl w-full max-h-[90vh] overflow-auto p-6 shadow-xl">
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-xl font-semibold text-foreground">
@@ -84,7 +84,7 @@ export function DocumentAttachmentModal({
 
         {/* Error Alert */}
         {uploadError && (
-          <div className="mb-4 p-3 bg-destructive/10 border border-destructive/20 rounded-sm flex items-center gap-2">
+          <div className="mb-4 p-3 bg-destructive/10 border border-destructive/20 rounded-xs flex items-center gap-2">
             <AlertCircle className="w-4 h-4 text-destructive flex-shrink-0" />
             <p className="text-sm text-destructive">
               {typeof uploadError === 'string' ? uploadError : JSON.stringify(uploadError)}
@@ -118,7 +118,7 @@ export function DocumentAttachmentModal({
         <div className="mt-6 pt-4 border-t border-border">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-sm bg-muted text-foreground rounded-sm font-medium hover:bg-muted/80 transition-colors"
+            className="px-4 py-2 text-sm bg-muted text-foreground rounded-xs font-medium hover:bg-muted/80 transition-colors"
           >
             Close
           </button>

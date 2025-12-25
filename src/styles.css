@@ -46,6 +46,7 @@ code {
   --chart-4: oklch(0.70 0 0);
   --chart-5: oklch(0.55 0 0);
   --radius: 0.625rem;
+  --radius-xs: 1px;
   --sidebar: oklch(0.99 0 0);
   --sidebar-foreground: oklch(0.15 0 0);
   --sidebar-primary: oklch(0.20 0 0);
@@ -116,6 +117,7 @@ code {
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
+  --radius-xs: var(--radius-xs);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);

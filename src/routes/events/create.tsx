@@ -267,10 +267,10 @@ function CreateEventPage() {
     <>
         <h1 className="text-lg font-bold mb-3">Create Event</h1>
 
-        <form onSubmit={handleSubmit} className="space-y-3 bg-card/80 p-3 rounded-sm border border-border/50">
+        <form onSubmit={handleSubmit} className="space-y-3 bg-card/80 p-3 rounded-xs border border-border/50">
           {/* API Error Alert */}
           {apiError && (
-            <div className="p-2.5 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-sm flex gap-2">
+            <div className="p-2.5 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xs flex gap-2">
               <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
               <div>
                 <h3 className="font-semibold text-red-900 dark:text-red-200 text-sm">Error</h3>
@@ -298,7 +298,7 @@ function CreateEventPage() {
                 <EventTypeSelector value={state.eventType} onChange={(value) => setState((prev) => ({ ...prev, eventType: value }))} />
               </div>
               {schemaVersion && (
-                <div className="px-2.5 py-1.5 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-sm text-xs">
+                <div className="px-2.5 py-1.5 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-xs text-xs">
                   <span className="text-blue-900 dark:text-blue-200 font-medium">Schema v{schemaVersion}</span>
                 </div>
               )}
@@ -313,7 +313,7 @@ function CreateEventPage() {
               type="datetime-local"
               value={state.eventTime}
               onChange={(e) => setState((prev) => ({ ...prev, eventTime: e.target.value }))}
-              className="w-full px-2.5 py-1.5 bg-background border border-input rounded-sm text-sm"
+              className="w-full px-2.5 py-1.5 bg-background border border-input rounded-xs text-sm"
             />
             <p className="text-sm text-muted-foreground mt-0.5">Defaults to current time</p>
           </div>
@@ -325,7 +325,7 @@ function CreateEventPage() {
                 Supporting Documents
                 <span className="text-muted-foreground text-xs ml-2">(optional)</span>
               </label>
-              <div className="p-3 bg-background/50 rounded-sm border border-border/50">
+              <div className="p-3 bg-background/50 rounded-xs border border-border/50">
                 <EventDocumentUpload
                   subjectId={state.subjectId}
                   onFilesChanged={(files) => setState((prev) => ({ ...prev, stagedDocuments: files }))}
@@ -354,11 +354,11 @@ function CreateEventPage() {
                 </div>
               </div>
             ) : schema?.properties ? (
-              <div className="space-y-2 p-2.5 bg-background/50 rounded-sm border border-border/50">
+              <div className="space-y-2 p-2.5 bg-background/50 rounded-xs border border-border/50">
                 <JsonSchemaForm schema={schema} value={state.payload} onChange={handlePayloadChange} errors={state.fieldErrors} />
               </div>
             ) : (
-              <div className="text-sm text-muted-foreground italic p-2.5 bg-background/50 rounded-sm border border-border/50">
+              <div className="text-sm text-muted-foreground italic p-2.5 bg-background/50 rounded-xs border border-border/50">
                 Select an event type to see available fields
               </div>
             )}
@@ -369,7 +369,7 @@ function CreateEventPage() {
             <button
               type="submit"
               disabled={loading || schemaLoading}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 rounded-sm font-medium hover:bg-slate-800 dark:hover:bg-slate-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 rounded-xs font-medium hover:bg-slate-800 dark:hover:bg-slate-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <>
@@ -383,7 +383,7 @@ function CreateEventPage() {
             <button
               type="button"
               onClick={() => navigate({ to: '/events' })}
-              className="px-4 py-2 border border-input text-foreground/90 rounded-sm font-medium hover:bg-muted/30 transition-colors"
+              className="px-4 py-2 border border-input text-foreground/90 rounded-xs font-medium hover:bg-muted/30 transition-colors"
             >
               Cancel
             </button>

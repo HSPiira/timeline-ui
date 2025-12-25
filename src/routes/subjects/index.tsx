@@ -159,7 +159,7 @@ function SubjectsPage() {
           </div>
           <div className="flex items-center gap-2">
             {/* View Mode Toggle */}
-            <div className="flex items-center gap-1 bg-muted/50 rounded-sm p-1 border border-border/30">
+            <div className="flex items-center gap-1 bg-muted/50 rounded-xs p-1 border border-border/30">
               <button
                 onClick={() => setViewMode('grid')}
                 className={`p-2 rounded transition-colors ${
@@ -187,7 +187,7 @@ function SubjectsPage() {
             {/* Create Button */}
             <button
               onClick={() => setShowCreateModal(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-sm font-medium hover:bg-primary/90 transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-xs font-medium hover:bg-primary/90 transition-colors"
             >
               <Plus className="w-4 h-4" />
               Create Subject
@@ -204,7 +204,7 @@ function SubjectsPage() {
               placeholder="Search by ID or external ref..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-10 pr-4 py-2 bg-background border border-input rounded-sm text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring w-64"
+              className="pl-10 pr-4 py-2 bg-background border border-input rounded-xs text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring w-64"
             />
           </div>
           {subjectTypes.length > 0 && (
@@ -215,7 +215,7 @@ function SubjectsPage() {
               <select
                 value={filterType}
                 onChange={(e) => setFilterType(e.target.value)}
-                className="px-3 py-2 bg-background border border-input rounded-sm text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                className="px-3 py-2 bg-background border border-input rounded-xs text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
               >
                 <option value="">All types</option>
                 {subjectTypes.map((type) => (
@@ -249,7 +249,7 @@ function SubjectsPage() {
         {isError && (
           <div className="min-h-[300px] bg-background flex items-center justify-center">
             <div className="text-center max-w-md px-4">
-              <div className="w-16 h-16 rounded-sm bg-red-100 dark:bg-red-900/20 flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 rounded-xs bg-red-100 dark:bg-red-900/20 flex items-center justify-center mx-auto mb-4">
                 <AlertCircle className="w-8 h-8 text-destructive" />
               </div>
               <h3 className="text-lg font-semibold text-foreground mb-2">
@@ -264,7 +264,7 @@ function SubjectsPage() {
         )}
 
         {!isLoading && !isError && subjects.length === 0 && (
-          <div className="bg-card/80 backdrop-blur-sm rounded-sm border border-border/50">
+          <div className="bg-card/80 backdrop-blur-sm rounded-xs border border-border/50">
             <EmptyState
               icon={Users}
               title={search || filterType ? 'No subjects match' : 'No subjects yet'}
@@ -364,7 +364,7 @@ function CreateSubjectModal({
   
     return (
       <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-        <div className="bg-background border border-border rounded-sm max-w-md w-full p-6 shadow-xl">
+        <div className="bg-background border border-border rounded-xs max-w-md w-full p-6 shadow-xl">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-semibold text-foreground">
               Create Subject
@@ -388,7 +388,7 @@ function CreateSubjectModal({
                   value={subjectType}
                   onChange={(e) => setSubjectType(e.target.value)}
                   placeholder="e.g., user, order, project"
-                  className="w-full px-3 py-2 bg-background border border-input rounded-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full px-3 py-2 bg-background border border-input rounded-xs text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                   disabled={loading}
                 />
                 <p className="mt-1 text-xs text-muted-foreground">
@@ -405,13 +405,13 @@ function CreateSubjectModal({
                   value={externalRef}
                   onChange={(e) => setExternalRef(e.target.value)}
                   placeholder="e.g., external ID or reference"
-                  className="w-full px-3 py-2 bg-background border border-input rounded-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full px-3 py-2 bg-background border border-input rounded-xs text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                   disabled={loading}
                 />
               </div>
   
               {error && (
-                <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-sm flex items-center gap-2">
+                <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-xs flex items-center gap-2">
                   <AlertCircle className="w-4 h-4 text-destructive flex-shrink-0" />
                   <p className="text-sm text-destructive">{error}</p>
                 </div>
@@ -422,7 +422,7 @@ function CreateSubjectModal({
               <button
                 type="submit"
                 disabled={loading}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-xs font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? (
                   <>
@@ -440,7 +440,7 @@ function CreateSubjectModal({
                 type="button"
                 onClick={onClose}
                 disabled={loading}
-                className="px-4 py-2 border border-input text-foreground/90 rounded-sm font-medium hover:bg-muted/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 border border-input text-foreground/90 rounded-xs font-medium hover:bg-muted/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Cancel
               </button>

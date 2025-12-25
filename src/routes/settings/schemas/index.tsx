@@ -7,6 +7,7 @@ import { SchemaFormModal } from '@/components/schemas/SchemaFormModal'
 import { SchemaViewModal } from '@/components/schemas/SchemaViewModal'
 import { DeleteSchemaModal } from '@/components/schemas/DeleteSchemaModal'
 import type { components } from '@/lib/timeline-api'
+import { Button } from '@/components/ui/button'
 
 export const Route = createFileRoute('/settings/schemas/')({
   component: SchemasPage,
@@ -160,7 +161,7 @@ function SchemasPage() {
 
       {/* Error Alert */}
       {error && (
-        <div className="mb-3 p-2.5 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-sm flex gap-2">
+        <div className="mb-3 p-2.5 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xs flex gap-2">
           <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
           <div className="flex-1">
             <h3 className="font-semibold text-red-900 dark:text-red-200 text-sm">Error</h3>
@@ -175,30 +176,32 @@ function SchemasPage() {
           <h1 className="text-lg font-bold text-foreground">Event Schemas</h1>
           <p className="text-sm text-muted-foreground mt-0.5">Manage JSON schemas for event validation</p>
         </div>
-        <button
+        <Button
           onClick={() => setShowCreateModal(true)}
-          className="inline-flex items-center gap-2 px-3 py-1.5 text-xs bg-primary text-primary-foreground rounded-sm font-medium hover:bg-primary/90 transition-colors"
+          variant="primary"
+          size="md"
         >
-          <Plus className="w-3 h-3" />
+          <Plus className="w-4 h-4" />
           Create Schema
-        </button>
+        </Button>
       </div>
 
       {/* Schemas Table */}
       {schemas.length === 0 ? (
-        <div className="text-center py-8 bg-card/80 rounded-sm border border-border/50 p-4">
+        <div className="text-center py-8 bg-card/80 rounded-xs border border-border/50 p-4">
           <h3 className="text-sm font-semibold text-foreground mb-1">No schemas yet</h3>
           <p className="text-sm text-muted-foreground mb-3">Create your first event schema to enable validation</p>
-          <button
+          <Button
             onClick={() => setShowCreateModal(true)}
-            className="inline-flex items-center gap-2 px-3 py-1.5 text-xs bg-primary text-primary-foreground rounded-sm font-medium hover:bg-primary/90 transition-colors"
+            variant="primary"
+            size="md"
           >
-            <Plus className="w-3 h-3" />
+            <Plus className="w-4 h-4" />
             Create Schema
-          </button>
+          </Button>
         </div>
       ) : (
-        <div className="overflow-x-auto bg-card/80 rounded-sm border border-border/50">
+        <div className="overflow-x-auto bg-card/80 rounded-xs border border-border/50">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border">
@@ -237,20 +240,22 @@ function SchemasPage() {
                   </td>
                   <td className="py-2 px-2.5 text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <button
+                      <Button
                         onClick={() => setViewingSchema(schema)}
-                        className="p-1 text-muted-foreground hover:text-foreground hover:bg-muted rounded transition-colors"
+                        variant="ghost"
+                        size="sm"
                         title="View Schema"
                       >
                         <Eye className="w-4 h-4" />
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         onClick={() => handleDeleteSchema(schema)}
-                        className="p-1 text-muted-foreground hover:text-red-600 dark:hover:text-red-400 hover:bg-muted rounded transition-colors"
+                        variant="ghost"
+                        size="sm"
                         title="Delete"
                       >
                         <Trash2 className="w-4 h-4" />
-                      </button>
+                      </Button>
                     </div>
                   </td>
                 </tr>

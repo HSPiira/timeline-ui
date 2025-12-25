@@ -49,14 +49,14 @@ export function EditSubjectModal({
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-150">
-      <div className="bg-background border border-border rounded-lg max-w-md w-full p-6 shadow-2xl animate-in zoom-in-95 duration-150">
+      <div className="bg-background border border-border rounded-xs max-w-md w-full p-6 shadow-2xl animate-in zoom-in-95 duration-150">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold text-foreground">
             Edit Subject
           </h2>
           <button
             onClick={onClose}
-            className="relative -mr-2 -mt-2 p-2 text-muted-foreground/70 hover:text-foreground hover:bg-muted/30 rounded-lg transition-colors"
+            className="relative -mr-2 -mt-2 p-2 text-muted-foreground/70 hover:text-foreground hover:bg-muted/30 rounded-xs transition-colors"
             disabled={loading}
             aria-label="Close"
           >
@@ -70,7 +70,7 @@ export function EditSubjectModal({
 
             {/* Subject Type (Read-only) */}
             <FormField label="Subject Type">
-              <div className="px-3 py-2 bg-muted rounded-sm text-foreground text-sm">
+              <div className="px-3 py-2 bg-muted rounded-xs text-foreground text-sm">
                 {subject.subject_type}
               </div>
             </FormField>

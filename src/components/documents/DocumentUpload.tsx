@@ -204,7 +204,7 @@ export function DocumentUpload({
         <select
           value={documentType}
           onChange={(e) => setDocumentType(e.target.value)}
-          className="w-full px-3 py-2 bg-background border border-input rounded-sm text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+          className="w-full px-3 py-2 bg-background border border-input rounded-xs text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
         >
           <option value="evidence">Evidence</option>
           <option value="invoice">Invoice</option>
@@ -221,7 +221,7 @@ export function DocumentUpload({
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        className={`relative border-2 border-dashed rounded-sm p-8 text-center transition-colors ${
+        className={`relative border-2 border-dashed rounded-xs p-8 text-center transition-colors ${
           isDragging ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'
         }`}
       >
@@ -255,7 +255,7 @@ export function DocumentUpload({
       {files.length > 0 && (
         <div className="space-y-2">
           {files.map((uploadingFile) => (
-            <div key={uploadingFile.id} className="flex items-center gap-3 p-3 bg-card rounded-sm border border-border/50">
+            <div key={uploadingFile.id} className="flex items-center gap-3 p-3 bg-card rounded-xs border border-border/50">
               {/* Status Icon */}
               <div className="flex-shrink-0">
                 {uploadingFile.status === 'uploading' && <Loader2 className="w-5 h-5 text-primary animate-spin" />}
@@ -288,7 +288,7 @@ export function DocumentUpload({
               {uploadingFile.status !== 'uploading' && (
                 <button
                   onClick={() => removeFile(uploadingFile.id)}
-                  className="flex-shrink-0 p-1 hover:bg-muted rounded-sm transition-colors"
+                  className="flex-shrink-0 p-1 hover:bg-muted rounded-xs transition-colors"
                   aria-label="Remove file"
                 >
                   <X className="w-4 h-4 text-muted-foreground" />

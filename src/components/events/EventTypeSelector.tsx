@@ -40,7 +40,7 @@ export default function EventTypeSelector({ value, onChange }: Props) {
 
 	return (
 		<div>
-			<select value={value} onChange={(e) => onChange(e.target.value)} className="w-full px-3 py-2 bg-background border border-input rounded-sm">
+			<select value={value} onChange={(e) => onChange(e.target.value)} className="w-full px-3 py-2 bg-background border border-input rounded-xs">
 				<option value="">Select event type</option>
 				{loading ? (
 					<option value="">Loading...</option>

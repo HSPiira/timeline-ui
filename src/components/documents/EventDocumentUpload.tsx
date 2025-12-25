@@ -110,7 +110,7 @@ export function EventDocumentUpload({
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        className={`relative border-2 border-dashed rounded-sm p-5 text-center transition-colors ${
+        className={`relative border-2 border-dashed rounded-xs p-5 text-center transition-colors ${
           isDragging ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'
         }`}
       >
@@ -144,7 +144,7 @@ export function EventDocumentUpload({
       {stagedFiles.length > 0 && (
         <div className="space-y-1.5">
           {stagedFiles.map((stagedFile) => (
-            <div key={stagedFile.id} className="flex items-center gap-2.5 p-2.5 bg-card rounded-sm border border-border/50">
+            <div key={stagedFile.id} className="flex items-center gap-2.5 p-2.5 bg-card rounded-xs border border-border/50">
               {/* Status Icon */}
               <div className="flex-shrink-0">
                 <div className="w-4 h-4 rounded-full border-2 border-primary border-t-transparent animate-spin" />
@@ -160,7 +160,7 @@ export function EventDocumentUpload({
               {/* Remove Button */}
               <button
                 onClick={() => removeFile(stagedFile.id)}
-                className="flex-shrink-0 p-1 hover:bg-muted rounded-sm transition-colors"
+                className="flex-shrink-0 p-1 hover:bg-muted rounded-xs transition-colors"
                 aria-label="Remove file"
               >
                 <X className="w-3 h-3 text-muted-foreground" />

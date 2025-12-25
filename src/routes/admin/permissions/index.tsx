@@ -167,7 +167,7 @@ function PermissionsPage() {
 
       {/* Error Alert */}
       {error && (
-        <div className="mb-3 p-2.5 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-sm flex gap-2">
+        <div className="mb-3 p-2.5 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xs flex gap-2">
           <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
           <div className="flex-1">
             <h3 className="font-semibold text-red-900 dark:text-red-200 text-sm">Error</h3>
@@ -178,7 +178,7 @@ function PermissionsPage() {
 
       {/* Limited Access Warning */}
       {hasNoAccess && (
-        <div className="mb-3 p-2.5 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-sm flex gap-2">
+        <div className="mb-3 p-2.5 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xs flex gap-2">
           <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
           <div className="flex-1">
             <h3 className="font-semibold text-amber-900 dark:text-amber-200 text-sm">
@@ -203,7 +203,7 @@ function PermissionsPage() {
         {!hasNoAccess && (
           <button
             onClick={() => setShowCreateModal(true)}
-            className="inline-flex items-center gap-2 px-3 py-1.5 text-xs bg-primary text-primary-foreground rounded-sm font-medium hover:bg-primary/90 transition-colors"
+            className="inline-flex items-center gap-2 px-3 py-1.5 text-xs bg-primary text-primary-foreground rounded-xs font-medium hover:bg-primary/90 transition-colors"
           >
             <Plus className="w-3 h-3" />
             Create Permission
@@ -212,13 +212,13 @@ function PermissionsPage() {
       </div>
 
       {/* Filter */}
-      <div className="mb-3 p-2.5 bg-card/80 backdrop-blur-sm rounded-sm border border-border/50">
+      <div className="mb-3 p-2.5 bg-card/80 backdrop-blur-sm rounded-xs border border-border/50">
         <div className="flex flex-wrap items-center gap-2">
           <label className="text-sm font-medium text-foreground/90">Filter by resource:</label>
           <select
             value={filterResource}
             onChange={(e) => setFilterResource(e.target.value)}
-            className="px-3 py-1.5 bg-background border border-input rounded-sm text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+            className="px-3 py-1.5 bg-background border border-input rounded-xs text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
           >
             <option value="">All Resources</option>
             {RESOURCE_TYPES.map((resource) => (
@@ -240,7 +240,7 @@ function PermissionsPage() {
 
       {/* Permissions Table */}
       {filteredPermissions.length === 0 ? (
-        <div className="text-center py-8 bg-card/80 rounded-sm border border-border/50 p-4">
+        <div className="text-center py-8 bg-card/80 rounded-xs border border-border/50 p-4">
           <h3 className="text-sm font-semibold text-foreground mb-1">
             {filterResource ? `No ${filterResource} permissions` : 'No permissions yet'}
           </h3>
@@ -250,7 +250,7 @@ function PermissionsPage() {
           {!hasNoAccess && !filterResource && (
             <button
               onClick={() => setShowCreateModal(true)}
-              className="inline-flex items-center gap-2 px-3 py-1.5 text-xs bg-primary text-primary-foreground rounded-sm font-medium hover:bg-primary/90 transition-colors"
+              className="inline-flex items-center gap-2 px-3 py-1.5 text-xs bg-primary text-primary-foreground rounded-xs font-medium hover:bg-primary/90 transition-colors"
             >
               <Plus className="w-3 h-3" />
               Create Permission
@@ -258,7 +258,7 @@ function PermissionsPage() {
           )}
         </div>
       ) : (
-        <div className="overflow-x-auto bg-card/80 rounded-sm border border-border/50">
+        <div className="overflow-x-auto bg-card/80 rounded-xs border border-border/50">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border">
@@ -286,12 +286,12 @@ function PermissionsPage() {
                   className="border-b border-border hover:bg-muted/50 transition-colors"
                 >
                   <td className="py-2 px-2.5">
-                    <span className="text-xs px-1.5 py-0.5 bg-secondary text-muted-foreground rounded-sm font-medium capitalize">
+                    <span className="text-xs px-1.5 py-0.5 bg-secondary text-muted-foreground rounded-xs font-medium capitalize">
                       {perm.resource}
                     </span>
                   </td>
                   <td className="py-2 px-2.5">
-                    <span className="text-xs px-1.5 py-0.5 bg-secondary text-muted-foreground rounded-sm font-medium capitalize">
+                    <span className="text-xs px-1.5 py-0.5 bg-secondary text-muted-foreground rounded-xs font-medium capitalize">
                       {perm.action}
                     </span>
                   </td>
@@ -410,7 +410,7 @@ function PermissionFormModal({
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-background border border-border rounded-sm max-w-2xl w-full max-h-[90vh] overflow-auto p-6 shadow-xl">
+      <div className="bg-background border border-border rounded-xs max-w-2xl w-full max-h-[90vh] overflow-auto p-6 shadow-xl">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold text-foreground">Create Permission</h2>
@@ -425,7 +425,7 @@ function PermissionFormModal({
 
         {/* Error Alert */}
         {error && (
-          <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-sm flex gap-2">
+          <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xs flex gap-2">
             <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
             <div className="flex-1">
               <p className="text-sm text-red-800 dark:text-red-300">{error}</p>
@@ -442,7 +442,7 @@ function PermissionFormModal({
             <select
               value={resource}
               onChange={(e) => setResource(e.target.value)}
-              className="w-full px-3 py-2 bg-background border border-input rounded-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
+              className="w-full px-3 py-2 bg-background border border-input rounded-xs text-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
               disabled={loading}
             >
               <option value="">Select resource...</option>
@@ -461,7 +461,7 @@ function PermissionFormModal({
             <select
               value={action}
               onChange={(e) => setAction(e.target.value)}
-              className="w-full px-3 py-2 bg-background border border-input rounded-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
+              className="w-full px-3 py-2 bg-background border border-input rounded-xs text-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
               disabled={loading}
             >
               <option value="">Select action...</option>
@@ -481,7 +481,7 @@ function PermissionFormModal({
               type="text"
               value={resource && action ? `${resource}:${action}` : ''}
               readOnly
-              className="w-full px-3 py-2 bg-background border border-input rounded-sm text-foreground/70 disabled:opacity-50"
+              className="w-full px-3 py-2 bg-background border border-input rounded-xs text-foreground/70 disabled:opacity-50"
               placeholder="Format: resource:action"
             />
           </div>
@@ -495,7 +495,7 @@ function PermissionFormModal({
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Describe what this permission grants..."
               rows={3}
-              className="w-full px-3 py-2 bg-background border border-input rounded-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
+              className="w-full px-3 py-2 bg-background border border-input rounded-xs text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
               disabled={loading}
             />
           </div>
@@ -506,14 +506,14 @@ function PermissionFormModal({
               type="button"
               onClick={onClose}
               disabled={loading}
-              className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-sm transition-colors disabled:opacity-50"
+              className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-xs transition-colors disabled:opacity-50"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading || !resource || !action}
-              className="px-4 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-sm hover:bg-primary/90 transition-colors disabled:opacity-50 flex items-center gap-2"
+              className="px-4 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-xs hover:bg-primary/90 transition-colors disabled:opacity-50 flex items-center gap-2"
             >
               {loading && <Loader2 className="w-4 h-4 animate-spin" />}
               Create Permission
@@ -539,7 +539,7 @@ function ViewRolesModal({
 }) {
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-background border border-border rounded-sm max-w-2xl w-full max-h-[90vh] overflow-auto p-6 shadow-xl">
+      <div className="bg-background border border-border rounded-xs max-w-2xl w-full max-h-[90vh] overflow-auto p-6 shadow-xl">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
@@ -572,7 +572,7 @@ function ViewRolesModal({
             {roles.map((role) => (
               <div
                 key={role.id}
-                className="p-3 bg-muted rounded-sm border border-border flex items-center justify-between"
+                className="p-3 bg-muted rounded-xs border border-border flex items-center justify-between"
               >
                 <div>
                   <p className="font-semibold text-foreground">{role.name}</p>
@@ -581,7 +581,7 @@ function ViewRolesModal({
                   )}
                 </div>
                 {role.is_system && (
-                  <span className="text-xs px-1.5 py-0.5 bg-primary/20 text-primary rounded-sm font-medium">
+                  <span className="text-xs px-1.5 py-0.5 bg-primary/20 text-primary rounded-xs font-medium">
                     SYSTEM
                   </span>
                 )}
@@ -595,7 +595,7 @@ function ViewRolesModal({
           <button
             onClick={onClose}
             disabled={loading}
-            className="px-4 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-sm hover:bg-primary/90 transition-colors disabled:opacity-50"
+            className="px-4 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-xs hover:bg-primary/90 transition-colors disabled:opacity-50"
           >
             Close
           </button>

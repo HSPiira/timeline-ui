@@ -203,7 +203,7 @@ function HomePage() {
 
         {/* Error messages */}
         {hasErrors && (
-          <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-sm">
+          <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xs">
             <div className="flex items-start gap-2">
               <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
               <div className="flex-1">
@@ -242,7 +242,7 @@ function HomePage() {
           <h2 className="text-sm font-semibold text-foreground mb-3">
             Recent Activity
           </h2>
-          <div className="bg-card/80 backdrop-blur-sm rounded-sm border border-indigo-100/40 dark:border-indigo-900/30 p-4">
+          <div className="bg-card/80 backdrop-blur-sm rounded-xs border border-indigo-100/40 dark:border-indigo-900/30 p-4">
           {loading && Object.keys(eventsByDate).length === 0 ? (
             <div className="flex items-center justify-center py-12">
               <div className="flex items-center gap-3 text-muted-foreground">

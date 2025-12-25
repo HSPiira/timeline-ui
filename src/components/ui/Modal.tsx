@@ -74,7 +74,7 @@ export function Modal({
       role="presentation"
     >
       <div
-        className={`modal-content-animate bg-background border border-border rounded-lg ${maxWidth} w-full max-h-[90vh] overflow-auto p-4 sm:p-6 shadow-2xl`}
+        className={`modal-content-animate bg-background border border-border rounded-xs ${maxWidth} w-full max-h-[90vh] overflow-auto p-4 sm:p-6 shadow-2xl`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -84,7 +84,7 @@ export function Modal({
             {closeButton && (
               <button
                 onClick={onClose}
-                className="relative -mr-2 -mt-2 p-2 text-muted-foreground/70 hover:text-foreground hover:bg-muted/30 rounded-lg transition-colors"
+                className="relative -mr-2 -mt-2 p-2 text-muted-foreground/70 hover:text-foreground hover:bg-muted/30 rounded-xs transition-colors"
                 aria-label="Close modal"
               >
                 <X className="w-5 h-5" />

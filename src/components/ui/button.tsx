@@ -39,7 +39,7 @@ export function Button({
   ...props
 }: ButtonProps) {
   const baseStyles =
-    'inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-colors'
+    'inline-flex items-center justify-center gap-2 font-medium rounded-xs transition-colors'
   const focusStyles =
     'focus:outline-none focus:ring-2 focus:ring-offset-0'
   const disabledStyles =

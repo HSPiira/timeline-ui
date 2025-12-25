@@ -364,7 +364,7 @@ export function SchemaFormModal({ onClose, onSubmit, title }: SchemaFormModalPro
                   value={eventType}
                   onChange={(e) => setEventType(e.target.value)}
                   placeholder="e.g., user_created, order_placed, payment_received"
-                  className="w-full px-3 py-2 bg-background border border-input rounded-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
+                  className="w-full px-3 py-2 bg-background border border-input rounded-xs text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
                   disabled={loading}
                 />
                 <p className="mt-1 text-xs text-muted-foreground">
@@ -389,7 +389,7 @@ export function SchemaFormModal({ onClose, onSubmit, title }: SchemaFormModalPro
             </div>
 
             {fields.length === 0 ? (
-              <div className="p-4 bg-background/50 border border-dashed border-border rounded-sm text-center text-sm text-muted-foreground">
+              <div className="p-4 bg-background/50 border border-dashed border-border rounded-xs text-center text-sm text-muted-foreground">
                 No fields yet. Click "Add Field" to create one.
               </div>
             ) : (
@@ -399,7 +399,7 @@ export function SchemaFormModal({ onClose, onSubmit, title }: SchemaFormModalPro
                   return (
                     <div
                       key={field.id}
-                      className="flex items-center justify-between p-3 bg-background/50 border border-border rounded-sm hover:border-primary/50 transition-colors group"
+                      className="flex items-center justify-between p-3 bg-background/50 border border-border rounded-xs hover:border-primary/50 transition-colors group"
                     >
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
@@ -485,7 +485,7 @@ export function SchemaFormModal({ onClose, onSubmit, title }: SchemaFormModalPro
                   </button>
 
                   {showJsonPreview && (
-                    <div className="p-3 bg-background/50 border border-border rounded-sm overflow-auto max-h-40">
+                    <div className="p-3 bg-background/50 border border-border rounded-xs overflow-auto max-h-40">
                       <pre className="text-xs font-mono text-muted-foreground whitespace-pre-wrap break-words">
                         {JSON.stringify(jsonSchema, null, 2)}
                       </pre>
@@ -506,7 +506,7 @@ export function SchemaFormModal({ onClose, onSubmit, title }: SchemaFormModalPro
                   value={eventType}
                   onChange={(e) => setEventType(e.target.value)}
                   placeholder="e.g., user_created, order_placed, payment_received"
-                  className="w-full px-3 py-2 bg-background border border-input rounded-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
+                  className="w-full px-3 py-2 bg-background border border-input rounded-xs text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
                   disabled={loading}
                 />
                 <p className="mt-1 text-xs text-muted-foreground">
@@ -522,7 +522,7 @@ export function SchemaFormModal({ onClose, onSubmit, title }: SchemaFormModalPro
                   value={jsonEdit}
                   onChange={(e) => setJsonEdit(e.target.value)}
                   placeholder='{\n  "type": "object",\n  "properties": {\n    "email": {\n      "type": "string",\n      "format": "email"\n    }\n  },\n  "required": ["email"]\n}'
-                  className="w-full px-3 py-2 bg-background border border-input rounded-sm text-foreground font-mono text-xs placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50 resize-none"
+                  className="w-full px-3 py-2 bg-background border border-input rounded-xs text-foreground font-mono text-xs placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50 resize-none"
                   rows={12}
                   disabled={loading}
                 />
@@ -584,7 +584,7 @@ export function SchemaFormModal({ onClose, onSubmit, title }: SchemaFormModalPro
                 value={editingField.name}
                 onChange={(e) => setEditingField({ ...editingField, name: e.target.value })}
                 placeholder="e.g., user_email"
-                className="w-full px-3 py-2 bg-background border border-input rounded-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                className="w-full px-3 py-2 bg-background border border-input rounded-xs text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
               />
             </div>
 
@@ -594,7 +594,7 @@ export function SchemaFormModal({ onClose, onSubmit, title }: SchemaFormModalPro
             <select
               value={editingField.type}
               onChange={(e) => setEditingField({ ...editingField, type: e.target.value })}
-              className="w-full px-3 py-2 bg-background border border-input rounded-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+              className="w-full px-3 py-2 bg-background border border-input rounded-xs text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             >
               {FIELD_TYPES.map((t) => (
                 <option key={t.value} value={t.value}>
@@ -614,7 +614,7 @@ export function SchemaFormModal({ onClose, onSubmit, title }: SchemaFormModalPro
               value={editingField.description}
               onChange={(e) => setEditingField({ ...editingField, description: e.target.value })}
               placeholder="What does this field represent?"
-              className="w-full px-3 py-2 bg-background border border-input rounded-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+              className="w-full px-3 py-2 bg-background border border-input rounded-xs text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
 
@@ -646,7 +646,7 @@ export function SchemaFormModal({ onClose, onSubmit, title }: SchemaFormModalPro
                         newEnum[idx] = e.target.value
                         setEditingField({ ...editingField, enum: newEnum })
                       }}
-                      className="flex-1 px-3 py-2 bg-background border border-input rounded-sm text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                      className="flex-1 px-3 py-2 bg-background border border-input rounded-xs text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                     />
                     <button
                       type="button"
@@ -695,7 +695,7 @@ export function SchemaFormModal({ onClose, onSubmit, title }: SchemaFormModalPro
                     })
                   }
                   placeholder="e.g., 0"
-                  className="w-full px-3 py-2 bg-background border border-input rounded-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full px-3 py-2 bg-background border border-input rounded-xs text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                 />
               </div>
               <div>
@@ -712,7 +712,7 @@ export function SchemaFormModal({ onClose, onSubmit, title }: SchemaFormModalPro
                     })
                   }
                   placeholder="e.g., 100"
-                  className="w-full px-3 py-2 bg-background border border-input rounded-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full px-3 py-2 bg-background border border-input rounded-xs text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                 />
               </div>
             </div>
@@ -732,7 +732,7 @@ export function SchemaFormModal({ onClose, onSubmit, title }: SchemaFormModalPro
                     format: e.target.value || undefined,
                   })
                 }
-                className="w-full px-3 py-2 bg-background border border-input rounded-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                className="w-full px-3 py-2 bg-background border border-input rounded-xs text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
               >
                 <option value="">None</option>
                 {STRING_FORMATS.map((f) => (
@@ -760,7 +760,7 @@ export function SchemaFormModal({ onClose, onSubmit, title }: SchemaFormModalPro
                   })
                 }
                 placeholder="e.g., ^[A-Z]{2}\\d{3}$"
-                className="w-full px-3 py-2 bg-background border border-input rounded-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                className="w-full px-3 py-2 bg-background border border-input rounded-xs text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
               />
               <p className="mt-1 text-xs text-muted-foreground">
                 For custom validation patterns. Examples: email regex, zipcode format, etc.

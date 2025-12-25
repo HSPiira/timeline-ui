@@ -181,7 +181,7 @@ function UsersPage() {
 
       {/* Limited Access Warning */}
       {hasNoAccess && (
-        <div className="mb-3 p-3 bg-amber-50 dark:bg-amber-900/40 border border-amber-200 dark:border-amber-700 rounded-lg flex gap-2">
+        <div className="mb-3 p-3 bg-amber-50 dark:bg-amber-900/40 border border-amber-200 dark:border-amber-700 rounded-xs flex gap-2">
           <div className="flex-1">
             <h3 className="font-semibold text-amber-900 dark:text-amber-100 text-sm">
               Limited Access
@@ -201,7 +201,7 @@ function UsersPage() {
 
       {/* Users List */}
       {tenantUsers.length === 0 ? (
-        <div className="text-center py-8 bg-card/80 rounded-lg border border-border/50 p-4">
+        <div className="text-center py-8 bg-card/80 rounded-xs border border-border/50 p-4">
           <h3 className="text-sm font-semibold text-foreground mb-1">No users found</h3>
           <p className="text-sm text-muted-foreground">No users in this tenant</p>
         </div>
@@ -217,7 +217,7 @@ function UsersPage() {
             return (
               <div
                 key={user.id}
-                className="bg-card/80 rounded-lg border border-border/50 overflow-hidden"
+                className="bg-card/80 rounded-xs border border-border/50 overflow-hidden"
               >
                 {/* User Header */}
                 <button
@@ -237,7 +237,7 @@ function UsersPage() {
                     )}
                   </div>
                   <div className="flex-shrink-0">
-                    <span className="text-xs px-1.5 py-0.5 bg-secondary text-muted-foreground rounded-sm font-mono">
+                    <span className="text-xs px-1.5 py-0.5 bg-secondary text-muted-foreground rounded-xs font-mono">
                       {userRolesList.length} role{userRolesList.length !== 1 ? 's' : ''}
                     </span>
                   </div>
@@ -281,7 +281,7 @@ function UsersPage() {
                                     {role.name}
                                   </span>
                                   {role.is_system && (
-                                    <span className="text-xs px-1.5 py-0.5 bg-primary/20 text-primary rounded-sm font-medium">
+                                    <span className="text-xs px-1.5 py-0.5 bg-primary/20 text-primary rounded-xs font-medium">
                                       SYSTEM
                                     </span>
                                   )}
@@ -379,7 +379,7 @@ function UsersPage() {
       )}
 
       {/* Note */}
-      <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/40 border border-blue-200 dark:border-blue-700 rounded-lg">
+      <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/40 border border-blue-200 dark:border-blue-700 rounded-xs">
         <p className="text-xs text-blue-800 dark:text-blue-200">
           Note: This shows tenant users. The user management panel integrates role-based access control
           directly, allowing administrators to assign or revoke roles instantly.

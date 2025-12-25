@@ -46,11 +46,11 @@ export function DeleteConfirmModal({
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-background border border-border rounded-sm max-w-md w-full shadow-xl p-6">
+      <div className="bg-background border border-border rounded-xs max-w-md w-full shadow-xl p-6">
         {/* Header */}
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-start gap-3">
-            <div className={`w-10 h-10 rounded-sm flex items-center justify-center flex-shrink-0 ${
+            <div className={`w-10 h-10 rounded-xs flex items-center justify-center flex-shrink-0 ${
               isDestructive
                 ? 'bg-red-100 dark:bg-red-950/30'
                 : 'bg-yellow-100 dark:bg-yellow-950/30'
@@ -77,7 +77,7 @@ export function DeleteConfirmModal({
 
         {/* Details */}
         {details && Object.keys(details).length > 0 && (
-          <div className="mb-4 p-3 bg-muted/50 rounded-sm border border-border/50">
+          <div className="mb-4 p-3 bg-muted/50 rounded-xs border border-border/50">
             <div className="space-y-2">
               {Object.entries(details).map(([key, value]) => (
                 <div key={key}>
@@ -91,7 +91,7 @@ export function DeleteConfirmModal({
 
         {/* Warning Message */}
         {warning && (
-          <div className={`mb-4 p-3 rounded-sm border ${
+          <div className={`mb-4 p-3 rounded-xs border ${
             isDestructive
               ? 'bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800'
               : 'bg-yellow-50 dark:bg-yellow-950/20 border-yellow-200 dark:border-yellow-800'
@@ -108,7 +108,7 @@ export function DeleteConfirmModal({
 
         {/* Error Alert */}
         {error && (
-          <div className="mb-4 p-3 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-sm">
+          <div className="mb-4 p-3 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-xs">
             <p className="text-xs text-red-900 dark:text-red-200 font-medium">Error</p>
             <p className="text-xs text-red-800 dark:text-red-300 mt-1">{error}</p>
           </div>
@@ -119,14 +119,14 @@ export function DeleteConfirmModal({
           <button
             onClick={onClose}
             disabled={loading}
-            className="flex-1 px-3 py-1.5 text-sm text-foreground hover:bg-muted rounded-sm font-medium transition-colors disabled:opacity-50"
+            className="flex-1 px-3 py-1.5 text-sm text-foreground hover:bg-muted rounded-xs font-medium transition-colors disabled:opacity-50"
           >
             Cancel
           </button>
           <button
             onClick={handleConfirm}
             disabled={loading}
-            className={`flex-1 px-3 py-1.5 text-sm text-white rounded-sm font-medium transition-colors disabled:opacity-50 inline-flex items-center justify-center gap-2 ${
+            className={`flex-1 px-3 py-1.5 text-sm text-white rounded-xs font-medium transition-colors disabled:opacity-50 inline-flex items-center justify-center gap-2 ${
               isDestructive
                 ? 'bg-red-600 hover:bg-red-700'
                 : 'bg-yellow-600 hover:bg-yellow-700'

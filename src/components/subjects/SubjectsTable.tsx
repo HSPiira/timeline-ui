@@ -60,7 +60,7 @@ import {
           return (
             <div className="flex items-center gap-2">
               <div
-                className={`w-8 h-8 rounded-lg ${bgColor} flex items-center justify-center shrink-0`}
+                className={`w-8 h-8 rounded-xs ${bgColor} flex items-center justify-center shrink-0`}
               >
                 <Icon className={`w-4 h-4 ${textColor}`} />
               </div>
@@ -83,7 +83,7 @@ import {
             const subject = row.original
             const { borderColor, accent, bgColor } = getSubjectIcon(subject.subject_type)
             return (
-                <span className={`text-sm font-medium ${accent} px-2.5 py-1.5 rounded-lg border ${borderColor} ${bgColor} inline-block`}>
+                <span className={`text-sm font-medium ${accent} px-2.5 py-1.5 rounded-xs border ${borderColor} ${bgColor} inline-block`}>
                     {subject.subject_type}
                 </span>
             )
@@ -142,7 +142,7 @@ import {
                 e.stopPropagation()
                 onEdit?.(subject)
               }}
-              className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-ring/20"
+              className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-xs transition-colors focus:outline-none focus:ring-2 focus:ring-ring/20"
               title="Edit subject"
               aria-label="Edit subject"
             >
@@ -164,7 +164,7 @@ import {
     }
   
     return (
-      <div className="bg-card/80 backdrop-blur-sm rounded-lg border border-border overflow-hidden">
+      <div className="bg-card/80 backdrop-blur-sm rounded-xs border border-border overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full min-w-max">
             <thead className="bg-muted/50 border-b border-border sticky top-0">

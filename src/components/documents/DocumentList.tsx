@@ -171,7 +171,7 @@ export function DocumentList({ subjectId, eventId, readOnly, onDelete, onError }
 
   if (error && documents.length === 0) {
     return (
-      <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-sm flex gap-3">
+      <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xs flex gap-3">
         <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
         <div>
           <h3 className="font-semibold text-red-900 dark:text-red-200 text-sm">Error loading documents</h3>
@@ -192,7 +192,7 @@ export function DocumentList({ subjectId, eventId, readOnly, onDelete, onError }
   }
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-amber-200 dark:border-amber-800">
+    <div className="overflow-x-auto rounded-xs border border-amber-200 dark:border-amber-800">
       <table className="w-full text-xs sm:text-sm min-w-max">
         <thead className="bg-gradient-to-r from-amber-50 to-amber-100/50 dark:from-amber-950/30 dark:to-amber-900/20 sticky top-0">
           <tr className="border-b border-amber-200 dark:border-amber-800">
@@ -233,14 +233,14 @@ export function DocumentList({ subjectId, eventId, readOnly, onDelete, onError }
                 <div className="flex items-center justify-end gap-0.5 sm:gap-1">
                   <button
                     onClick={() => handleView(doc)}
-                    className="px-2 sm:px-3 py-1 sm:py-2 hover:bg-blue-100 dark:hover:bg-blue-950/30 rounded-sm transition-colors text-blue-600 dark:text-blue-400 font-medium"
+                    className="px-2 sm:px-3 py-1 sm:py-2 hover:bg-blue-100 dark:hover:bg-blue-950/30 rounded-xs transition-colors text-blue-600 dark:text-blue-400 font-medium"
                     title="View document"
                   >
                     <Eye className="w-3 sm:w-4 h-3 sm:h-4" />
                   </button>
                   <button
                     onClick={() => handleDownload(doc.id, getDisplayName(doc))}
-                    className="px-2 sm:px-3 py-1 sm:py-2 hover:bg-amber-100 dark:hover:bg-amber-900/30 rounded-sm transition-colors font-medium"
+                    className="px-2 sm:px-3 py-1 sm:py-2 hover:bg-amber-100 dark:hover:bg-amber-900/30 rounded-xs transition-colors font-medium"
                     title="Download"
                   >
                     <Download className="w-3 sm:w-4 h-3 sm:h-4 text-amber-600 dark:text-amber-400" />
@@ -249,7 +249,7 @@ export function DocumentList({ subjectId, eventId, readOnly, onDelete, onError }
                     <button
                       onClick={() => handleDeleteClick(doc.id, getDisplayName(doc))}
                       disabled={deleting === doc.id}
-                      className="px-2 sm:px-3 py-1 sm:py-2 hover:bg-red-100 dark:hover:bg-red-900/20 rounded-sm transition-colors disabled:opacity-50 font-medium"
+                      className="px-2 sm:px-3 py-1 sm:py-2 hover:bg-red-100 dark:hover:bg-red-900/20 rounded-xs transition-colors disabled:opacity-50 font-medium"
                       title="Delete"
                     >
                       {deleting === doc.id ? (

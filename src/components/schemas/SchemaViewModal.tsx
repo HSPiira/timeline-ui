@@ -104,7 +104,7 @@ export function SchemaViewModal({ schema, onClose }: SchemaViewModalProps) {
                 <p className="text-sm text-muted-foreground italic">No fields defined</p>
               ) : (
                 Object.entries(properties).map(([fieldName, fieldSchema]) => (
-                  <div key={fieldName} className="p-3 bg-background/50 border border-border rounded-sm">
+                  <div key={fieldName} className="p-3 bg-background/50 border border-border rounded-xs">
                     <div className="flex items-center justify-between gap-2 mb-1">
                       <div className="flex items-center gap-2">
                         <span className="font-medium text-foreground text-sm">{fieldName}</span>
@@ -131,7 +131,7 @@ export function SchemaViewModal({ schema, onClose }: SchemaViewModalProps) {
               )}
             </div>
           ) : (
-            <div className="p-3 bg-background/50 rounded-sm border border-border/50 overflow-auto">
+            <div className="p-3 bg-background/50 rounded-xs border border-border/50 overflow-auto">
               <pre className="text-xs text-foreground/90 font-mono whitespace-pre-wrap break-words">
                 {JSON.stringify(schema.schema_definition, null, 2)}
               </pre>
@@ -140,7 +140,7 @@ export function SchemaViewModal({ schema, onClose }: SchemaViewModalProps) {
         </div>
 
         {/* Info Note */}
-        <div className="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-sm mb-4">
+        <div className="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xs mb-4">
           <p className="text-xs text-blue-900 dark:text-blue-200">
             This is a read-only view. To modify this schema, create a new version with the Create Schema button.
           </p>
@@ -152,7 +152,7 @@ export function SchemaViewModal({ schema, onClose }: SchemaViewModalProps) {
       <div className="pt-4 border-t border-border">
         <button
           onClick={onClose}
-          className="w-full px-4 py-2 border border-input text-foreground/90 rounded-sm font-medium hover:bg-muted/30 transition-colors text-sm"
+          className="w-full px-4 py-2 border border-input text-foreground/90 rounded-xs font-medium hover:bg-muted/30 transition-colors text-sm"
         >
           Close
         </button>

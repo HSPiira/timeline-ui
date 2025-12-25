@@ -8,12 +8,11 @@ import {
   Plus,
   Trash2,
   Eye,
-  X,
 } from 'lucide-react'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { Modal } from '@/components/ui/Modal'
 import { FormError } from '@/components/ui/FormField'
-import { Button } from '@/components/ui/Button'
+import { Button } from '@/components/ui/button'
 import type { components } from '@/lib/timeline-api'
 
 export const Route = createFileRoute('/settings/permissions/')({
@@ -49,7 +48,6 @@ function PermissionsPage() {
   const [confirmingDelete, setConfirmingDelete] = useState<{ id: string; code: string } | null>(null)
   const [filterResource, setFilterResource] = useState('')
   const [viewingRoles, setViewingRoles] = useState<{ permId: string; permCode: string; roles: RoleResponse[] } | null>(null)
-  const [loadingRoles, setLoadingRoles] = useState(false)
 
   useEffect(() => {
     if (authState.user) {
@@ -162,7 +160,7 @@ function PermissionsPage() {
         <ViewRolesModal
           permCode={viewingRoles.permCode}
           roles={viewingRoles.roles}
-          loading={loadingRoles}
+          loading={loading}
           onClose={() => setViewingRoles(null)}
         />
       )}
@@ -172,7 +170,7 @@ function PermissionsPage() {
 
       {/* Limited Access Warning */}
       {hasNoAccess && (
-        <div className="mb-3 p-3 bg-amber-50 dark:bg-amber-900/40 border border-amber-200 dark:border-amber-700 rounded-lg flex gap-2">
+        <div className="mb-3 p-3 bg-amber-50 dark:bg-amber-900/40 border border-amber-200 dark:border-amber-700 rounded-xs flex gap-2">
           <div className="flex-1">
             <h3 className="font-semibold text-amber-900 dark:text-amber-100 text-sm">
               Limited Access
@@ -205,13 +203,13 @@ function PermissionsPage() {
       </div>
 
       {/* Filter */}
-      <div className="mb-3 p-2.5 bg-card/80 backdrop-blur-sm rounded-sm border border-border/50">
+      <div className="mb-3 p-2.5 bg-card/80 backdrop-blur-sm rounded-xs border border-border/50">
         <div className="flex flex-wrap items-center gap-2">
           <label className="text-sm font-medium text-foreground/90">Filter by resource:</label>
           <select
             value={filterResource}
             onChange={(e) => setFilterResource(e.target.value)}
-            className="px-3 py-1.5 bg-background border border-input rounded-sm text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+            className="px-3 py-1.5 bg-background border border-input rounded-xs text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
           >
             <option value="">All Resources</option>
             {RESOURCE_TYPES.map((resource) => (
@@ -221,19 +219,20 @@ function PermissionsPage() {
             ))}
           </select>
           {filterResource && (
-            <button
+            <Button
               onClick={() => setFilterResource('')}
-              className="text-sm text-muted-foreground hover:text-foreground"
+              variant="secondary"
+              size="sm"
             >
               Clear filter
-            </button>
+            </Button>
           )}
         </div>
       </div>
 
       {/* Permissions Table */}
       {filteredPermissions.length === 0 ? (
-        <div className="text-center py-8 bg-card/80 rounded-lg border border-border/50 p-4">
+        <div className="text-center py-8 bg-card/80 rounded-xs border border-border/50 p-4">
           <h3 className="text-sm font-semibold text-foreground mb-1">
             {filterResource ? `No ${filterResource} permissions` : 'No permissions yet'}
           </h3>
@@ -251,7 +250,7 @@ function PermissionsPage() {
           )}
         </div>
       ) : (
-        <div className="overflow-x-auto bg-card/80 rounded-lg border border-border/50">
+        <div className="overflow-x-auto bg-card/80 rounded-xs border border-border/50">
           <table className="w-full text-xs sm:text-sm min-w-max">
             <thead>
               <tr className="border-b border-border">
@@ -279,12 +278,12 @@ function PermissionsPage() {
                   className="border-b border-border hover:bg-muted/50 transition-colors"
                 >
                   <td className="py-2 px-2.5">
-                    <span className="text-xs px-1.5 py-0.5 bg-secondary text-muted-foreground rounded-sm font-medium capitalize">
+                    <span className="text-xs px-1.5 py-0.5 bg-secondary text-muted-foreground rounded-xs font-medium capitalize">
                       {perm.resource}
                     </span>
                   </td>
                   <td className="py-2 px-2.5">
-                    <span className="text-xs px-1.5 py-0.5 bg-secondary text-muted-foreground rounded-sm font-medium capitalize">
+                    <span className="text-xs px-1.5 py-0.5 bg-secondary text-muted-foreground rounded-xs font-medium capitalize">
                       {perm.action}
                     </span>
                   </td>
@@ -423,7 +422,7 @@ function PermissionFormModal({
             <select
               value={resource}
               onChange={(e) => setResource(e.target.value)}
-              className="w-full px-3 py-2 bg-background border border-input rounded-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
+              className="w-full px-3 py-2 bg-background border border-input rounded-xs text-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
               disabled={loading}
             >
               <option value="">Select resource...</option>
@@ -442,7 +441,7 @@ function PermissionFormModal({
             <select
               value={action}
               onChange={(e) => setAction(e.target.value)}
-              className="w-full px-3 py-2 bg-background border border-input rounded-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
+              className="w-full px-3 py-2 bg-background border border-input rounded-xs text-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
               disabled={loading}
             >
               <option value="">Select action...</option>
@@ -462,7 +461,7 @@ function PermissionFormModal({
               type="text"
               value={resource && action ? `${resource}:${action}` : ''}
               readOnly
-              className="w-full px-3 py-2 bg-background border border-input rounded-sm text-foreground/70 disabled:opacity-50"
+              className="w-full px-3 py-2 bg-background border border-input rounded-xs text-foreground/70 disabled:opacity-50"
               placeholder="Format: resource:action"
             />
           </div>
@@ -476,7 +475,7 @@ function PermissionFormModal({
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Describe what this permission grants..."
               rows={3}
-              className="w-full px-3 py-2 bg-background border border-input rounded-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
+              className="w-full px-3 py-2 bg-background border border-input rounded-xs text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
               disabled={loading}
             />
           </div>
@@ -548,7 +547,7 @@ function ViewRolesModal({
           {roles.map((role) => (
             <div
               key={role.id}
-              className="p-3 bg-muted rounded-lg border border-border flex items-center justify-between"
+              className="p-3 bg-muted rounded-xs border border-border flex items-center justify-between"
             >
               <div>
                 <p className="font-semibold text-foreground">{role.name}</p>
@@ -557,7 +556,7 @@ function ViewRolesModal({
                 )}
               </div>
               {role.is_system && (
-                <span className="text-xs px-1.5 py-0.5 bg-primary/20 text-primary rounded-lg font-medium">
+                <span className="text-xs px-1.5 py-0.5 bg-primary/20 text-primary rounded-xs font-medium">
                   SYSTEM
                 </span>
               )}

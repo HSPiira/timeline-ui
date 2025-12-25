@@ -93,7 +93,7 @@ export function EventDocumentsModal({
   return (
     <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" onClick={onClose} role="presentation">
       <div
-        className="bg-background border border-amber-200 dark:border-amber-900 rounded-sm shadow-xl max-w-2xl w-full max-h-[90vh] flex flex-col"
+        className="bg-background border border-amber-200 dark:border-amber-900 rounded-xs shadow-xl max-w-2xl w-full max-h-[90vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -105,7 +105,7 @@ export function EventDocumentsModal({
 
           <button
             onClick={onClose}
-            className="px-4 py-2 hover:bg-muted rounded-sm transition-colors font-medium"
+            className="px-4 py-2 hover:bg-muted rounded-xs transition-colors font-medium"
             title="Close"
             aria-label="Close modal"
           >
@@ -117,7 +117,7 @@ export function EventDocumentsModal({
         <div className="flex-1 overflow-auto p-4 space-y-4">
           {/* Error Alert */}
           {error && (
-            <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-sm">
+            <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xs">
               <p className="text-sm text-red-800 dark:text-red-300">{error}</p>
             </div>
           )}
@@ -130,7 +130,7 @@ export function EventDocumentsModal({
 
           {/* Upload Section */}
           {showUpload && (
-            <div className="p-3 bg-gradient-to-r from-blue-50 to-blue-100/50 dark:from-blue-950/30 dark:to-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-sm space-y-3">
+            <div className="p-3 bg-gradient-to-r from-blue-50 to-blue-100/50 dark:from-blue-950/30 dark:to-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xs space-y-3">
               <div>
                 <h4 className="text-sm font-medium text-blue-900 dark:text-blue-200 mb-2">Add Additional Documents</h4>
                 <p className="text-xs text-blue-800 dark:text-blue-300 mb-3">
@@ -148,7 +148,7 @@ export function EventDocumentsModal({
                 <button
                   onClick={handleUploadDocuments}
                   disabled={stagedFiles.length === 0 || uploading}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white rounded-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:shadow-sm"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white rounded-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:shadow-sm"
                 >
                   {uploading ? (
                     <>
@@ -169,7 +169,7 @@ export function EventDocumentsModal({
                     setError(null)
                   }}
                   disabled={uploading}
-                  className="px-4 py-2 border border-input text-foreground/90 rounded-sm font-medium hover:bg-muted/30 transition-colors disabled:opacity-50"
+                  className="px-4 py-2 border border-input text-foreground/90 rounded-xs font-medium hover:bg-muted/30 transition-colors disabled:opacity-50"
                 >
                   Cancel
                 </button>
@@ -181,7 +181,7 @@ export function EventDocumentsModal({
           {!showUpload && (
             <button
               onClick={() => setShowUpload(true)}
-              className="w-full px-4 py-2 text-sm border-2 border-dashed border-amber-400 dark:border-amber-600 text-amber-700 dark:text-amber-300 rounded-sm hover:bg-amber-50 dark:hover:bg-amber-950/20 transition-all font-medium hover:border-amber-500 dark:hover:border-amber-500"
+              className="w-full px-4 py-2 text-sm border-2 border-dashed border-amber-400 dark:border-amber-600 text-amber-700 dark:text-amber-300 rounded-xs hover:bg-amber-50 dark:hover:bg-amber-950/20 transition-all font-medium hover:border-amber-500 dark:hover:border-amber-500"
             >
               <Plus className="w-4 h-4 inline mr-2" />
               Attach Additional Documents
