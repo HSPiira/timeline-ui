@@ -3,6 +3,7 @@ import { Calendar, Loader2, AlertCircle, Wifi, WifiOff } from 'lucide-react'
 import { useActivityFeed } from '@/hooks/useActivityFeed'
 import { useActivitySubscription, useSimulatedActivityStream } from '@/hooks/useActivitySubscription'
 import { ActivityRenderer } from './ActivityRenderers'
+import { VirtualActivityList } from './VirtualActivityList'
 import { ActivityProvider, useActivityContext } from '@/context/ActivityContext'
 import type { ActivityFilter, Activity } from '@/lib/types/activity'
 
@@ -30,6 +31,7 @@ export function ActivityFeed({
 interface ActivityFeedContentProps extends ActivityFeedProps {
   enableRealTime?: boolean
   useSimulation?: boolean
+  useVirtualScrolling?: boolean
 }
 
 /**
@@ -40,6 +42,7 @@ function ActivityFeedContent({
   limit,
   enableRealTime = true,
   useSimulation = false,
+  useVirtualScrolling = false,
 }: ActivityFeedContentProps) {
   const { selected, setSelected, expanded, toggleExpanded } = useActivityContext()
   const { feed, loading, error, fetchMore, addActivity } = useActivityFeed({
@@ -175,17 +178,29 @@ function ActivityFeedContent({
         </div>
       )}
 
-      {/* Activity items */}
-      {feed.items.map(activity => (
-        <ActivityRenderer
-          key={activity.id}
-          activity={activity}
-          isSelected={selected === activity.id}
-          isExpanded={expanded.has(activity.id)}
+      {/* Activity items - Virtual or Standard */}
+      {useVirtualScrolling ? (
+        <VirtualActivityList
+          activities={feed.items}
+          selectedId={selected}
+          expandedIds={expanded}
           onSelect={setSelected}
           onExpand={toggleExpanded}
+          height={600}
+          itemHeight={100}
         />
-      ))}
+      ) : (
+        feed.items.map(activity => (
+          <ActivityRenderer
+            key={activity.id}
+            activity={activity}
+            isSelected={selected === activity.id}
+            isExpanded={expanded.has(activity.id)}
+            onSelect={setSelected}
+            onExpand={toggleExpanded}
+          />
+        ))
+      )}
 
       {/* Load more button */}
       {feed.hasMore && (
