@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Calendar, Loader2, AlertCircle, Wifi, WifiOff, BarChart3 } from 'lucide-react'
 import { useActivityFeed } from '@/hooks/useActivityFeed'
 import { useActivitySubscription, useSimulatedActivityStream } from '@/hooks/useActivitySubscription'
+import { useActivityNotifications } from '@/hooks/useActivityNotifications'
 import { ActivityRenderer } from './ActivityRenderers'
 import { VirtualActivityList } from './VirtualActivityList'
 import { ActivitySearchBar } from './ActivitySearchBar'
@@ -13,6 +14,7 @@ interface ActivityFeedProps {
   filter?: ActivityFilter
   limit?: number
   showAnalytics?: boolean
+  enableNotifications?: boolean
 }
 
 /**
@@ -36,6 +38,7 @@ interface ActivityFeedContentProps extends ActivityFeedProps {
   useSimulation?: boolean
   useVirtualScrolling?: boolean
   showAnalytics?: boolean
+  enableNotifications?: boolean
 }
 
 /**
@@ -48,10 +51,18 @@ function ActivityFeedContent({
   useSimulation = false,
   useVirtualScrolling = false,
   showAnalytics = false,
+  enableNotifications = true,
 }: ActivityFeedContentProps) {
   const { selected, setSelected, expanded, toggleExpanded } = useActivityContext()
   const [searchQuery, setSearchQuery] = useState('')
   const [showAnalyticsPanel, setShowAnalyticsPanel] = useState(showAnalytics)
+
+  // Initialize notifications
+  const { notifyNewActivity } = useActivityNotifications({
+    enableNotifications,
+    showForActions: ['created', 'verified'],
+    autoCloseDuration: 5000,
+  })
 
   // Merge search query with provided filter
   const mergedFilter = useMemo<ActivityFilter>(() => ({
@@ -74,8 +85,9 @@ function ActivityFeedContent({
   const handleNewActivity = useCallback(
     (activity: Activity) => {
       addActivity(activity)
+      notifyNewActivity(activity)
     },
-    [addActivity]
+    [addActivity, notifyNewActivity]
   )
 
   /**
