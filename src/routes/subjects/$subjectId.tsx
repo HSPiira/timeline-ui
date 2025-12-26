@@ -17,13 +17,13 @@ import type { SubjectResponse, EventResponse } from '@/lib/types'
 import { LoadingIcon } from '@/components/ui/icons'
 import { Button } from '@/components/ui/button'
 
-export const Route = createFileRoute('/events/subject/$subjectId')({
-  component: SubjectEventsPage,
+export const Route = createFileRoute('/subjects/$subjectId')({
+  component: SubjectDetailPage,
 })
 
 type Tab = 'events' | 'documents'
 
-function SubjectEventsPage() {
+function SubjectDetailPage() {
   const { subjectId } = Route.useParams()
   const navigate = useNavigate()
   const authState = useStore(authStore)

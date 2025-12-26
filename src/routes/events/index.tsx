@@ -10,6 +10,8 @@ import { EventDetailsModal } from '@/components/events/EventDetailsModal'
 import { EventCard } from '@/components/events/EventCard'
 import { EmptyState } from '@/components/ui/EmptyState'
 import type { EventResponse } from '@/lib/types'
+import { Button } from '@/components/ui/button'
+import { Select } from '@/components/ui/select'
 
 export const Route = createFileRoute('/events/')({
   component: EventsPage,
@@ -49,8 +51,8 @@ function EventsPage() {
       const { data, error: apiError } = await timelineApi.events.listAll(params)
 
       if (apiError) {
-        // @ts-expect-error - openapi-fetch error handling
-        const errorMessage = apiError?.message || 'Unable to connect to the server'
+        const errorMessage = 
+          (apiError as { message?: string })?.message || 'Unable to connect to the server'
         setError(errorMessage)
         console.error('API error:', apiError)
       } else if (data) {
@@ -155,13 +157,14 @@ function EventsPage() {
           <p className="text-sm text-muted-foreground mb-3">
             {error}. Please check your connection and try again.
           </p>
-          <button
+          <Button
             onClick={fetchEvents}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 rounded-xs font-medium hover:bg-slate-800 dark:hover:bg-slate-200 transition-colors"
+            variant="primary"
+            size="sm"
           >
-            <Loader2 className="w-4 h-4" />
+            <LoadingIcon />
             Retry
-          </button>
+          </Button>
         </div>
       </div>
     )
@@ -179,10 +182,10 @@ function EventsPage() {
               Browse and manage all timeline events
             </p>
           </div>
-          <button onClick={() => navigate({ to: '/events/create' })} className="flex items-center gap-2 px-4 py-2 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 rounded-xs font-medium hover:bg-slate-800 dark:hover:bg-slate-200 transition-colors">
+          <Button onClick={() => navigate({ to: '/events/create' })} variant="primary" size="sm">
             <Plus className="w-4 h-4" />
             Log Event
-          </button>
+          </Button>
         </div>
 
         {/* Filters */}
@@ -192,7 +195,7 @@ function EventsPage() {
               <label className="text-sm font-medium text-foreground/90">
                 Filter by type:
               </label>
-              <select
+              <Select
                 value={filterEventType}
                 onChange={(e) => setFilterEventType(e.target.value)}
                 className="px-2.5 py-1 bg-background border border-input rounded-xs text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
@@ -203,14 +206,15 @@ function EventsPage() {
                     {type}
                   </option>
                 ))}
-              </select>
+              </Select>
               {filterEventType && (
-                <button
+                <Button
                   onClick={() => setFilterEventType('')}
-                  className="text-sm text-muted-foreground hover:text-foreground"
+                  variant="ghost"
+                  size="sm"
                 >
                   Clear filter
-                </button>
+                </Button>
               )}
             </div>
           </div>
@@ -241,16 +245,17 @@ function EventsPage() {
                 return (
                   <div key={date}>
                     {/* Date Header */}
-                    <button
+                    <Button
                       onClick={() => toggleDate(date)}
-                      className="flex items-center gap-2 mb-4"
+                      variant="ghost"
+                      size="sm"
                     >
                       {isDateCollapsed ? <ChevronRight /> : <ChevronDown />}
                       <span className="font-semibold">{date}</span>
                       <span className="text-xs text-muted-foreground">
                         ({dateEvents.length})
                       </span>
-                    </button>
+                    </Button>
 
                     {/* Events for this date */}
                     {!isDateCollapsed && (

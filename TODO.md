@@ -28,9 +28,9 @@
 | Authentication | ✅ Complete | `/login`, `/register` |
 | Dashboard | ✅ Complete | `/` - Connected to real API |
 | Subjects List | ✅ Complete | `/subjects` |
-| Subject Detail | ✅ Complete | `/events/subject/$subjectId` |
+| Subject Detail | ✅ Complete | `/subjects/$subjectId` |
 | Events List | ✅ Complete | `/events` |
-| Event Detail (by Subject) | ✅ Complete | `/events/subject/$subjectId` |
+| Event Detail (by Subject) | ✅ Complete | `/subjects/$subjectId` (Events tab) |
 | Event Creation | ✅ Complete | `/events/create` |
 | Subject Creation | ✅ Complete | `/subjects` (modal) |
 | Document Upload | ✅ Complete | Component in subject detail page |

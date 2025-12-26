@@ -33,7 +33,7 @@ export function SubjectsGrid({ data, onEdit }: SubjectsGridProps) {
   const navigate = useNavigate()
 
   const handleSubjectClick = (subjectId: string) => {
-    navigate({ to: `/events/subject/${subjectId}` })
+    navigate({ to: `/subjects/${subjectId}` })
   }
 
   return (

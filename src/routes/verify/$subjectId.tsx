@@ -2,11 +2,12 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useState, useEffect } from 'react'
 import { useRequireAuth } from '@/hooks/useRequireAuth'
 import { timelineApi } from '@/lib/api-client'
-import { CheckCircle, AlertTriangle, AlertCircle, Download } from 'lucide-react'
+import { CheckCircle, AlertTriangle, AlertCircle, Download, DownloadIcon } from 'lucide-react'
 import { ChainVisualization } from '@/components/verify/ChainVisualization'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import { SkeletonBreadcrumbs, Skeleton } from '@/components/ui/Skeleton'
 import type { components } from '@/lib/timeline-api'
+import { Button } from '@/components/ui/button'
 
 export const Route = createFileRoute('/verify/$subjectId')(
   {
@@ -169,7 +170,7 @@ function VerifyPage() {
       <Breadcrumbs
         items={[
           { label: 'Subjects', href: '/subjects' },
-          { label: `Subject ${subjectId.slice(0, 8)}...`, href: `/events/subject/${subjectId}` },
+          { label: `Subject ${subjectId.slice(0, 8)}...`, href: `/subjects/${subjectId}` },
           { label: 'Verify' },
         ]}
       />
@@ -322,13 +323,14 @@ function VerifyPage() {
 
           {/* Export Button */}
           <div className="flex justify-center">
-            <button
+            <Button
               onClick={handleExportReport}
-              className="flex items-center gap-1 px-2.5 py-1 text-xs bg-primary text-primary-foreground rounded-xs font-medium hover:bg-primary/90 transition-colors"
+              variant="primary"
+              size="sm"
             >
-              <Download className="w-3 h-3" />
+              <DownloadIcon />
               Export Report
-            </button>
+            </Button>
           </div>
         </>
       )}

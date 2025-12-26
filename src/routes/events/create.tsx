@@ -6,8 +6,11 @@ import SubjectSelector from '@/components/subjects/SubjectSelector'
 import EventTypeSelector from '@/components/events/EventTypeSelector'
 import { JsonSchemaForm } from '@/components/shared/JsonSchemaForm'
 import { EventDocumentUpload } from '@/components/documents/EventDocumentUpload'
-import { Loader2, AlertCircle } from 'lucide-react'
+import { AlertCircle } from 'lucide-react'
 import type { components } from '@/lib/timeline-api'
+import { Input } from '@/components/ui/input'
+import { LoadingIcon } from '@/components/ui/icons'
+import { Button } from '@/components/ui/button'
 
 export const Route = createFileRoute('/events/create')({
   component: CreateEventPage,
@@ -248,7 +251,7 @@ function CreateEventPage() {
     return (
       <div className="min-h-[calc(100vh-4rem)] bg-background flex items-center justify-center">
         <div className="flex items-center gap-2 text-muted-foreground">
-          <Loader2 className="w-4 h-4 animate-spin" />
+          <LoadingIcon />
           <span className="text-sm">Loading...</span>
         </div>
       </div>
@@ -303,7 +306,7 @@ function CreateEventPage() {
           {/* Event Time */}
           <div>
             <label className="block text-sm font-medium mb-1">Event Time</label>
-            <input
+            <Input 
               type="datetime-local"
               value={state.eventTime}
               onChange={(e) => setState((prev) => ({ ...prev, eventTime: e.target.value }))}
@@ -342,10 +345,8 @@ function CreateEventPage() {
 
             {schemaLoading ? (
               <div className="flex items-center justify-center py-4">
-                <div className="flex items-center gap-1.5 text-muted-foreground">
-                  <Loader2 className="w-3 h-3 animate-spin" />
-                  <span className="text-sm">Loading schema...</span>
-                </div>
+                <LoadingIcon />
+                Loading schema...
               </div>
             ) : schema?.properties ? (
               <div className="space-y-2 p-2.5 bg-background/50 rounded-xs border border-border/50">
@@ -360,27 +361,29 @@ function CreateEventPage() {
 
           {/* Actions */}
           <div className="flex items-center gap-2 pt-2">
-            <button
+            <Button
               type="submit"
               disabled={loading || schemaLoading}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 rounded-xs font-medium hover:bg-slate-800 dark:hover:bg-slate-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              variant="primary"
+              size="sm"
             >
               {loading ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <LoadingIcon />
                   Creating...
                 </>
               ) : (
                 'Create Event'
               )}
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
               onClick={() => navigate({ to: '/events' })}
-              className="px-4 py-2 border border-input text-foreground/90 rounded-xs font-medium hover:bg-muted/30 transition-colors"
+              variant="ghost"
+              size="sm"
             >
               Cancel
-            </button>
+            </Button>
           </div>
         </form>
     </>

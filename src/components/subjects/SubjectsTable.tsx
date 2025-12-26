@@ -160,7 +160,7 @@ import {
     })
   
     const handleSubjectClick = (subjectId: string) => {
-      navigate({ to: `/events/subject/${subjectId}` })
+      navigate({ to: `/subjects/${subjectId}` })
     }
   
     return (

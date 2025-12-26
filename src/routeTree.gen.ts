@@ -16,6 +16,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as SubjectsIndexRouteImport } from './routes/subjects/index'
 import { Route as EventsIndexRouteImport } from './routes/events/index'
 import { Route as VerifySubjectIdRouteImport } from './routes/verify/$subjectId'
+import { Route as SubjectsSubjectIdRouteImport } from './routes/subjects/$subjectId'
 import { Route as EventsCreateRouteImport } from './routes/events/create'
 import { Route as SettingsWorkflowsIndexRouteImport } from './routes/settings/workflows/index'
 import { Route as SettingsUsersIndexRouteImport } from './routes/settings/users/index'
@@ -59,6 +60,11 @@ const EventsIndexRoute = EventsIndexRouteImport.update({
 const VerifySubjectIdRoute = VerifySubjectIdRouteImport.update({
   id: '/verify/$subjectId',
   path: '/verify/$subjectId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SubjectsSubjectIdRoute = SubjectsSubjectIdRouteImport.update({
+  id: '/subjects/$subjectId',
+  path: '/subjects/$subjectId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EventsCreateRoute = EventsCreateRouteImport.update({
@@ -114,6 +120,7 @@ export interface FileRoutesByFullPath {
   '/register': typeof RegisterRoute
   '/settings': typeof SettingsRouteWithChildren
   '/events/create': typeof EventsCreateRoute
+  '/subjects/$subjectId': typeof SubjectsSubjectIdRoute
   '/verify/$subjectId': typeof VerifySubjectIdRoute
   '/events': typeof EventsIndexRoute
   '/subjects': typeof SubjectsIndexRoute
@@ -132,6 +139,7 @@ export interface FileRoutesByTo {
   '/register': typeof RegisterRoute
   '/settings': typeof SettingsRouteWithChildren
   '/events/create': typeof EventsCreateRoute
+  '/subjects/$subjectId': typeof SubjectsSubjectIdRoute
   '/verify/$subjectId': typeof VerifySubjectIdRoute
   '/events': typeof EventsIndexRoute
   '/subjects': typeof SubjectsIndexRoute
@@ -151,6 +159,7 @@ export interface FileRoutesById {
   '/register': typeof RegisterRoute
   '/settings': typeof SettingsRouteWithChildren
   '/events/create': typeof EventsCreateRoute
+  '/subjects/$subjectId': typeof SubjectsSubjectIdRoute
   '/verify/$subjectId': typeof VerifySubjectIdRoute
   '/events/': typeof EventsIndexRoute
   '/subjects/': typeof SubjectsIndexRoute
@@ -171,6 +180,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/settings'
     | '/events/create'
+    | '/subjects/$subjectId'
     | '/verify/$subjectId'
     | '/events'
     | '/subjects'
@@ -189,6 +199,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/settings'
     | '/events/create'
+    | '/subjects/$subjectId'
     | '/verify/$subjectId'
     | '/events'
     | '/subjects'
@@ -207,6 +218,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/settings'
     | '/events/create'
+    | '/subjects/$subjectId'
     | '/verify/$subjectId'
     | '/events/'
     | '/subjects/'
@@ -226,6 +238,7 @@ export interface RootRouteChildren {
   RegisterRoute: typeof RegisterRoute
   SettingsRoute: typeof SettingsRouteWithChildren
   EventsCreateRoute: typeof EventsCreateRoute
+  SubjectsSubjectIdRoute: typeof SubjectsSubjectIdRoute
   VerifySubjectIdRoute: typeof VerifySubjectIdRoute
   EventsIndexRoute: typeof EventsIndexRoute
   SubjectsIndexRoute: typeof SubjectsIndexRoute
@@ -283,6 +296,13 @@ declare module '@tanstack/react-router' {
       path: '/verify/$subjectId'
       fullPath: '/verify/$subjectId'
       preLoaderRoute: typeof VerifySubjectIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/subjects/$subjectId': {
+      id: '/subjects/$subjectId'
+      path: '/subjects/$subjectId'
+      fullPath: '/subjects/$subjectId'
+      preLoaderRoute: typeof SubjectsSubjectIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/events/create': {
@@ -377,6 +397,7 @@ const rootRouteChildren: RootRouteChildren = {
   RegisterRoute: RegisterRoute,
   SettingsRoute: SettingsRouteWithChildren,
   EventsCreateRoute: EventsCreateRoute,
+  SubjectsSubjectIdRoute: SubjectsSubjectIdRoute,
   VerifySubjectIdRoute: VerifySubjectIdRoute,
   EventsIndexRoute: EventsIndexRoute,
   SubjectsIndexRoute: SubjectsIndexRoute,
