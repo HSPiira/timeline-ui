@@ -1,7 +1,8 @@
 import { useNavigate } from '@tanstack/react-router'
-import { Calendar, Tag, ArrowRight, Activity, Pencil } from 'lucide-react'
+import { Calendar, Tag, ArrowRight, Activity, SquarePen } from 'lucide-react'
 import type { SubjectWithMetadata } from '@/hooks/useSubjects'
 import { User, Users, Building2, ShoppingCart, FolderKanban, FileText, Package, type LucideIcon } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 
 // Helper to get icon and color for subject type
 function getSubjectIcon(
@@ -109,16 +110,17 @@ export function SubjectsGrid({ data, onEdit }: SubjectsGridProps) {
             <div className="px-4 py-3 bg-muted/30 border-t border-border/30 flex items-center justify-between group-hover:bg-muted/50 transition-colors">
               <span className="text-xs font-medium text-muted-foreground">View details</span>
               <div className="flex items-center gap-2">
-                <button
+                <Button
                   onClick={(e) => {
                     e.stopPropagation()
                     onEdit?.(subject)
                   }}
-                  className="px-4 py-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded transition-colors font-medium"
+                  variant="ghost"
+                  size="sm"
                   title="Edit subject"
                 >
-                  <Pencil className="w-4 h-4" />
-                </button>
+                  <SquarePen className="w-4 h-4" />
+                </Button>
                 <ArrowRight className="w-4 h-4 text-muted-foreground/60 group-hover:text-primary transition-colors group-hover:translate-x-0.5" />
               </div>
             </div>

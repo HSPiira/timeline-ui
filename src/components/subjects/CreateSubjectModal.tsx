@@ -5,24 +5,19 @@ import { Button } from '@/components/ui/button'
 import { LoadingIcon } from '@/components/ui/icons'
 import { Modal } from '@/components/ui/Modal'
 
-interface EditSubjectModalProps {
+interface CreateSubjectModalProps {
   isOpen: boolean
   onClose: () => void
-  subject: {
-    id: string
-    subject_type: string
-    external_ref?: string | null
-  }
-  onUpdate: (subjectId: string, externalRef?: string) => Promise<boolean>
+  onCreate: (subjectType: string, externalRef?: string) => Promise<boolean>
 }
 
-export function EditSubjectModal({
+export function CreateSubjectModal({
   isOpen,
   onClose,
-  subject,
-  onUpdate,
-}: EditSubjectModalProps) {
-  const [externalRef, setExternalRef] = useState(subject.external_ref || '')
+  onCreate,
+}: CreateSubjectModalProps) {
+  const [subjectType, setSubjectType] = useState('')
+  const [externalRef, setExternalRef] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const toast = useToast()
@@ -31,43 +26,68 @@ export function EditSubjectModal({
     e.preventDefault()
     setError(null)
 
+    // Validate subject type
+    if (!subjectType.trim()) {
+      const validationError = 'Subject type is required'
+      setError(validationError)
+      toast.error('Validation error', validationError)
+      return
+    }
+
+    if (!/^[a-zA-Z0-9_]+$/.test(subjectType)) {
+      const validationError = 'Subject type must contain only alphanumeric characters and underscores'
+      setError(validationError)
+      toast.error('Validation error', validationError)
+      return
+    }
+
     setLoading(true)
-    const success = await onUpdate(subject.id, externalRef || undefined)
+    const success = await onCreate(subjectType.toLowerCase(), externalRef || undefined)
     setLoading(false)
 
     if (success) {
+      setSubjectType('')
       setExternalRef('')
       onClose()
-      toast.success('Subject updated', 'Your changes have been saved')
     } else {
-      const errorMsg = 'Failed to update subject. Please try again.'
-      setError(errorMsg)
-      toast.error('Update failed', errorMsg)
+      const createError = 'Failed to create subject. Please try again.'
+      setError(createError)
     }
   }
+
+  if (!isOpen) return null
 
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Edit Subject"
+      title="Create Subject"
       maxWidth="max-w-md"
     >
       <form onSubmit={handleSubmit}>
         <div className="space-y-4">
           {error && <FormError message={error} />}
 
-          {/* Subject Type (Read-only) */}
-          <FormField label="Subject Type">
-            <div className="px-3 py-2 bg-muted rounded-xs text-foreground text-sm">
-              {subject.subject_type}
-            </div>
+          {/* Subject Type */}
+          <FormField
+            label="Subject Type"
+            required
+            hint="Alphanumeric characters and underscores only"
+          >
+            <FormInput
+              type="text"
+              value={subjectType}
+              onChange={(e) => setSubjectType(e.target.value)}
+              placeholder="e.g., user, order, project"
+              disabled={loading}
+              autoFocus
+            />
           </FormField>
 
           {/* External Reference */}
           <FormField
             label="External Reference"
-            hint="Leave blank to remove the external reference"
+            hint="Optional - leave blank if not needed"
           >
             <FormInput
               type="text"
@@ -88,10 +108,10 @@ export function EditSubjectModal({
             {loading ? (
               <>
                 <LoadingIcon />
-                Updating...
+                Creating...
               </>
             ) : (
-              'Update Subject'
+              'Create Subject'
             )}
           </Button>
           <Button

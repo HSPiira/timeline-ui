@@ -1,11 +1,13 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useState, useEffect } from 'react'
+import type { ColumnDef } from '@tanstack/react-table'
 import { useRequireAuth } from '@/hooks/useRequireAuth'
 import { useToast } from '@/hooks/useToast'
 import { timelineApi } from '@/lib/api-client'
 import { Plus, Play, Pause, Trash2, CheckCircle } from 'lucide-react'
 import { WorkflowFormModal } from '@/components/workflows/WorkflowFormModal'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
+import { DataTable } from '@/components/ui/DataTable'
 import type { components } from '@/lib/timeline-api'
 import { Button } from '@/components/ui/button'
 import { LoadingIcon, ErrorIcon } from '@/components/ui/icons'
@@ -24,6 +26,7 @@ function WorkflowsPage() {
   const [error, setError] = useState<string | null>(null)
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [deleting, setDeleting] = useState<string | null>(null)
+  const [toggling, setToggling] = useState<string | null>(null)
   const [confirmingDelete, setConfirmingDelete] = useState<{ id: string; name: string } | null>(null)
   const [eventTypes, setEventTypes] = useState<string[]>([])
   const [filterEventType, setFilterEventType] = useState<string>('')
@@ -113,8 +116,43 @@ function WorkflowsPage() {
     }
   }
 
-  const handleToggleWorkflow = async () => {
-    setError('Workflow toggle feature coming soon. The API endpoint for updating workflows is not yet available.')
+  const handleToggleWorkflow = async (workflowId: string, currentState: boolean) => {
+    if (hasNoAccess) {
+      toast.error('Permission denied', 'You do not have permission to update workflows')
+      return
+    }
+
+    setToggling(workflowId)
+    try {
+      const { error: apiError } = await timelineApi.workflows.update(workflowId, {
+        is_active: !currentState,
+      })
+
+      if (apiError) {
+        const errorMsg =
+          typeof apiError === 'object' && 'message' in apiError
+            ? (apiError as any).message
+            : 'Failed to update workflow'
+        setError(errorMsg)
+        toast.error('Failed to update', errorMsg)
+      } else {
+        setWorkflows((prev) =>
+          prev.map((w) =>
+            w.id === workflowId ? { ...w, is_active: !currentState } : w
+          )
+        )
+        toast.success(
+          'Workflow updated',
+          `Workflow has been ${!currentState ? 'activated' : 'deactivated'}`
+        )
+      }
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : 'Failed to update workflow'
+      setError(errorMsg)
+      toast.error('Error updating', errorMsg)
+    } finally {
+      setToggling(null)
+    }
   }
 
   const handleDeleteClick = (workflowId: string, workflowName: string) => {
@@ -159,16 +197,102 @@ function WorkflowsPage() {
     return null
   }
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-8">
-        <div className="flex items-center gap-2 text-muted-foreground">
-          <LoadingIcon />
-          <span>Loading workflows...</span>
-        </div>
-      </div>
-    )
-  }
+  // Define columns for DataTable
+  const columns: ColumnDef<Workflow>[] = [
+    {
+      accessorKey: 'name',
+      header: 'Name',
+      cell: ({ row }) => (
+        <span className="font-medium text-foreground">{row.original.name}</span>
+      ),
+    },
+    {
+      id: 'trigger_event',
+      header: 'Trigger Event',
+      cell: ({ row }) => {
+        const triggerEventType = (row.original as any).trigger?.event_type || 'N/A'
+        return (
+          <span className="text-xs px-1.5 py-0.5 bg-secondary text-muted-foreground rounded-xs font-mono">
+            {triggerEventType}
+          </span>
+        )
+      },
+    },
+    {
+      id: 'status',
+      header: 'Status',
+      cell: ({ row }) =>
+        row.original.is_active ? (
+          <div className="flex items-center gap-1 text-green-600 dark:text-green-400">
+            <CheckCircle className="w-3 h-3" />
+            <span className="text-xs">Active</span>
+          </div>
+        ) : (
+          <span className="text-xs text-muted-foreground">Inactive</span>
+        ),
+    },
+    {
+      id: 'action_count',
+      header: 'Actions',
+      cell: ({ row }) => {
+        const actionsCount = (row.original as any).actions?.length || 0
+        return (
+          <span className="text-muted-foreground text-sm">
+            {actionsCount} action{actionsCount !== 1 ? 's' : ''}
+          </span>
+        )
+      },
+    },
+    {
+      accessorKey: 'created_at',
+      header: 'Created',
+      cell: ({ row }) => (
+        <span className="text-muted-foreground text-sm">
+          {new Date(row.original.created_at).toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+          })}
+        </span>
+      ),
+    },
+    {
+      id: 'actions',
+      header: 'Actions',
+      cell: ({ row }) => {
+        const workflow = row.original
+        return (
+          <div className="flex items-center justify-end gap-1">
+            <button
+              onClick={() => handleToggleWorkflow(workflow.id, workflow.is_active)}
+              disabled={toggling === workflow.id || hasNoAccess}
+              className="p-1 text-muted-foreground hover:text-foreground hover:bg-muted rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              title={hasNoAccess ? 'No permission to update' : (workflow.is_active ? 'Deactivate' : 'Activate')}
+            >
+              {toggling === workflow.id ? (
+                <LoadingIcon />
+              ) : workflow.is_active ? (
+                <Pause className="w-4 h-4" />
+              ) : (
+                <Play className="w-4 h-4" />
+              )}
+            </button>
+            <button
+              onClick={() => handleDeleteClick(workflow.id, workflow.name)}
+              disabled={deleting === workflow.id || hasNoAccess}
+              className="p-1 text-muted-foreground hover:text-red-600 dark:hover:text-red-400 hover:bg-muted rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              title={hasNoAccess ? 'No permission to delete' : 'Delete'}
+            >
+              {deleting === workflow.id ? (
+                <LoadingIcon />
+              ) : (
+                <Trash2 className="w-4 h-4" />
+              )}
+            </button>
+          </div>
+        )
+      },
+    },
+  ]
 
   const filteredWorkflows = filterEventType
     ? workflows.filter((w: Workflow) => {
@@ -226,7 +350,7 @@ function WorkflowsPage() {
             size="md"
           >
             <Plus className="w-4 h-4" />
-            Create Workflow
+            Workflow
           </Button>
         )}
       </div>
@@ -262,112 +386,27 @@ function WorkflowsPage() {
       )}
 
       {/* Workflows Table */}
-      {filteredWorkflows.length === 0 ? (
-        <div className="text-center py-8 bg-card/80 rounded-xs border border-border/50 p-4">
-          <h3 className="text-sm font-semibold text-foreground mb-1">
-            {hasNoAccess ? 'No workflows available' : 'No workflows yet'}
-          </h3>
-          <p className="text-sm text-muted-foreground mb-3">
-            {hasNoAccess
-              ? 'You do not have permission to view or create workflows.'
-              : 'Create your first workflow to automate event-driven tasks'}
-          </p>
-          {!hasNoAccess && (
-            <Button
-              onClick={() => setShowCreateModal(true)}
-              variant="primary"
-              size="md"
-            >
+      <DataTable
+        data={filteredWorkflows}
+        columns={columns}
+        isLoading={loading}
+        isEmpty={filteredWorkflows.length === 0}
+        compact={true}
+        enablePagination={true}
+        pageSize={10}
+        emptyState={{
+          title: hasNoAccess ? 'No workflows available' : 'No workflows yet',
+          description: hasNoAccess
+            ? 'You do not have permission to view or create workflows.'
+            : 'Create your first workflow to automate event-driven tasks',
+          action: !hasNoAccess ? (
+            <Button onClick={() => setShowCreateModal(true)} variant="primary" size="md">
               <Plus className="w-4 h-4" />
-              Create Workflow
+              Workflow
             </Button>
-          )}
-        </div>
-      ) : (
-        <div className="overflow-x-auto bg-card/80 rounded-xs border border-border/50">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-border">
-                <th className="text-left py-2 px-2.5 font-medium text-muted-foreground text-sm">NAME</th>
-                <th className="text-left py-2 px-2.5 font-medium text-muted-foreground text-sm">TRIGGER EVENT</th>
-                <th className="text-left py-2 px-2.5 font-medium text-muted-foreground text-sm">STATUS</th>
-                <th className="text-left py-2 px-2.5 font-medium text-muted-foreground text-sm">ACTIONS</th>
-                <th className="text-left py-2 px-2.5 font-medium text-muted-foreground text-sm">CREATED</th>
-                <th className="text-right py-2 px-2.5 font-medium text-muted-foreground text-sm">ACTIONS</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredWorkflows.map((workflow: Workflow) => {
-                const triggerEventType = (workflow as any).trigger?.event_type || 'N/A'
-                const actionsCount = (workflow as any).actions?.length || 0
-
-                return (
-                  <tr
-                    key={workflow.id}
-                    className="border-b border-border hover:bg-muted/50 transition-colors"
-                  >
-                    <td className="py-2 px-2.5">
-                      <span className="font-medium text-foreground">{workflow.name}</span>
-                    </td>
-                    <td className="py-2 px-2.5">
-                      <span className="text-xs px-1.5 py-0.5 bg-secondary text-muted-foreground rounded-xs font-mono">
-                        {triggerEventType}
-                      </span>
-                    </td>
-                    <td className="py-2 px-2.5">
-                      {workflow.is_active ? (
-                        <div className="flex items-center gap-1 text-green-600 dark:text-green-400">
-                          <CheckCircle className="w-3 h-3" />
-                          <span className="text-xs">Active</span>
-                        </div>
-                      ) : (
-                        <span className="text-xs text-muted-foreground">Inactive</span>
-                      )}
-                    </td>
-                    <td className="py-2 px-2.5 text-muted-foreground text-sm">
-                      {actionsCount} action{actionsCount !== 1 ? 's' : ''}
-                    </td>
-                    <td className="py-2 px-2.5 text-muted-foreground text-sm">
-                      {new Date(workflow.created_at).toLocaleDateString('en-US', {
-                        month: 'short',
-                        day: 'numeric',
-                      })}
-                    </td>
-                    <td className="py-2 px-2.5 text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        <button
-                          onClick={() => handleToggleWorkflow()}
-                          disabled={true}
-                          className="p-1 text-muted-foreground hover:text-foreground hover:bg-muted rounded transition-colors disabled:opacity-50"
-                          title={workflow.is_active ? 'Deactivate' : 'Activate'}
-                        >
-                          {workflow.is_active ? (
-                            <Pause className="w-4 h-4" />
-                          ) : (
-                            <Play className="w-4 h-4" />
-                          )}
-                        </button>
-                        <button
-                          onClick={() => handleDeleteClick(workflow.id, workflow.name)}
-                          disabled={deleting === workflow.id || hasNoAccess}
-                          className="p-1 text-muted-foreground hover:text-red-600 dark:hover:text-red-400 hover:bg-muted rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                          title={hasNoAccess ? 'No permission to delete' : 'Delete'}
-                        >
-                          {deleting === workflow.id ? (
-                            <LoadingIcon />
-                          ) : (
-                            <Trash2 className="w-4 h-4" />
-                          )}
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
-      )}
+          ) : undefined,
+        }}
+      />
 
       {/* Delete Confirmation Dialog */}
       <ConfirmDialog

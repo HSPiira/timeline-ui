@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
+import type { ColumnDef } from '@tanstack/react-table'
 import { useRequireAuth } from '@/hooks/useRequireAuth'
 import { useToast } from '@/hooks/useToast'
 import { timelineApi } from '@/lib/api-client'
@@ -13,6 +14,7 @@ import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { Modal } from '@/components/ui/Modal'
 import { FormError } from '@/components/ui/FormField'
 import { Button } from '@/components/ui/button'
+import { DataTable } from '@/components/ui/DataTable'
 import type { components } from '@/lib/timeline-api'
 
 export const Route = createFileRoute('/settings/permissions/')({
@@ -127,16 +129,76 @@ function PermissionsPage() {
     return null
   }
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-8">
-        <div className="flex items-center gap-2 text-muted-foreground">
-          <Loader2 className="w-4 h-4 animate-spin" />
-          <span>Loading permissions...</span>
-        </div>
-      </div>
-    )
-  }
+  // Define columns for DataTable
+  const columns: ColumnDef<PermissionResponse>[] = [
+    {
+      accessorKey: 'resource',
+      header: 'Resource',
+      cell: ({ row }) => (
+        <span className="text-xs px-1.5 py-0.5 bg-secondary text-muted-foreground rounded-xs font-medium capitalize">
+          {row.original.resource}
+        </span>
+      ),
+    },
+    {
+      accessorKey: 'action',
+      header: 'Action',
+      cell: ({ row }) => (
+        <span className="text-xs px-1.5 py-0.5 bg-secondary text-muted-foreground rounded-xs font-medium capitalize">
+          {row.original.action}
+        </span>
+      ),
+    },
+    {
+      accessorKey: 'code',
+      header: 'Code',
+      cell: ({ row }) => (
+        <span className="font-mono text-foreground font-medium">{row.original.code}</span>
+      ),
+    },
+    {
+      accessorKey: 'description',
+      header: 'Description',
+      cell: ({ row }) => (
+        <span className="text-muted-foreground text-sm max-w-sm truncate">
+          {row.original.description || '-'}
+        </span>
+      ),
+    },
+    {
+      id: 'actions',
+      header: 'Actions',
+      cell: ({ row }) => {
+        const perm = row.original
+        return (
+          <div className="flex items-center justify-end gap-0.5">
+            <Button
+              onClick={() => setViewingRoles({ permId: perm.id, permCode: perm.code, roles: [] })}
+              disabled={hasNoAccess}
+              title={hasNoAccess ? 'No permission' : 'View roles with this permission'}
+              size="sm"
+              variant="ghost"
+            >
+              <Eye className="w-4 h-4" />
+            </Button>
+            <Button
+              onClick={() => handleDeleteClick(perm)}
+              disabled={deletingPermId === perm.id || hasNoAccess}
+              title={hasNoAccess ? 'No permission' : 'Delete'}
+              size="sm"
+              variant="ghost"
+            >
+              {deletingPermId === perm.id ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Trash2 className="w-4 h-4 text-red-500" />
+              )}
+            </Button>
+          </div>
+        )
+      },
+    },
+  ]
 
   return (
     <>
@@ -197,7 +259,7 @@ function PermissionsPage() {
             variant="primary"
           >
             <Plus className="w-4 h-4" />
-            Create Permission
+            Permission
           </Button>
         )}
       </div>
@@ -231,104 +293,28 @@ function PermissionsPage() {
       </div>
 
       {/* Permissions Table */}
-      {filteredPermissions.length === 0 ? (
-        <div className="text-center py-8 bg-card/80 rounded-xs border border-border/50 p-4">
-          <h3 className="text-sm font-semibold text-foreground mb-1">
-            {filterResource ? `No ${filterResource} permissions` : 'No permissions yet'}
-          </h3>
-          <p className="text-sm text-muted-foreground mb-3">
-            {hasNoAccess ? 'You do not have permission to view permissions.' : 'Create your first permission'}
-          </p>
-          {!hasNoAccess && !filterResource && (
-            <Button
-              onClick={() => setShowCreateModal(true)}
-              variant="primary"
-            >
-              <Plus className="w-4 h-4" />
-              Create Permission
-            </Button>
-          )}
-        </div>
-      ) : (
-        <div className="overflow-x-auto bg-card/80 rounded-xs border border-border/50">
-          <table className="w-full text-xs sm:text-sm min-w-max">
-            <thead>
-              <tr className="border-b border-border">
-                <th className="text-left py-2 px-2.5 font-medium text-muted-foreground text-sm">
-                  RESOURCE
-                </th>
-                <th className="text-left py-2 px-2.5 font-medium text-muted-foreground text-sm">
-                  ACTION
-                </th>
-                <th className="text-left py-2 px-2.5 font-medium text-muted-foreground text-sm">
-                  CODE
-                </th>
-                <th className="text-left py-2 px-2.5 font-medium text-muted-foreground text-sm">
-                  DESCRIPTION
-                </th>
-                <th className="text-right py-2 px-2.5 font-medium text-muted-foreground text-sm">
-                  ACTIONS
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredPermissions.map((perm) => (
-                <tr
-                  key={perm.id}
-                  className="border-b border-border hover:bg-muted/50 transition-colors"
-                >
-                  <td className="py-2 px-2.5">
-                    <span className="text-xs px-1.5 py-0.5 bg-secondary text-muted-foreground rounded-xs font-medium capitalize">
-                      {perm.resource}
-                    </span>
-                  </td>
-                  <td className="py-2 px-2.5">
-                    <span className="text-xs px-1.5 py-0.5 bg-secondary text-muted-foreground rounded-xs font-medium capitalize">
-                      {perm.action}
-                    </span>
-                  </td>
-                  <td className="py-2 px-2.5">
-                    <span className="font-mono text-foreground font-medium">{perm.code}</span>
-                  </td>
-                  <td className="py-2 px-2.5 text-muted-foreground text-sm max-w-sm truncate">
-                    {perm.description || '-'}
-                  </td>
-                  <td className="py-2 px-2.5 text-right">
-                    <div className="flex items-center justify-end gap-0.5">
-                      <Button
-                        onClick={() => setViewingRoles({ permId: perm.id, permCode: perm.code, roles: [] })}
-                        disabled={hasNoAccess}
-                        title={hasNoAccess ? 'No permission' : 'View roles with this permission'}
-                        size="sm"
-                        variant="ghost"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        onClick={() => handleDeleteClick(perm)}
-                        disabled={deletingPermId === perm.id || hasNoAccess}
-                        title={
-                          hasNoAccess
-                            ? 'No permission'
-                            : 'Delete'
-                        }
-                        size="sm"
-                        variant="ghost"
-                      >
-                        {deletingPermId === perm.id ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <Trash2 className="w-4 h-4 text-red-500" />
-                        )}
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+      <DataTable
+        data={filteredPermissions}
+        columns={columns}
+        isLoading={loading}
+        isEmpty={filteredPermissions.length === 0}
+        compact={true}
+        enablePagination={true}
+        pageSize={10}
+        emptyState={{
+          title: filterResource ? `No ${filterResource} permissions` : 'No permissions yet',
+          description: hasNoAccess
+            ? 'You do not have permission to view permissions.'
+            : 'Create your first permission',
+          action:
+            !hasNoAccess && !filterResource ? (
+              <Button onClick={() => setShowCreateModal(true)} variant="primary">
+                <Plus className="w-4 h-4" />
+                Permission
+              </Button>
+            ) : undefined,
+        }}
+      />
 
       {/* Delete Confirmation Dialog */}
       <ConfirmDialog

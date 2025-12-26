@@ -1,6 +1,8 @@
 import { useState, useRef } from 'react'
 import { Upload, X } from 'lucide-react'
 import { useToast } from '@/hooks/useToast'
+import { LoadingIcon } from '@/components/ui/icons'
+import { Button } from '@/components/ui/button'
 
 export interface EventDocumentUploadProps {
   subjectId: string
@@ -130,8 +132,8 @@ export function EventDocumentUpload({
           <p className="text-xs text-muted-foreground">Max 100MB per file. Supported: PDF, images, Word, Excel</p>
         </div>
 
-        <button
-          type="button"
+        <Button
+          variant="ghost"
           onClick={() => inputRef.current?.click()}
           className="absolute inset-0 opacity-0"
           aria-label="Upload files"
@@ -145,7 +147,7 @@ export function EventDocumentUpload({
             <div key={stagedFile.id} className="flex items-center gap-2.5 p-2.5 bg-card rounded-xs border border-border/50">
               {/* Status Icon */}
               <div className="shrink-0">
-                <div className="w-4 h-4 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+                <LoadingIcon size="sm" className="text-primary" />
               </div>
 
               {/* File Info */}
@@ -156,13 +158,14 @@ export function EventDocumentUpload({
               </div>
 
               {/* Remove Button */}
-              <button
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => removeFile(stagedFile.id)}
-                className="shrink-0 p-1 hover:bg-muted rounded-xs transition-colors"
                 aria-label="Remove file"
               >
-                <X className="w-3 h-3 text-muted-foreground" />
-              </button>
+                <X className="w-3 h-3" />
+              </Button>
             </div>
           ))}
 

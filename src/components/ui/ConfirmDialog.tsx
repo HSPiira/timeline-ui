@@ -1,5 +1,5 @@
 import { AlertCircle, X } from 'lucide-react'
-import { Button } from './Button'
+import { Button } from './button'
 
 export interface ConfirmDialogProps {
   isOpen: boolean
@@ -30,8 +30,8 @@ export function ConfirmDialog({
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-150">
       <div className="bg-background border border-border rounded-xs max-w-md w-full p-4 sm:p-6 shadow-2xl animate-in zoom-in-95 duration-150">
         {/* Header */}
-        <div className="flex items-start gap-3 mb-4 gap-2 sm:gap-3">
-          <div className={`flex-shrink-0 w-10 h-10 rounded-xs flex items-center justify-center ${
+        <div className="flex items-start gap-2 mb-4 sm:gap-3">
+          <div className={`shrink-0 w-10 h-10 rounded-xs flex items-center justify-center ${
             isDestructive
               ? 'bg-destructive/10 text-destructive'
               : 'bg-amber-100/30 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400'
@@ -43,14 +43,16 @@ export function ConfirmDialog({
               {title}
             </h2>
           </div>
-          <button
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={onCancel}
             disabled={isLoading}
-            className="relative -mr-2 p-2 text-muted-foreground/70 hover:text-foreground hover:bg-muted/30 rounded-xs transition-colors disabled:opacity-50"
+            className="relative -mr-2"
             aria-label="Close"
           >
             <X className="w-5 h-5" />
-          </button>
+          </Button>
         </div>
 
         {/* Message */}

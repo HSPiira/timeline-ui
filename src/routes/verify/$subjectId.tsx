@@ -47,7 +47,20 @@ function VerifyPage() {
       const { data: verificationData, error: verifyError } = await timelineApi.events.verify(subjectId)
 
       if (verifyError) {
-        const errorMsg = typeof verifyError === 'object' && 'message' in verifyError ? (verifyError as any).message : 'Failed to verify chain'
+        let errorMsg = 'Failed to verify chain'
+
+        // Check for permission errors
+        const errorObj = verifyError as any
+        const errorStr = (errorObj?.detail || errorObj?.message || String(verifyError)).toLowerCase()
+
+        if (errorStr.includes('403') || errorStr.includes('forbidden') || errorStr.includes('permission') || errorStr.includes('not allowed')) {
+          errorMsg = 'You do not have permission to verify this chain. Please contact your administrator if you believe this is an error.'
+        } else if (errorStr.includes('401') || errorStr.includes('unauthorized')) {
+          errorMsg = 'Your session has expired. Please log in again to verify the chain.'
+        } else if (typeof verifyError === 'object' && 'message' in errorObj) {
+          errorMsg = errorObj.message
+        }
+
         setError(errorMsg)
       } else if (verificationData) {
         setVerification(verificationData)

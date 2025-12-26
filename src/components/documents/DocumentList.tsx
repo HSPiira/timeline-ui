@@ -1,13 +1,15 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Download, Trash2, FileIcon, Eye } from 'lucide-react'
+import type { ColumnDef } from '@tanstack/react-table'
 import { timelineApi } from '@/lib/api-client'
 import { getApiErrorMessage } from '@/lib/api-utils'
 import { DocumentViewer } from './DocumentViewer'
 import { useToast } from '@/hooks/useToast'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { SkeletonDocumentList } from '@/components/ui/Skeleton'
-import { EmptyState } from '@/components/ui/EmptyState'
-import { LoadingIcon, ErrorIcon } from '@/components/ui/icons'
+import { ErrorIcon } from '@/components/ui/icons'
+import { Button } from '@/components/ui/button'
+import { DataTable } from '@/components/ui/DataTable'
 import type { components } from '@/lib/timeline-api'
 
 export interface DocumentListProps {
@@ -53,6 +55,104 @@ export function DocumentList({ subjectId, eventId, readOnly, onDelete, onError }
   const [viewingDocument, setViewingDocument] = useState<{ id: string; filename: string; type: string } | null>(null)
   const [confirmingDelete, setConfirmingDelete] = useState<{ id: string; filename: string } | null>(null)
   const toast = useToast()
+
+  // Define columns for DataTable
+  const columns: ColumnDef<Document>[] = [
+    {
+      accessorKey: 'filename',
+      header: 'Name',
+      cell: ({ row }) => {
+        const doc = row.original
+        const mimeType = getMimeType(doc)
+        const filename = getDisplayName(doc)
+        const icon = FILE_ICONS[mimeType] || '📎'
+
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => {
+              row.getIsSelected?.() ? null : handleView(doc)
+            }}
+            className="flex items-center gap-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer group h-auto p-0"
+            title="Click to view"
+          >
+            <span className="text-sm sm:text-base shrink-0">{icon}</span>
+            <span className="truncate underline-offset-2 group-hover:underline font-medium text-foreground">
+              {filename}
+            </span>
+          </Button>
+        )
+      },
+    },
+    {
+      accessorKey: 'file_size',
+      header: 'Size',
+      cell: ({ row }) => {
+        const size = getFileSize(row.original)
+        return (
+          <span className="text-muted-foreground whitespace-nowrap">
+            {size < 1024 * 1024
+              ? `${(size / 1024).toFixed(1)}KB`
+              : `${(size / 1024 / 1024).toFixed(2)}MB`}
+          </span>
+        )
+      },
+    },
+    {
+      accessorKey: 'created_at',
+      header: 'Uploaded',
+      cell: ({ row }) => (
+        <span className="text-muted-foreground text-xs sm:text-sm whitespace-nowrap">
+          {new Date(row.original.created_at).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+          })}
+        </span>
+      ),
+    },
+    {
+      id: 'actions',
+      header: 'Actions',
+      cell: ({ row }) => {
+        const doc = row.original
+        return (
+          <div className="flex items-center justify-end gap-0.5 sm:gap-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleView(doc)}
+              title="View document"
+            >
+              <Eye className="w-3 sm:w-4 h-3 sm:h-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleDownload(doc.id, getDisplayName(doc))}
+              title="Download"
+            >
+              <Download className="w-3 sm:w-4 h-3 sm:h-4" />
+            </Button>
+            {!readOnly && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleDeleteClick(doc.id, getDisplayName(doc))}
+                disabled={deleting === doc.id}
+                title="Delete"
+                isLoading={deleting === doc.id}
+              >
+                {deleting !== doc.id && <Trash2 className="w-3 sm:w-4 h-3 sm:h-4 text-red-500" />}
+              </Button>
+            )}
+          </div>
+        )
+      },
+    },
+  ]
 
   const fetchDocuments = useCallback(async () => {
     setLoading(true)
@@ -180,90 +280,22 @@ export function DocumentList({ subjectId, eventId, readOnly, onDelete, onError }
     )
   }
 
-  if (documents.length === 0) {
-    return (
-      <EmptyState
-        icon={FileIcon}
-        title="No documents yet"
-        description="Documents will appear here once they are uploaded to this subject"
-      />
-    )
-  }
-
   return (
-    <div className="overflow-x-auto rounded-xs border border-amber-200 dark:border-amber-800">
-      <table className="w-full text-xs sm:text-sm min-w-max">
-        <thead className="bg-linear-to-r from-amber-50 to-amber-100/50 dark:from-amber-950/30 dark:to-amber-900/20 sticky top-0">
-          <tr className="border-b border-amber-200 dark:border-amber-800">
-            <th className="text-left py-2 sm:py-3 px-2 sm:px-3 font-medium text-amber-900 dark:text-amber-200 whitespace-nowrap">Name</th>
-            <th className="text-left py-2 sm:py-3 px-2 sm:px-3 font-medium text-amber-900 dark:text-amber-200 whitespace-nowrap">Size</th>
-            <th className="text-left py-2 sm:py-3 px-2 sm:px-3 font-medium text-amber-900 dark:text-amber-200 whitespace-nowrap">Uploaded</th>
-            <th className="text-right py-2 sm:py-3 px-2 sm:px-3 font-medium text-amber-900 dark:text-amber-200 whitespace-nowrap">Actions</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-amber-100 dark:divide-amber-900/30">
-          {documents.map((doc) => (
-            <tr key={doc.id} className="hover:bg-amber-50/50 dark:hover:bg-amber-950/20 transition-colors">
-              <td className="py-2 sm:py-3 px-2 sm:px-3">
-                <button
-                  onClick={() => handleView(doc)}
-                  className="flex items-center gap-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer group"
-                  title="Click to view"
-                >
-                  <span className="text-sm sm:text-base shrink-0">{FILE_ICONS[getMimeType(doc)] || '📎'}</span>
-                  <span className="truncate underline-offset-2 group-hover:underline font-medium text-foreground">{getDisplayName(doc)}</span>
-                </button>
-              </td>
-              <td className="py-2 sm:py-3 px-2 sm:px-3 text-muted-foreground whitespace-nowrap">
-                {getFileSize(doc) < 1024 * 1024
-                  ? `${(getFileSize(doc) / 1024).toFixed(1)}KB`
-                  : `${(getFileSize(doc) / 1024 / 1024).toFixed(2)}MB`}
-              </td>
-              <td className="py-2 sm:py-3 px-2 sm:px-3 text-muted-foreground text-xs sm:text-sm whitespace-nowrap">
-                {new Date(doc.created_at).toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'short',
-                  day: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                })}
-              </td>
-              <td className="py-2 sm:py-3 px-2 sm:px-3">
-                <div className="flex items-center justify-end gap-0.5 sm:gap-1">
-                  <button
-                    onClick={() => handleView(doc)}
-                    className="px-2 sm:px-3 py-1 sm:py-2 hover:bg-blue-100 dark:hover:bg-blue-950/30 rounded-xs transition-colors text-blue-600 dark:text-blue-400 font-medium"
-                    title="View document"
-                  >
-                    <Eye className="w-3 sm:w-4 h-3 sm:h-4" />
-                  </button>
-                  <button
-                    onClick={() => handleDownload(doc.id, getDisplayName(doc))}
-                    className="px-2 sm:px-3 py-1 sm:py-2 hover:bg-amber-100 dark:hover:bg-amber-900/30 rounded-xs transition-colors font-medium"
-                    title="Download"
-                  >
-                    <Download className="w-3 sm:w-4 h-3 sm:h-4 text-amber-600 dark:text-amber-400" />
-                  </button>
-                  {!readOnly && (
-                    <button
-                      onClick={() => handleDeleteClick(doc.id, getDisplayName(doc))}
-                      disabled={deleting === doc.id}
-                      className="px-2 sm:px-3 py-1 sm:py-2 hover:bg-red-100 dark:hover:bg-red-900/20 rounded-xs transition-colors disabled:opacity-50 font-medium"
-                      title="Delete"
-                    >
-                      {deleting === doc.id ? (
-                        <LoadingIcon size="sm" className="text-red-500" />
-                      ) : (
-                        <Trash2 className="w-3 sm:w-4 h-3 sm:h-4 text-red-500" />
-                      )}
-                    </button>
-                  )}
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <>
+      <DataTable
+        data={documents}
+        columns={columns}
+        isLoading={loading}
+        isEmpty={documents.length === 0}
+        variant="documents"
+        enablePagination={true}
+        pageSize={10}
+        emptyState={{
+          icon: FileIcon,
+          title: 'No documents yet',
+          description: 'Documents will appear here once they are uploaded to this subject',
+        }}
+      />
 
       {/* Document Viewer Modal */}
       {viewingDocument && (
@@ -287,6 +319,6 @@ export function DocumentList({ subjectId, eventId, readOnly, onDelete, onError }
         onConfirm={handleConfirmDelete}
         onCancel={() => setConfirmingDelete(null)}
       />
-    </div>
+    </>
   )
 }

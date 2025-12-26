@@ -1,20 +1,22 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
+import type { ColumnDef } from '@tanstack/react-table'
 import { useRequireAuth } from '@/hooks/useRequireAuth'
 import { useToast } from '@/hooks/useToast'
 import { timelineApi } from '@/lib/api-client'
 import {
-  Loader2,
   Plus,
   Trash2,
   SquarePen,
   Shield,
   CheckCircle,
+  Loader2,
 } from 'lucide-react'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { Modal } from '@/components/ui/Modal'
 import { FormError } from '@/components/ui/FormField'
 import { Button } from '@/components/ui/button'
+import { DataTable } from '@/components/ui/DataTable'
 import type { components } from '@/lib/timeline-api'
 
 export const Route = createFileRoute('/settings/roles/')({
@@ -138,16 +140,119 @@ function RolesPage() {
     return null
   }
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-8">
-        <div className="flex items-center gap-2 text-muted-foreground">
-          <Loader2 className="w-4 h-4 animate-spin" />
-          <span>Loading roles...</span>
-        </div>
-      </div>
-    )
-  }
+  // Define columns for DataTable
+  const columns: ColumnDef<RoleResponse>[] = [
+    {
+      accessorKey: 'name',
+      header: 'Name',
+      cell: ({ row }) => {
+        const role = row.original
+        return (
+          <div className="flex items-center gap-2">
+            {role.is_system && (
+              <span className="text-xs px-1.5 py-0.5 bg-primary/20 text-primary rounded-xs font-medium">
+                SYSTEM
+              </span>
+            )}
+            <span className="font-semibold text-foreground">{role.name}</span>
+          </div>
+        )
+      },
+    },
+    {
+      accessorKey: 'description',
+      header: 'Description',
+      cell: ({ row }) => (
+        <span className="text-muted-foreground text-sm max-w-sm truncate">
+          {row.original.description || '-'}
+        </span>
+      ),
+    },
+    {
+      id: 'permissions',
+      header: 'Permissions',
+      cell: () => (
+        <span className="text-xs px-1.5 py-0.5 bg-secondary text-muted-foreground rounded-xs font-mono">
+          0
+        </span>
+      ),
+    },
+    {
+      id: 'status',
+      header: 'Status',
+      cell: ({ row }) =>
+        row.original.is_active ? (
+          <div className="flex items-center justify-center gap-1 text-green-600 dark:text-green-400">
+            <CheckCircle className="w-3 h-3" />
+            <span className="text-xs">Active</span>
+          </div>
+        ) : (
+          <span className="text-xs text-muted-foreground">Inactive</span>
+        ),
+    },
+    {
+      id: 'actions',
+      header: 'Actions',
+      cell: ({ row }) => {
+        const role = row.original
+        return (
+          <div className="flex items-center justify-end gap-0.5">
+            <Button
+              onClick={() => {
+                setManagingPermissions(role as RoleWithPermissions)
+              }}
+              disabled={role.is_system || hasNoAccess}
+              title={
+                role.is_system
+                  ? 'Cannot modify system role'
+                  : hasNoAccess
+                    ? 'No permission'
+                    : 'Manage permissions'
+              }
+              size="sm"
+              variant="ghost"
+            >
+              <Shield className="w-4 h-4" />
+            </Button>
+            <Button
+              onClick={() => setEditingRole(role)}
+              disabled={role.is_system || hasNoAccess}
+              title={
+                role.is_system
+                  ? 'Cannot modify system role'
+                  : hasNoAccess
+                    ? 'No permission'
+                    : 'Edit'
+              }
+              size="sm"
+              variant="ghost"
+            >
+              <SquarePen className="w-4 h-4" />
+            </Button>
+            <Button
+              onClick={() => handleDeleteClick(role)}
+              disabled={deletingRoleId === role.id || role.is_system || hasNoAccess}
+              title={
+                role.is_system
+                  ? 'Cannot delete system role'
+                  : hasNoAccess
+                    ? 'No permission'
+                    : 'Delete'
+              }
+              size="sm"
+              variant="ghost"
+            >
+              {deletingRoleId === role.id ? (
+                <span className="w-4 h-4 animate-spin" />
+              ) : (
+                <Trash2 className="w-4 h-4 text-red-500" />
+              )}
+            </Button>
+          </div>
+        )
+      },
+    },
+  ]
 
   return (
     <>
@@ -228,7 +333,7 @@ function RolesPage() {
             variant="primary"
           >
             <Plus className="w-4 h-4" />
-            Create Role
+            Role
           </Button>
         )}
       </div>
@@ -248,141 +353,27 @@ function RolesPage() {
       </div>
 
       {/* Roles Table */}
-      {roles.length === 0 ? (
-        <div className="text-center py-8 bg-card/80 rounded-xs border border-border/50 p-4">
-          <h3 className="text-sm font-semibold text-foreground mb-1">No roles yet</h3>
-          <p className="text-sm text-muted-foreground mb-3">
-            {hasNoAccess ? 'You do not have permission to view roles.' : 'Create your first role'}
-          </p>
-          {!hasNoAccess && (
-            <Button
-              onClick={() => setShowCreateModal(true)}
-              variant="primary"
-            >
+      <DataTable
+        data={roles}
+        columns={columns}
+        isLoading={loading}
+        isEmpty={roles.length === 0}
+        compact={true}
+        enablePagination={true}
+        pageSize={10}
+        emptyState={{
+          title: 'No roles yet',
+          description: hasNoAccess
+            ? 'You do not have permission to view roles.'
+            : 'Create your first role',
+          action: !hasNoAccess ? (
+            <Button onClick={() => setShowCreateModal(true)} variant="primary">
               <Plus className="w-4 h-4" />
-              Create Role
+              Role
             </Button>
-          )}
-        </div>
-      ) : (
-        <div className="overflow-x-auto bg-card/80 rounded-xs border border-border/50">
-          <table className="w-full text-xs sm:text-sm min-w-max">
-            <thead>
-              <tr className="border-b border-border">
-                <th className="text-left py-2 px-2.5 font-medium text-muted-foreground text-sm">
-                  NAME
-                </th>
-                <th className="text-left py-2 px-2.5 font-medium text-muted-foreground text-sm">
-                  DESCRIPTION
-                </th>
-                <th className="text-center py-2 px-2.5 font-medium text-muted-foreground text-sm">
-                  PERMISSIONS
-                </th>
-                <th className="text-center py-2 px-2.5 font-medium text-muted-foreground text-sm">
-                  STATUS
-                </th>
-                <th className="text-right py-2 px-2.5 font-medium text-muted-foreground text-sm">
-                  ACTIONS
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {roles.map((role) => (
-                <tr
-                  key={role.id}
-                  className="border-b border-border hover:bg-muted/50 transition-colors"
-                >
-                  <td className="py-2 px-2.5">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        {role.is_system && (
-                          <span className="text-xs px-1.5 py-0.5 bg-primary/20 text-primary rounded-xs font-medium">
-                            SYSTEM
-                          </span>
-                        )}
-                        <span className="font-semibold text-foreground">{role.name}</span>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="py-2 px-2.5 text-muted-foreground text-sm max-w-sm truncate">
-                    {role.description || '-'}
-                  </td>
-                  <td className="py-2 px-2.5 text-center">
-                    <span className="text-xs px-1.5 py-0.5 bg-secondary text-muted-foreground rounded-xs font-mono">
-                      0
-                    </span>
-                  </td>
-                  <td className="py-2 px-2.5 text-center">
-                    {role.is_active ? (
-                      <div className="flex items-center justify-center gap-1 text-green-600 dark:text-green-400">
-                        <CheckCircle className="w-3 h-3" />
-                        <span className="text-xs">Active</span>
-                      </div>
-                    ) : (
-                      <span className="text-xs text-muted-foreground">Inactive</span>
-                    )}
-                  </td>
-                  <td className="py-2 px-2.5 text-right">
-                    <div className="flex items-center justify-end gap-0.5">
-                      <Button
-                        onClick={() => {
-                          setManagingPermissions(role as RoleWithPermissions)
-                        }}
-                        disabled={role.is_system || hasNoAccess}
-                        title={
-                          role.is_system
-                            ? 'Cannot modify system role'
-                            : hasNoAccess
-                              ? 'No permission'
-                              : 'Manage permissions'
-                        }
-                        size="sm"
-                        variant="ghost"
-                      >
-                        <Shield className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        onClick={() => setEditingRole(role)}
-                        disabled={role.is_system || hasNoAccess}
-                        title={
-                          role.is_system
-                            ? 'Cannot modify system role'
-                            : hasNoAccess
-                              ? 'No permission'
-                              : 'Edit'
-                        }
-                        size="sm"
-                        variant="ghost"
-                      >
-                        <SquarePen className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        onClick={() => handleDeleteClick(role)}
-                        disabled={deletingRoleId === role.id || role.is_system || hasNoAccess}
-                        title={
-                          role.is_system
-                            ? 'Cannot delete system role'
-                            : hasNoAccess
-                              ? 'No permission'
-                              : 'Delete'
-                        }
-                        size="sm"
-                        variant="ghost"
-                      >
-                        {deletingRoleId === role.id ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <Trash2 className="w-4 h-4 text-red-500" />
-                        )}
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+          ) : undefined,
+        }}
+      />
 
       {/* Delete Confirmation Dialog */}
       <ConfirmDialog

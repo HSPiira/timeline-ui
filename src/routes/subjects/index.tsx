@@ -2,8 +2,6 @@ import { createFileRoute } from '@tanstack/react-router'
 import {
   Plus,
   Users,
-  X,
-  Loader2,
   AlertCircle,
   Activity,
   Search,
@@ -20,7 +18,12 @@ import { useToast } from '@/hooks/useToast'
 import { SubjectsTable } from '@/components/subjects/SubjectsTable'
 import { SubjectsGrid } from '@/components/subjects/SubjectsGrid'
 import { EditSubjectModal } from '@/components/subjects/EditSubjectModal'
+import { CreateSubjectModal } from '@/components/subjects/CreateSubjectModal'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Select } from '@/components/ui/select'
+import { LoadingIcon } from '@/components/ui/icons'
 import type { SubjectWithMetadata } from '@/hooks/useSubjects'
 
 export const Route = createFileRoute('/subjects/')({
@@ -160,107 +163,99 @@ function SubjectsPage() {
           <div className="flex items-center gap-2">
             {/* View Mode Toggle */}
             <div className="flex items-center gap-1 bg-muted/50 rounded-xs p-1 border border-border/30">
-              <button
+              <Button
                 onClick={() => setViewMode('grid')}
-                className={`p-2 rounded transition-colors ${
-                  viewMode === 'grid'
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
+                variant={viewMode === 'grid' ? 'primary' : 'ghost'}
+                size="sm"
                 title="Grid view"
               >
                 <Grid3x3 className="w-4 h-4" />
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => setViewMode('table')}
-                className={`p-2 rounded transition-colors ${
-                  viewMode === 'table'
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
+                variant={viewMode === 'table' ? 'primary' : 'ghost'}
+                size="sm"
                 title="Table view"
               >
                 <Table2 className="w-4 h-4" />
-              </button>
+              </Button>
             </div>
 
             {/* Create Button */}
-            <button
+            <Button
               onClick={() => setShowCreateModal(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-xs font-medium hover:bg-primary/90 transition-colors"
+              variant="primary"
             >
               <Plus className="w-4 h-4" />
-              Create Subject
-            </button>
+              Subject
+            </Button>
           </div>
         </div>
 
         {/* Filter and Search Controls */}
-        <div className="mb-4 flex items-center gap-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <input
+        <div className="mb-4 flex flex-col lg:flex-row items-start lg:items-center gap-3 lg:gap-4">
+          {/* Search Input */}
+          <div className="relative w-full lg:w-64 flex-shrink-0">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+            <Input
               type="text"
               placeholder="Search by ID or external ref..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-10 pr-4 py-2 bg-background border border-input rounded-xs text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring w-64"
+              className="pl-10 pr-4"
             />
           </div>
+
+          {/* Filter Controls */}
           {subjectTypes.length > 0 && (
-            <>
-              <label className="text-sm font-medium text-foreground/90">
+            <div className="w-full lg:w-auto flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">
+              <label className="text-sm font-medium text-foreground/90 whitespace-nowrap">
                 Filter by type:
               </label>
-              <select
-                value={filterType}
-                onChange={(e) => setFilterType(e.target.value)}
-                className="px-3 py-2 bg-background border border-input rounded-xs text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-              >
-                <option value="">All types</option>
-                {subjectTypes.map((type) => (
-                  <option key={type} value={type}>
-                    {type}
-                  </option>
-                ))}
-              </select>
-              {filterType && (
-                <button
-                  onClick={() => setFilterType('')}
-                  className="text-sm text-muted-foreground hover:text-foreground"
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <Select
+                  value={filterType}
+                  onChange={(e) => setFilterType(e.target.value)}
+                  className="flex-1 sm:flex-none"
                 >
-                  Clear filter
-                </button>
-              )}
-            </>
+                  <option value="">All types</option>
+                  {subjectTypes.map((type) => (
+                    <option key={type} value={type}>
+                      {type}
+                    </option>
+                  ))}
+                </Select>
+                {filterType && (
+                  <Button
+                    onClick={() => setFilterType('')}
+                    variant="ghost"
+                    size="sm"
+                    className="flex-shrink-0"
+                  >
+                    Clear
+                  </Button>
+                )}
+              </div>
+            </div>
           )}
         </div>
 
         {/* Content */}
         {isLoading && (
-          <div className="min-h-75 bg-background flex items-center justify-center">
+          <div className="min-h-[300px] flex items-center justify-center">
             <div className="flex items-center gap-3 text-muted-foreground">
-              <Loader2 className="w-5 h-5 animate-spin" />
+              <LoadingIcon />
               <span>Loading subjects...</span>
             </div>
           </div>
         )}
 
         {isError && (
-          <div className="min-h-75 bg-background flex items-center justify-center">
-            <div className="text-center max-w-md px-4">
-              <div className="w-16 h-16 rounded-xs bg-red-100 dark:bg-red-900/20 flex items-center justify-center mx-auto mb-4">
-                <AlertCircle className="w-8 h-8 text-destructive" />
-              </div>
-              <h3 className="text-lg font-semibold text-foreground mb-2">
-                Unable to Load Subjects
-              </h3>
-              <p className="text-muted-foreground mb-6">
-                {error?.message || 'An unexpected error occurred'}. Please check
-                your connection and try again.
-              </p>
-            </div>
-          </div>
+          <EmptyState
+            icon={AlertCircle}
+            title="Unable to Load Subjects"
+            description={error?.message || 'An unexpected error occurred. Please check your connection and try again.'}
+          />
         )}
 
         {!isLoading && !isError && subjects.length === 0 && (
@@ -297,12 +292,11 @@ function SubjectsPage() {
         )}
 
         {/* Create Subject Modal */}
-        {showCreateModal && (
-          <CreateSubjectModal
-            onClose={() => setShowCreateModal(false)}
-            onCreate={handleCreateSubject}
-          />
-        )}
+        <CreateSubjectModal
+          isOpen={showCreateModal}
+          onClose={() => setShowCreateModal(false)}
+          onCreate={handleCreateSubject}
+        />
 
         {/* Edit Subject Modal */}
         {showEditModal && editingSubject && (
@@ -319,134 +313,3 @@ function SubjectsPage() {
     </>
   )
 }
-
-function CreateSubjectModal({
-    onClose,
-    onCreate,
-  }: {
-    onClose: () => void
-    onCreate: (subjectType: string, externalRef?: string) => Promise<boolean>
-  }) {
-    const [subjectType, setSubjectType] = useState('')
-    const [externalRef, setExternalRef] = useState('')
-    const [error, setError] = useState<string | null>(null)
-    const [loading, setLoading] = useState(false)
-    const toast = useToast()
-
-    const handleSubmit = async (e: React.FormEvent) => {
-      e.preventDefault()
-      setError(null)
-
-      // Validate subject type
-      if (!subjectType.trim()) {
-        const validationError = 'Subject type is required'
-        setError(validationError)
-        toast.error('Validation error', validationError)
-        return
-      }
-
-      if (!/^[a-zA-Z0-9_]+$/.test(subjectType)) {
-        const validationError = 'Subject type must contain only alphanumeric characters and underscores'
-        setError(validationError)
-        toast.error('Validation error', validationError)
-        return
-      }
-
-      setLoading(true)
-      const success = await onCreate(subjectType.toLowerCase(), externalRef || undefined)
-      setLoading(false)
-
-      if (!success) {
-        const createError = 'Failed to create subject. Please try again.'
-        setError(createError)
-      }
-    }
-  
-    return (
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-        <div className="bg-background border border-border rounded-xs max-w-md w-full p-6 shadow-xl">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold text-foreground">
-              Create Subject
-            </h2>
-            <button
-              onClick={onClose}
-              className="text-muted-foreground/70 hover:text-foreground transition-colors"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-  
-          <form onSubmit={handleSubmit}>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-foreground/90 mb-2">
-                  Subject Type <span className="text-destructive">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={subjectType}
-                  onChange={(e) => setSubjectType(e.target.value)}
-                  placeholder="e.g., user, order, project"
-                  className="w-full px-3 py-2 bg-background border border-input rounded-xs text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                  disabled={loading}
-                />
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Alphanumeric characters and underscores only
-                </p>
-              </div>
-  
-              <div>
-                <label className="block text-sm font-medium text-foreground/90 mb-2">
-                  External Reference (Optional)
-                </label>
-                <input
-                  type="text"
-                  value={externalRef}
-                  onChange={(e) => setExternalRef(e.target.value)}
-                  placeholder="e.g., external ID or reference"
-                  className="w-full px-3 py-2 bg-background border border-input rounded-xs text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                  disabled={loading}
-                />
-              </div>
-  
-              {error && (
-                <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-xs flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4 text-destructive shrink-0" />
-                  <p className="text-sm text-destructive">{error}</p>
-                </div>
-              )}
-            </div>
-  
-            <div className="flex items-center gap-3 mt-6">
-              <button
-                type="submit"
-                disabled={loading}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-xs font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Creating...
-                  </>
-                ) : (
-                  <>
-                    <Plus className="w-4 h-4" />
-                    Create Subject
-                  </>
-                )}
-              </button>
-              <button
-                type="button"
-                onClick={onClose}
-                disabled={loading}
-                className="px-4 py-2 border border-input text-foreground/90 rounded-xs font-medium hover:bg-muted/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Cancel
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    )
-  }

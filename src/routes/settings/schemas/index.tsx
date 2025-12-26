@@ -1,12 +1,14 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useState, useEffect } from 'react'
+import type { ColumnDef } from '@tanstack/react-table'
 import { useRequireAuth } from '@/hooks/useRequireAuth'
 import { timelineApi } from '@/lib/api-client'
 import { Plus, Eye, Trash2, CheckCircle } from 'lucide-react'
-import { LoadingIcon, ErrorIcon } from '@/components/ui/icons'
+import { ErrorIcon } from '@/components/ui/icons'
 import { SchemaFormModal } from '@/components/schemas/SchemaFormModal'
 import { SchemaViewModal } from '@/components/schemas/SchemaViewModal'
 import { DeleteSchemaModal } from '@/components/schemas/DeleteSchemaModal'
+import { DataTable } from '@/components/ui/DataTable'
 import type { components } from '@/lib/timeline-api'
 import { Button } from '@/components/ui/button'
 
@@ -117,16 +119,72 @@ function SchemasPage() {
     return null
   }
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-8">
-        <div className="flex items-center gap-2 text-muted-foreground">
-          <LoadingIcon />
-          <span>Loading schemas...</span>
+  // Define columns for DataTable
+  const columns: ColumnDef<Schema>[] = [
+    {
+      accessorKey: 'event_type',
+      header: 'Event Type',
+      cell: ({ row }) => (
+        <span className="font-medium text-foreground">{row.original.event_type}</span>
+      ),
+    },
+    {
+      accessorKey: 'version',
+      header: 'Version',
+      cell: ({ row }) => (
+        <span className="text-muted-foreground">v{row.original.version}</span>
+      ),
+    },
+    {
+      id: 'status',
+      header: 'Status',
+      cell: ({ row }) =>
+        row.original.is_active ? (
+          <div className="flex items-center gap-1 text-green-600 dark:text-green-400">
+            <CheckCircle className="w-3 h-3" />
+            <span className="text-xs">Active</span>
+          </div>
+        ) : (
+          <span className="text-xs text-muted-foreground">Inactive</span>
+        ),
+    },
+    {
+      accessorKey: 'created_at',
+      header: 'Created',
+      cell: ({ row }) => (
+        <span className="text-muted-foreground text-sm">
+          {new Date(row.original.created_at).toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+          })}
+        </span>
+      ),
+    },
+    {
+      id: 'actions',
+      header: 'Actions',
+      cell: ({ row }) => (
+        <div className="flex items-center justify-end gap-1">
+          <Button
+            onClick={() => setViewingSchema(row.original)}
+            variant="ghost"
+            size="sm"
+            title="View Schema"
+          >
+            <Eye className="w-4 h-4" />
+          </Button>
+          <Button
+            onClick={() => handleDeleteSchema(row.original)}
+            variant="ghost"
+            size="sm"
+            title="Delete"
+          >
+            <Trash2 className="w-4 h-4" />
+          </Button>
         </div>
-      </div>
-    )
-  }
+      ),
+    },
+  ]
 
   return (
     <>
@@ -183,88 +241,30 @@ function SchemasPage() {
           size="md"
         >
           <Plus className="w-4 h-4" />
-          Create Schema
+          Schema
         </Button>
       </div>
 
       {/* Schemas Table */}
-      {schemas.length === 0 ? (
-        <div className="text-center py-8 bg-card/80 rounded-xs border border-border/50 p-4">
-          <h3 className="text-sm font-semibold text-foreground mb-1">No schemas yet</h3>
-          <p className="text-sm text-muted-foreground mb-3">Create your first event schema to enable validation</p>
-          <Button
-            onClick={() => setShowCreateModal(true)}
-            variant="primary"
-            size="md"
-          >
-            <Plus className="w-4 h-4" />
-            Create Schema
-          </Button>
-        </div>
-      ) : (
-        <div className="overflow-x-auto bg-card/80 rounded-xs border border-border/50">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-border">
-                <th className="text-left py-2 px-2.5 font-medium text-muted-foreground text-sm">EVENT TYPE</th>
-                <th className="text-left py-2 px-2.5 font-medium text-muted-foreground text-sm">VERSION</th>
-                <th className="text-left py-2 px-2.5 font-medium text-muted-foreground text-sm">STATUS</th>
-                <th className="text-left py-2 px-2.5 font-medium text-muted-foreground text-sm">CREATED</th>
-                <th className="text-right py-2 px-2.5 font-medium text-muted-foreground text-sm">ACTIONS</th>
-              </tr>
-            </thead>
-            <tbody>
-              {schemas.map((schema) => (
-                <tr
-                  key={schema.id}
-                  className="border-b border-border hover:bg-muted/50 transition-colors"
-                >
-                  <td className="py-2 px-2.5">
-                    <span className="font-medium text-foreground">{schema.event_type}</span>
-                  </td>
-                  <td className="py-2 px-2.5 text-muted-foreground">v{schema.version}</td>
-                  <td className="py-2 px-2.5">
-                    {schema.is_active ? (
-                      <div className="flex items-center gap-1 text-green-600 dark:text-green-400">
-                        <CheckCircle className="w-3 h-3" />
-                        <span className="text-xs">Active</span>
-                      </div>
-                    ) : (
-                      <span className="text-xs text-muted-foreground">Inactive</span>
-                    )}
-                  </td>
-                  <td className="py-2 px-2.5 text-muted-foreground text-sm">
-                    {new Date(schema.created_at).toLocaleDateString('en-US', {
-                      month: 'short',
-                      day: 'numeric',
-                    })}
-                  </td>
-                  <td className="py-2 px-2.5 text-right">
-                    <div className="flex items-center justify-end gap-1">
-                      <Button
-                        onClick={() => setViewingSchema(schema)}
-                        variant="ghost"
-                        size="sm"
-                        title="View Schema"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        onClick={() => handleDeleteSchema(schema)}
-                        variant="ghost"
-                        size="sm"
-                        title="Delete"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+      <DataTable
+        data={schemas}
+        columns={columns}
+        isLoading={loading}
+        isEmpty={schemas.length === 0}
+        compact={true}
+        enablePagination={true}
+        pageSize={10}
+        emptyState={{
+          title: 'No schemas yet',
+          description: 'Create your first event schema to enable validation',
+          action: (
+            <Button onClick={() => setShowCreateModal(true)} variant="primary" size="md">
+              <Plus className="w-4 h-4" />
+              Schema
+            </Button>
+          ),
+        }}
+      />
     </>
   )
 }

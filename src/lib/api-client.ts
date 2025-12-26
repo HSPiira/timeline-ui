@@ -293,8 +293,11 @@ export const timelineApi = {
       }),
     create: (data: components['schemas']['WorkflowCreate']) =>
       client.POST('/workflows/', { body: data }),
-    // Note: update endpoint not yet available in OpenAPI schema
-    // update: (id: string, data: { is_active?: boolean }) => ...,
+    update: (id: string, data: { is_active: boolean }) =>
+      client.PATCH('/workflows/{workflow_id}', {
+        params: { path: { workflow_id: id } },
+        body: data,
+      }),
     delete: (id: string) =>
       client.DELETE('/workflows/{workflow_id}', {
         params: { path: { workflow_id: id } },

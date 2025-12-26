@@ -5,6 +5,7 @@ import { getApiErrorMessage } from '@/lib/api-utils'
 import { useToast } from '@/hooks/useToast'
 import { Select } from '@/components/ui/select'
 import { LoadingIcon, ErrorIcon } from '@/components/ui/icons'
+import { Button } from '@/components/ui/button'
 
 export interface DocumentUploadProps {
   subjectId?: string
@@ -244,12 +245,15 @@ export function DocumentUpload({
           <p className="text-xs text-muted-foreground">Max 100MB per file. Supported: PDF, images, Word, Excel</p>
         </div>
 
-        <button
-          type="button"
+        <Button
+          variant="primary"
+          size="sm"
           onClick={() => inputRef.current?.click()}
           className="absolute inset-0 opacity-0"
           aria-label="Upload files"
-        />
+        >
+          <Upload className="w-4 h-4" />
+        </Button>
       </div>
 
       {/* File List */}
@@ -287,22 +291,28 @@ export function DocumentUpload({
 
               {/* Remove Button */}
               {uploadingFile.status !== 'uploading' && (
-                <button
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={() => removeFile(uploadingFile.id)}
-                  className="shrink-0 p-1 hover:bg-muted rounded-xs transition-colors"
                   aria-label="Remove file"
                 >
-                  <X className="w-4 h-4 text-muted-foreground" />
-                </button>
+                  <X className="w-4 h-4" />
+                </Button>
               )}
             </div>
           ))}
 
           {/* Clear Completed */}
           {files.some((f) => f.status === 'success') && (
-            <button onClick={clearCompleted} className="text-xs text-muted-foreground hover:text-foreground">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={clearCompleted}
+              className="text-xs"
+            >
               Clear completed
-            </button>
+            </Button>
           )}
         </div>
       )}

@@ -622,16 +622,27 @@
 1. **Session Timeout**: JWT tokens expire after 8 hours
    - Backend config: `~/dev/timeline/core/config.py:18`
    - Recently increased from 30 minutes
-2. **Workflow Toggle**: Pause/resume workflow button disabled (marked for future implementation)
-   - File: `src/routes/workflows/index.tsx:107`
-   - Reason: Backend endpoint for updating workflows not yet available
-3. **Schema Delete**: Currently removes from UI only (no backend delete call)
-   - File: `src/routes/schemas/index.tsx:83-85`
-   - Note: Backend may require explicit delete endpoint implementation
-4. **Chain Verification Permissions**: Verify endpoint may return 403 Forbidden
-   - File: `src/routes/verify/$subjectId.tsx`
-   - Note: Backend may require specific RBAC permissions for verification
-   - Frontend correctly handles the error with user-friendly message
+   - **Status**: ✅ EXPECTED BEHAVIOR - Not an issue, designed for security
+
+### Fixed Issues (December 25, 2024)
+1. **Workflow Toggle** ✅ FIXED
+   - Added workflow update endpoint to API client: `workflows.update(id, { is_active: boolean })`
+   - Implemented toggle functionality with loading state and error handling
+   - File: `src/routes/settings/workflows/index.tsx:119-156`
+   - Button now enables/disables workflows with proper permission checking
+
+2. **Schema Delete** ✅ VERIFIED - Already Working
+   - File: `src/routes/settings/schemas/index.tsx:97`
+   - The backend delete call was already implemented - issue was incorrectly documented
+   - DELETE endpoint properly called and UI correctly updates
+
+3. **Chain Verification Permissions** ✅ ENHANCED
+   - File: `src/routes/verify/$subjectId.tsx:42-74`
+   - Improved error handling to distinguish between:
+     - 403 Forbidden: "You do not have permission to verify this chain"
+     - 401 Unauthorized: "Your session has expired"
+     - Generic errors: Display actual error message
+   - Now provides user-friendly error messages based on error type
 
 ### Design Decisions
 - **Monochromatic Theme**: Pure grayscale OKLCH for accessibility

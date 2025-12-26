@@ -5,7 +5,7 @@ import { getApiErrorMessage } from '@/lib/api-utils'
 import type { components } from '@/lib/timeline-api'
 import { DocumentList } from './DocumentList'
 import { EventDocumentUpload } from './EventDocumentUpload'
-import { LoadingIcon } from '@/components/ui/icons'
+import { Button } from '@/components/ui/button'
 
 export interface EventDocumentsModalProps {
   eventId: string
@@ -144,15 +144,15 @@ export function EventDocumentsModal({
             <p className="text-xs text-muted-foreground mt-0.5">{eventId.slice(0, 8)}</p>
           </div>
 
-          <button
-            type="button"
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={onClose}
-            className="px-4 py-2 hover:bg-muted rounded-xs transition-colors font-medium"
             title="Close"
             aria-label="Close modal"
           >
-            <X className="w-4 h-4 text-muted-foreground" />
-          </button>
+            <X className="w-4 h-4" />
+          </Button>
         </div>
 
         {/* Content */}
@@ -187,50 +187,40 @@ export function EventDocumentsModal({
               />
 
               <div className="flex items-center gap-2 pt-2">
-                <button
-                  type="button"
+                <Button
                   onClick={handleUploadDocuments}
                   disabled={stagedFiles.length === 0 || uploading}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-linear-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white rounded-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:shadow-sm"
+                  isLoading={uploading}
+                  className="bg-linear-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white"
                 >
-                  {uploading ? (
-                    <>
-                      <LoadingIcon />
-                      Uploading...
-                    </>
-                  ) : (
-                    <>
-                      <Plus className="w-4 h-4" />
-                      Create Update Event
-                    </>
-                  )}
-                </button>
-                <button
-                  type="button"
+                  {!uploading && <Plus className="w-4 h-4" />}
+                  {uploading ? 'Uploading...' : 'Create Update Event'}
+                </Button>
+                <Button
+                  variant="outline"
                   onClick={() => {
                     setShowUpload(false)
                     setStagedFiles([])
                     setError(null)
                   }}
                   disabled={uploading}
-                  className="px-4 py-2 border border-input text-foreground/90 rounded-xs font-medium hover:bg-muted/30 transition-colors disabled:opacity-50"
                 >
                   Cancel
-                </button>
+                </Button>
               </div>
             </div>
           )}
 
           {/* Show Upload Button */}
           {!showUpload && (
-            <button
-              type="button"
+            <Button
+              variant="outline"
               onClick={() => setShowUpload(true)}
-              className="w-full px-4 py-2 text-sm border-2 border-dashed border-amber-400 dark:border-amber-600 text-amber-700 dark:text-amber-300 rounded-xs hover:bg-amber-50 dark:hover:bg-amber-950/20 transition-all font-medium hover:border-amber-500 dark:hover:border-amber-500"
+              className="w-full border-2 border-dashed border-amber-400 dark:border-amber-600 text-amber-700 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950/20 hover:border-amber-500 dark:hover:border-amber-500"
             >
-              <Plus className="w-4 h-4 inline mr-2" />
+              <Plus className="w-4 h-4" />
               Attach Additional Documents
-            </button>
+            </Button>
           )}
         </div>
       </div>
