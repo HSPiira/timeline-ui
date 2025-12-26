@@ -290,32 +290,28 @@ function SubjectDetailPage() {
 
         {/* Tabs */}
         <div className="flex gap-1 mb-3 border-b border-border">
-          <Button
+          <button
             onClick={() => setActiveTab('events')}
-            className={`px-3 py-2 text-xs font-medium transition-colors border-b-2 ${
+            className={`px-3 py-2 text-xs font-medium transition-colors border-b-2 rounded-t-xs flex items-center gap-2 ${
               activeTab === 'events'
-                ? 'border-primary text-foreground'
-                : 'border-transparent text-muted-foreground hover:text-foreground'
+                ? 'bg-muted/40 border-primary text-foreground'
+                : 'bg-transparent border-transparent text-foreground/60 hover:bg-muted/20'
             }`}
           >
-            <span className="flex items-center gap-2">
-              <Activity className="w-4 h-4" />
-              Events
-            </span>
-          </Button>
-          <Button
+            <Activity className="w-4 h-4" />
+            Events
+          </button>
+          <button
             onClick={() => setActiveTab('documents')}
-            className={`px-3 py-2 text-xs font-medium transition-colors border-b-2 ${
+            className={`px-3 py-2 text-xs font-medium transition-colors border-b-2 rounded-t-xs flex items-center gap-2 ${
               activeTab === 'documents'
-                ? 'border-primary text-foreground'
-                : 'border-transparent text-muted-foreground hover:text-foreground'
+                ? 'bg-muted/40 border-primary text-foreground'
+                : 'bg-transparent border-transparent text-foreground/60 hover:bg-muted/20'
             }`}
           >
-            <span className="flex items-center gap-2">
-              <FileText className="w-4 h-4" />
-              Documents
-            </span>
-          </Button>
+            <FileText className="w-4 h-4" />
+            Documents
+          </button>
         </div>
 
         {/* Content */}
