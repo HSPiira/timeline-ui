@@ -9,38 +9,306 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as RegisterRouteImport } from './routes/register'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as SubjectsIndexRouteImport } from './routes/subjects/index'
+import { Route as EventsIndexRouteImport } from './routes/events/index'
+import { Route as EmailAccountsIndexRouteImport } from './routes/email-accounts/index'
+import { Route as VerifySubjectIdRouteImport } from './routes/verify/$subjectId'
+import { Route as SubjectsSubjectIdRouteImport } from './routes/subjects/$subjectId'
+import { Route as EventsCreateRouteImport } from './routes/events/create'
+import { Route as EmailAccountsCreateRouteImport } from './routes/email-accounts/create'
+import { Route as EmailAccountsAccountIdRouteImport } from './routes/email-accounts/$accountId'
+import { Route as SettingsWorkflowsIndexRouteImport } from './routes/settings/workflows/index'
+import { Route as SettingsUsersIndexRouteImport } from './routes/settings/users/index'
+import { Route as SettingsSchemasIndexRouteImport } from './routes/settings/schemas/index'
+import { Route as SettingsRolesIndexRouteImport } from './routes/settings/roles/index'
+import { Route as SettingsPermissionsIndexRouteImport } from './routes/settings/permissions/index'
+import { Route as AdminRolesIndexRouteImport } from './routes/admin/roles/index'
+import { Route as AdminPermissionsIndexRouteImport } from './routes/admin/permissions/index'
+import { Route as EventsSubjectSubjectIdRouteImport } from './routes/events/subject.$subjectId'
 
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegisterRoute = RegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SubjectsIndexRoute = SubjectsIndexRouteImport.update({
+  id: '/subjects/',
+  path: '/subjects/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EventsIndexRoute = EventsIndexRouteImport.update({
+  id: '/events/',
+  path: '/events/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EmailAccountsIndexRoute = EmailAccountsIndexRouteImport.update({
+  id: '/email-accounts/',
+  path: '/email-accounts/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VerifySubjectIdRoute = VerifySubjectIdRouteImport.update({
+  id: '/verify/$subjectId',
+  path: '/verify/$subjectId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SubjectsSubjectIdRoute = SubjectsSubjectIdRouteImport.update({
+  id: '/subjects/$subjectId',
+  path: '/subjects/$subjectId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EventsCreateRoute = EventsCreateRouteImport.update({
+  id: '/events/create',
+  path: '/events/create',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EmailAccountsCreateRoute = EmailAccountsCreateRouteImport.update({
+  id: '/email-accounts/create',
+  path: '/email-accounts/create',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EmailAccountsAccountIdRoute = EmailAccountsAccountIdRouteImport.update({
+  id: '/email-accounts/$accountId',
+  path: '/email-accounts/$accountId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsWorkflowsIndexRoute = SettingsWorkflowsIndexRouteImport.update({
+  id: '/workflows/',
+  path: '/workflows/',
+  getParentRoute: () => SettingsRoute,
+} as any)
+const SettingsUsersIndexRoute = SettingsUsersIndexRouteImport.update({
+  id: '/users/',
+  path: '/users/',
+  getParentRoute: () => SettingsRoute,
+} as any)
+const SettingsSchemasIndexRoute = SettingsSchemasIndexRouteImport.update({
+  id: '/schemas/',
+  path: '/schemas/',
+  getParentRoute: () => SettingsRoute,
+} as any)
+const SettingsRolesIndexRoute = SettingsRolesIndexRouteImport.update({
+  id: '/roles/',
+  path: '/roles/',
+  getParentRoute: () => SettingsRoute,
+} as any)
+const SettingsPermissionsIndexRoute =
+  SettingsPermissionsIndexRouteImport.update({
+    id: '/permissions/',
+    path: '/permissions/',
+    getParentRoute: () => SettingsRoute,
+  } as any)
+const AdminRolesIndexRoute = AdminRolesIndexRouteImport.update({
+  id: '/admin/roles/',
+  path: '/admin/roles/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminPermissionsIndexRoute = AdminPermissionsIndexRouteImport.update({
+  id: '/admin/permissions/',
+  path: '/admin/permissions/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EventsSubjectSubjectIdRoute = EventsSubjectSubjectIdRouteImport.update({
+  id: '/events/subject/$subjectId',
+  path: '/events/subject/$subjectId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/login': typeof LoginRoute
+  '/register': typeof RegisterRoute
+  '/settings': typeof SettingsRouteWithChildren
+  '/email-accounts/$accountId': typeof EmailAccountsAccountIdRoute
+  '/email-accounts/create': typeof EmailAccountsCreateRoute
+  '/events/create': typeof EventsCreateRoute
+  '/subjects/$subjectId': typeof SubjectsSubjectIdRoute
+  '/verify/$subjectId': typeof VerifySubjectIdRoute
+  '/email-accounts': typeof EmailAccountsIndexRoute
+  '/events': typeof EventsIndexRoute
+  '/subjects': typeof SubjectsIndexRoute
+  '/events/subject/$subjectId': typeof EventsSubjectSubjectIdRoute
+  '/admin/permissions': typeof AdminPermissionsIndexRoute
+  '/admin/roles': typeof AdminRolesIndexRoute
+  '/settings/permissions': typeof SettingsPermissionsIndexRoute
+  '/settings/roles': typeof SettingsRolesIndexRoute
+  '/settings/schemas': typeof SettingsSchemasIndexRoute
+  '/settings/users': typeof SettingsUsersIndexRoute
+  '/settings/workflows': typeof SettingsWorkflowsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/login': typeof LoginRoute
+  '/register': typeof RegisterRoute
+  '/settings': typeof SettingsRouteWithChildren
+  '/email-accounts/$accountId': typeof EmailAccountsAccountIdRoute
+  '/email-accounts/create': typeof EmailAccountsCreateRoute
+  '/events/create': typeof EventsCreateRoute
+  '/subjects/$subjectId': typeof SubjectsSubjectIdRoute
+  '/verify/$subjectId': typeof VerifySubjectIdRoute
+  '/email-accounts': typeof EmailAccountsIndexRoute
+  '/events': typeof EventsIndexRoute
+  '/subjects': typeof SubjectsIndexRoute
+  '/events/subject/$subjectId': typeof EventsSubjectSubjectIdRoute
+  '/admin/permissions': typeof AdminPermissionsIndexRoute
+  '/admin/roles': typeof AdminRolesIndexRoute
+  '/settings/permissions': typeof SettingsPermissionsIndexRoute
+  '/settings/roles': typeof SettingsRolesIndexRoute
+  '/settings/schemas': typeof SettingsSchemasIndexRoute
+  '/settings/users': typeof SettingsUsersIndexRoute
+  '/settings/workflows': typeof SettingsWorkflowsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/login': typeof LoginRoute
+  '/register': typeof RegisterRoute
+  '/settings': typeof SettingsRouteWithChildren
+  '/email-accounts/$accountId': typeof EmailAccountsAccountIdRoute
+  '/email-accounts/create': typeof EmailAccountsCreateRoute
+  '/events/create': typeof EventsCreateRoute
+  '/subjects/$subjectId': typeof SubjectsSubjectIdRoute
+  '/verify/$subjectId': typeof VerifySubjectIdRoute
+  '/email-accounts/': typeof EmailAccountsIndexRoute
+  '/events/': typeof EventsIndexRoute
+  '/subjects/': typeof SubjectsIndexRoute
+  '/events/subject/$subjectId': typeof EventsSubjectSubjectIdRoute
+  '/admin/permissions/': typeof AdminPermissionsIndexRoute
+  '/admin/roles/': typeof AdminRolesIndexRoute
+  '/settings/permissions/': typeof SettingsPermissionsIndexRoute
+  '/settings/roles/': typeof SettingsRolesIndexRoute
+  '/settings/schemas/': typeof SettingsSchemasIndexRoute
+  '/settings/users/': typeof SettingsUsersIndexRoute
+  '/settings/workflows/': typeof SettingsWorkflowsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/register'
+    | '/settings'
+    | '/email-accounts/$accountId'
+    | '/email-accounts/create'
+    | '/events/create'
+    | '/subjects/$subjectId'
+    | '/verify/$subjectId'
+    | '/email-accounts'
+    | '/events'
+    | '/subjects'
+    | '/events/subject/$subjectId'
+    | '/admin/permissions'
+    | '/admin/roles'
+    | '/settings/permissions'
+    | '/settings/roles'
+    | '/settings/schemas'
+    | '/settings/users'
+    | '/settings/workflows'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/login'
+    | '/register'
+    | '/settings'
+    | '/email-accounts/$accountId'
+    | '/email-accounts/create'
+    | '/events/create'
+    | '/subjects/$subjectId'
+    | '/verify/$subjectId'
+    | '/email-accounts'
+    | '/events'
+    | '/subjects'
+    | '/events/subject/$subjectId'
+    | '/admin/permissions'
+    | '/admin/roles'
+    | '/settings/permissions'
+    | '/settings/roles'
+    | '/settings/schemas'
+    | '/settings/users'
+    | '/settings/workflows'
+  id:
+    | '__root__'
+    | '/'
+    | '/login'
+    | '/register'
+    | '/settings'
+    | '/email-accounts/$accountId'
+    | '/email-accounts/create'
+    | '/events/create'
+    | '/subjects/$subjectId'
+    | '/verify/$subjectId'
+    | '/email-accounts/'
+    | '/events/'
+    | '/subjects/'
+    | '/events/subject/$subjectId'
+    | '/admin/permissions/'
+    | '/admin/roles/'
+    | '/settings/permissions/'
+    | '/settings/roles/'
+    | '/settings/schemas/'
+    | '/settings/users/'
+    | '/settings/workflows/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  LoginRoute: typeof LoginRoute
+  RegisterRoute: typeof RegisterRoute
+  SettingsRoute: typeof SettingsRouteWithChildren
+  EmailAccountsAccountIdRoute: typeof EmailAccountsAccountIdRoute
+  EmailAccountsCreateRoute: typeof EmailAccountsCreateRoute
+  EventsCreateRoute: typeof EventsCreateRoute
+  SubjectsSubjectIdRoute: typeof SubjectsSubjectIdRoute
+  VerifySubjectIdRoute: typeof VerifySubjectIdRoute
+  EmailAccountsIndexRoute: typeof EmailAccountsIndexRoute
+  EventsIndexRoute: typeof EventsIndexRoute
+  SubjectsIndexRoute: typeof SubjectsIndexRoute
+  EventsSubjectSubjectIdRoute: typeof EventsSubjectSubjectIdRoute
+  AdminPermissionsIndexRoute: typeof AdminPermissionsIndexRoute
+  AdminRolesIndexRoute: typeof AdminRolesIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +316,157 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/subjects/': {
+      id: '/subjects/'
+      path: '/subjects'
+      fullPath: '/subjects'
+      preLoaderRoute: typeof SubjectsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/events/': {
+      id: '/events/'
+      path: '/events'
+      fullPath: '/events'
+      preLoaderRoute: typeof EventsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/email-accounts/': {
+      id: '/email-accounts/'
+      path: '/email-accounts'
+      fullPath: '/email-accounts'
+      preLoaderRoute: typeof EmailAccountsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/verify/$subjectId': {
+      id: '/verify/$subjectId'
+      path: '/verify/$subjectId'
+      fullPath: '/verify/$subjectId'
+      preLoaderRoute: typeof VerifySubjectIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/subjects/$subjectId': {
+      id: '/subjects/$subjectId'
+      path: '/subjects/$subjectId'
+      fullPath: '/subjects/$subjectId'
+      preLoaderRoute: typeof SubjectsSubjectIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/events/create': {
+      id: '/events/create'
+      path: '/events/create'
+      fullPath: '/events/create'
+      preLoaderRoute: typeof EventsCreateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/email-accounts/create': {
+      id: '/email-accounts/create'
+      path: '/email-accounts/create'
+      fullPath: '/email-accounts/create'
+      preLoaderRoute: typeof EmailAccountsCreateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/email-accounts/$accountId': {
+      id: '/email-accounts/$accountId'
+      path: '/email-accounts/$accountId'
+      fullPath: '/email-accounts/$accountId'
+      preLoaderRoute: typeof EmailAccountsAccountIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings/workflows/': {
+      id: '/settings/workflows/'
+      path: '/workflows'
+      fullPath: '/settings/workflows'
+      preLoaderRoute: typeof SettingsWorkflowsIndexRouteImport
+      parentRoute: typeof SettingsRoute
+    }
+    '/settings/users/': {
+      id: '/settings/users/'
+      path: '/users'
+      fullPath: '/settings/users'
+      preLoaderRoute: typeof SettingsUsersIndexRouteImport
+      parentRoute: typeof SettingsRoute
+    }
+    '/settings/schemas/': {
+      id: '/settings/schemas/'
+      path: '/schemas'
+      fullPath: '/settings/schemas'
+      preLoaderRoute: typeof SettingsSchemasIndexRouteImport
+      parentRoute: typeof SettingsRoute
+    }
+    '/settings/roles/': {
+      id: '/settings/roles/'
+      path: '/roles'
+      fullPath: '/settings/roles'
+      preLoaderRoute: typeof SettingsRolesIndexRouteImport
+      parentRoute: typeof SettingsRoute
+    }
+    '/settings/permissions/': {
+      id: '/settings/permissions/'
+      path: '/permissions'
+      fullPath: '/settings/permissions'
+      preLoaderRoute: typeof SettingsPermissionsIndexRouteImport
+      parentRoute: typeof SettingsRoute
+    }
+    '/admin/roles/': {
+      id: '/admin/roles/'
+      path: '/admin/roles'
+      fullPath: '/admin/roles'
+      preLoaderRoute: typeof AdminRolesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/permissions/': {
+      id: '/admin/permissions/'
+      path: '/admin/permissions'
+      fullPath: '/admin/permissions'
+      preLoaderRoute: typeof AdminPermissionsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/events/subject/$subjectId': {
+      id: '/events/subject/$subjectId'
+      path: '/events/subject/$subjectId'
+      fullPath: '/events/subject/$subjectId'
+      preLoaderRoute: typeof EventsSubjectSubjectIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
+interface SettingsRouteChildren {
+  SettingsPermissionsIndexRoute: typeof SettingsPermissionsIndexRoute
+  SettingsRolesIndexRoute: typeof SettingsRolesIndexRoute
+  SettingsSchemasIndexRoute: typeof SettingsSchemasIndexRoute
+  SettingsUsersIndexRoute: typeof SettingsUsersIndexRoute
+  SettingsWorkflowsIndexRoute: typeof SettingsWorkflowsIndexRoute
+}
+
+const SettingsRouteChildren: SettingsRouteChildren = {
+  SettingsPermissionsIndexRoute: SettingsPermissionsIndexRoute,
+  SettingsRolesIndexRoute: SettingsRolesIndexRoute,
+  SettingsSchemasIndexRoute: SettingsSchemasIndexRoute,
+  SettingsUsersIndexRoute: SettingsUsersIndexRoute,
+  SettingsWorkflowsIndexRoute: SettingsWorkflowsIndexRoute,
+}
+
+const SettingsRouteWithChildren = SettingsRoute._addFileChildren(
+  SettingsRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  LoginRoute: LoginRoute,
+  RegisterRoute: RegisterRoute,
+  SettingsRoute: SettingsRouteWithChildren,
+  EmailAccountsAccountIdRoute: EmailAccountsAccountIdRoute,
+  EmailAccountsCreateRoute: EmailAccountsCreateRoute,
+  EventsCreateRoute: EventsCreateRoute,
+  SubjectsSubjectIdRoute: SubjectsSubjectIdRoute,
+  VerifySubjectIdRoute: VerifySubjectIdRoute,
+  EmailAccountsIndexRoute: EmailAccountsIndexRoute,
+  EventsIndexRoute: EventsIndexRoute,
+  SubjectsIndexRoute: SubjectsIndexRoute,
+  EventsSubjectSubjectIdRoute: EventsSubjectSubjectIdRoute,
+  AdminPermissionsIndexRoute: AdminPermissionsIndexRoute,
+  AdminRolesIndexRoute: AdminRolesIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
