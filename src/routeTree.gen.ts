@@ -15,9 +15,12 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SubjectsIndexRouteImport } from './routes/subjects/index'
 import { Route as EventsIndexRouteImport } from './routes/events/index'
+import { Route as EmailAccountsIndexRouteImport } from './routes/email-accounts/index'
 import { Route as VerifySubjectIdRouteImport } from './routes/verify/$subjectId'
 import { Route as SubjectsSubjectIdRouteImport } from './routes/subjects/$subjectId'
 import { Route as EventsCreateRouteImport } from './routes/events/create'
+import { Route as EmailAccountsCreateRouteImport } from './routes/email-accounts/create'
+import { Route as EmailAccountsAccountIdRouteImport } from './routes/email-accounts/$accountId'
 import { Route as SettingsWorkflowsIndexRouteImport } from './routes/settings/workflows/index'
 import { Route as SettingsUsersIndexRouteImport } from './routes/settings/users/index'
 import { Route as SettingsSchemasIndexRouteImport } from './routes/settings/schemas/index'
@@ -57,6 +60,11 @@ const EventsIndexRoute = EventsIndexRouteImport.update({
   path: '/events/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EmailAccountsIndexRoute = EmailAccountsIndexRouteImport.update({
+  id: '/email-accounts/',
+  path: '/email-accounts/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const VerifySubjectIdRoute = VerifySubjectIdRouteImport.update({
   id: '/verify/$subjectId',
   path: '/verify/$subjectId',
@@ -70,6 +78,16 @@ const SubjectsSubjectIdRoute = SubjectsSubjectIdRouteImport.update({
 const EventsCreateRoute = EventsCreateRouteImport.update({
   id: '/events/create',
   path: '/events/create',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EmailAccountsCreateRoute = EmailAccountsCreateRouteImport.update({
+  id: '/email-accounts/create',
+  path: '/email-accounts/create',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EmailAccountsAccountIdRoute = EmailAccountsAccountIdRouteImport.update({
+  id: '/email-accounts/$accountId',
+  path: '/email-accounts/$accountId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SettingsWorkflowsIndexRoute = SettingsWorkflowsIndexRouteImport.update({
@@ -119,9 +137,12 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/settings': typeof SettingsRouteWithChildren
+  '/email-accounts/$accountId': typeof EmailAccountsAccountIdRoute
+  '/email-accounts/create': typeof EmailAccountsCreateRoute
   '/events/create': typeof EventsCreateRoute
   '/subjects/$subjectId': typeof SubjectsSubjectIdRoute
   '/verify/$subjectId': typeof VerifySubjectIdRoute
+  '/email-accounts': typeof EmailAccountsIndexRoute
   '/events': typeof EventsIndexRoute
   '/subjects': typeof SubjectsIndexRoute
   '/events/subject/$subjectId': typeof EventsSubjectSubjectIdRoute
@@ -138,9 +159,12 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/settings': typeof SettingsRouteWithChildren
+  '/email-accounts/$accountId': typeof EmailAccountsAccountIdRoute
+  '/email-accounts/create': typeof EmailAccountsCreateRoute
   '/events/create': typeof EventsCreateRoute
   '/subjects/$subjectId': typeof SubjectsSubjectIdRoute
   '/verify/$subjectId': typeof VerifySubjectIdRoute
+  '/email-accounts': typeof EmailAccountsIndexRoute
   '/events': typeof EventsIndexRoute
   '/subjects': typeof SubjectsIndexRoute
   '/events/subject/$subjectId': typeof EventsSubjectSubjectIdRoute
@@ -158,9 +182,12 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/settings': typeof SettingsRouteWithChildren
+  '/email-accounts/$accountId': typeof EmailAccountsAccountIdRoute
+  '/email-accounts/create': typeof EmailAccountsCreateRoute
   '/events/create': typeof EventsCreateRoute
   '/subjects/$subjectId': typeof SubjectsSubjectIdRoute
   '/verify/$subjectId': typeof VerifySubjectIdRoute
+  '/email-accounts/': typeof EmailAccountsIndexRoute
   '/events/': typeof EventsIndexRoute
   '/subjects/': typeof SubjectsIndexRoute
   '/events/subject/$subjectId': typeof EventsSubjectSubjectIdRoute
@@ -179,9 +206,12 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/settings'
+    | '/email-accounts/$accountId'
+    | '/email-accounts/create'
     | '/events/create'
     | '/subjects/$subjectId'
     | '/verify/$subjectId'
+    | '/email-accounts'
     | '/events'
     | '/subjects'
     | '/events/subject/$subjectId'
@@ -198,9 +228,12 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/settings'
+    | '/email-accounts/$accountId'
+    | '/email-accounts/create'
     | '/events/create'
     | '/subjects/$subjectId'
     | '/verify/$subjectId'
+    | '/email-accounts'
     | '/events'
     | '/subjects'
     | '/events/subject/$subjectId'
@@ -217,9 +250,12 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/settings'
+    | '/email-accounts/$accountId'
+    | '/email-accounts/create'
     | '/events/create'
     | '/subjects/$subjectId'
     | '/verify/$subjectId'
+    | '/email-accounts/'
     | '/events/'
     | '/subjects/'
     | '/events/subject/$subjectId'
@@ -237,9 +273,12 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   RegisterRoute: typeof RegisterRoute
   SettingsRoute: typeof SettingsRouteWithChildren
+  EmailAccountsAccountIdRoute: typeof EmailAccountsAccountIdRoute
+  EmailAccountsCreateRoute: typeof EmailAccountsCreateRoute
   EventsCreateRoute: typeof EventsCreateRoute
   SubjectsSubjectIdRoute: typeof SubjectsSubjectIdRoute
   VerifySubjectIdRoute: typeof VerifySubjectIdRoute
+  EmailAccountsIndexRoute: typeof EmailAccountsIndexRoute
   EventsIndexRoute: typeof EventsIndexRoute
   SubjectsIndexRoute: typeof SubjectsIndexRoute
   EventsSubjectSubjectIdRoute: typeof EventsSubjectSubjectIdRoute
@@ -291,6 +330,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EventsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/email-accounts/': {
+      id: '/email-accounts/'
+      path: '/email-accounts'
+      fullPath: '/email-accounts'
+      preLoaderRoute: typeof EmailAccountsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/verify/$subjectId': {
       id: '/verify/$subjectId'
       path: '/verify/$subjectId'
@@ -310,6 +356,20 @@ declare module '@tanstack/react-router' {
       path: '/events/create'
       fullPath: '/events/create'
       preLoaderRoute: typeof EventsCreateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/email-accounts/create': {
+      id: '/email-accounts/create'
+      path: '/email-accounts/create'
+      fullPath: '/email-accounts/create'
+      preLoaderRoute: typeof EmailAccountsCreateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/email-accounts/$accountId': {
+      id: '/email-accounts/$accountId'
+      path: '/email-accounts/$accountId'
+      fullPath: '/email-accounts/$accountId'
+      preLoaderRoute: typeof EmailAccountsAccountIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/settings/workflows/': {
@@ -396,9 +456,12 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
   SettingsRoute: SettingsRouteWithChildren,
+  EmailAccountsAccountIdRoute: EmailAccountsAccountIdRoute,
+  EmailAccountsCreateRoute: EmailAccountsCreateRoute,
   EventsCreateRoute: EventsCreateRoute,
   SubjectsSubjectIdRoute: SubjectsSubjectIdRoute,
   VerifySubjectIdRoute: VerifySubjectIdRoute,
+  EmailAccountsIndexRoute: EmailAccountsIndexRoute,
   EventsIndexRoute: EventsIndexRoute,
   SubjectsIndexRoute: SubjectsIndexRoute,
   EventsSubjectSubjectIdRoute: EventsSubjectSubjectIdRoute,

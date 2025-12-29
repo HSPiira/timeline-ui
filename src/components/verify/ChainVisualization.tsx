@@ -1,16 +1,115 @@
-import { CheckCircle, AlertTriangle, Link2 } from 'lucide-react'
+import { CheckCircle, AlertTriangle, Link2, Copy, ChevronDown, ChevronUp } from 'lucide-react'
+import { useState } from 'react'
 import type { components } from '@/lib/timeline-api'
 
 type EventResponse = components['schemas']['EventResponse']
 
+interface EventWithVerification extends EventResponse {
+  verified: boolean
+  expected_hash: string
+  actual_hash: string
+  previous_hash: string | null
+}
+
 interface ChainVisualizationProps {
-  events: Array<EventResponse & { verified: boolean; expectedHash: string; actualHash: string }>
+  events: EventWithVerification[]
   tamperedIndices: number[]
 }
 
 export function ChainVisualization({ events, tamperedIndices }: ChainVisualizationProps) {
+  const [expandedHashes, setExpandedHashes] = useState<Set<number>>(new Set())
+  const [copiedHash, setCopiedHash] = useState<string | null>(null)
+
   const isTampered = (index: number) => tamperedIndices.includes(index)
   const isGenesis = (index: number) => index === 0
+  const isHashExpanded = (index: number) => expandedHashes.has(index)
+
+  const toggleHashExpanded = (index: number) => {
+    const newSet = new Set(expandedHashes)
+    if (newSet.has(index)) {
+      newSet.delete(index)
+    } else {
+      newSet.add(index)
+    }
+    setExpandedHashes(newSet)
+  }
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text)
+    setCopiedHash(text)
+    setTimeout(() => setCopiedHash(null), 2000)
+  }
+
+  const truncateHash = (hash: string, length: number = 32) => hash.slice(0, length)
+  const formatHash = (hash: string | null | undefined) => hash || 'N/A'
+
+  const HashDisplay = ({ label, hash, isError = false, isMissing = false }: { label: string; hash: string | null; isError?: boolean; isMissing?: boolean }) => {
+    const isCopied = copiedHash === hash
+
+    if (!hash && !isMissing) return null
+
+    if (!hash && isMissing) {
+      return (
+        <div className="flex items-center gap-2">
+          <span className="font-medium text-xs shrink-0 text-red-700 dark:text-red-300">{label}:</span>
+          <div className="text-xs px-2 py-1 rounded bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 italic">
+            [Missing - Event Tampered]
+          </div>
+        </div>
+      )
+    }
+
+    const displayHash = isHashExpanded(hash!.length) ? hash : truncateHash(hash!)
+    const isCopiedMatch = isCopied
+
+    return (
+      <div className="flex items-center gap-2 group/hash">
+        <span className={`font-medium text-xs shrink-0 ${isError ? 'text-red-700 dark:text-red-300' : 'text-muted-foreground'}`}>
+          {label}:
+        </span>
+        <code
+          className={`text-xs font-mono break-all flex-1 px-2 py-1 rounded cursor-pointer transition-colors ${
+            isError
+              ? 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30'
+              : 'bg-muted/50 text-muted-foreground hover:bg-muted'
+          }`}
+          onClick={() => toggleHashExpanded(hash!.length)}
+          title={hash!}
+        >
+          {displayHash}
+          {hash!.length > 32 && <span className="text-muted-foreground/60">…</span>}
+        </code>
+        <div className="flex items-center gap-0.5 opacity-0 group-hover/hash:opacity-100 transition-opacity flex-shrink-0">
+          <button
+            onClick={() => copyToClipboard(hash!)}
+            className="p-1 hover:bg-muted rounded transition-colors"
+            title="Copy"
+            aria-label="Copy hash"
+          >
+            {isCopiedMatch ? (
+              <span className="text-xs font-bold text-green-600">✓</span>
+            ) : (
+              <Copy className="w-3 h-3 text-muted-foreground" />
+            )}
+          </button>
+          {hash!.length > 32 && (
+            <button
+              onClick={() => toggleHashExpanded(hash!.length)}
+              className="p-1 hover:bg-muted rounded transition-colors"
+              title={isHashExpanded(hash!.length) ? 'Collapse' : 'Expand'}
+              aria-label={isHashExpanded(hash!.length) ? 'Collapse' : 'Expand'}
+            >
+              {isHashExpanded(hash!.length) ? (
+                <ChevronUp className="w-3 h-3 text-muted-foreground" />
+              ) : (
+                <ChevronDown className="w-3 h-3 text-muted-foreground" />
+              )}
+            </button>
+          )}
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-1">
@@ -22,98 +121,92 @@ export function ChainVisualization({ events, tamperedIndices }: ChainVisualizati
           <div key={event.id}>
             {/* Event Node */}
             <div
-              className={`relative p-4 border rounded-xs transition-colors ${
+              className={`relative border rounded-xs transition-colors ${
                 tampered
-                  ? 'bg-red-50 dark:bg-red-900/10 border-red-200 dark:border-red-800'
-                  : 'bg-background border-border hover:bg-muted/50'
+                  ? 'bg-red-50 dark:bg-red-900/10 border-red-200 dark:border-red-800 ring-1 ring-red-200/50'
+                  : 'bg-background border-border hover:bg-muted/30'
               }`}
             >
-              <div className="flex items-start gap-3">
+              {/* Header Row */}
+              <div className="flex items-center gap-3 p-3 border-b border-border/50">
                 {/* Status Icon */}
-                <div className="flex-shrink-0 pt-1">
+                <div className="flex-shrink-0">
                   {genesis ? (
                     <div className="w-8 h-8 rounded-full bg-primary/20 border-2 border-primary flex items-center justify-center">
                       <span className="text-xs font-bold text-primary">G</span>
                     </div>
                   ) : tampered ? (
-                    <AlertTriangle className="w-6 h-6 text-red-600 dark:text-red-400" />
+                    <div className="relative">
+                      <div className="absolute inset-0 bg-red-600 rounded-full blur opacity-25 animate-pulse" />
+                      <AlertTriangle className="w-6 h-6 text-red-600 dark:text-red-400 relative" />
+                    </div>
                   ) : (
                     <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400" />
                   )}
                 </div>
 
-                {/* Event Details */}
+                {/* Index and Event Type */}
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs font-semibold text-muted-foreground">Event {index}</span>
-                    {genesis && (
-                      <span className="px-1.5 py-0.5 text-xs font-medium bg-primary/20 text-primary rounded-xs">
-                        Genesis
-                      </span>
-                    )}
-                    {tampered && (
-                      <span className="px-1.5 py-0.5 text-xs font-medium bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-xs">
-                        Tampered
-                      </span>
-                    )}
-                  </div>
-
-                  <h3 className="font-semibold text-foreground text-sm mb-2">{event.event_type}</h3>
-
-                  <div className="grid gap-2 text-xs">
-                    <p className="text-muted-foreground">
-                      <span className="font-medium">Time:</span>{' '}
-                      {new Date(event.event_time).toLocaleString()}
-                    </p>
-
-                    <p className="text-muted-foreground">
-                      <span className="font-medium">Event ID:</span>
-                      <br />
-                      <span className="font-mono text-xs text-muted-foreground break-all">
-                        {event.id.slice(0, 16)}...
-                      </span>
-                    </p>
-
-                    {/* Hash Information */}
-                    <div className="space-y-1 p-2 bg-background/50 rounded border border-border/50">
-                      {!genesis && (
-                        <div>
-                          <p className="font-medium text-muted-foreground mb-1">Previous Hash:</p>
-                          <code className="text-xs font-mono text-muted-foreground break-all block p-1 bg-background rounded">
-                            {(event as any).previous_hash?.slice(0, 32) || 'N/A'}...
-                          </code>
-                        </div>
-                      )}
-
-                      <div>
-                        <p className="font-medium text-muted-foreground mb-1">
-                          {tampered ? 'Expected Hash:' : 'Hash:'}
-                        </p>
-                        <code
-                          className={`text-xs font-mono break-all block p-1 rounded ${
-                            tampered
-                              ? 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300'
-                              : 'bg-background text-muted-foreground'
-                          }`}
-                        >
-                          {(event as any).expected_hash?.slice(0, 32) ||
-                            event.hash?.slice(0, 32) ||
-                            'N/A'}
-                          ...
-                        </code>
-                      </div>
-
-                      {tampered && (
-                        <div>
-                          <p className="font-medium text-red-700 dark:text-red-300 mb-1">Actual Hash:</p>
-                          <code className="text-xs font-mono text-red-600 dark:text-red-400 break-all block p-1 bg-red-50 dark:bg-red-900/20 rounded">
-                            {(event as any).actual_hash?.slice(0, 32) || 'N/A'}...
-                          </code>
-                        </div>
-                      )}
-                    </div>
+                  <div className="flex items-baseline gap-2 flex-wrap">
+                    <span className="text-xs font-semibold text-muted-foreground">#{index.toString().padStart(3, '0')}</span>
+                    <h3 className="font-semibold text-foreground text-sm">{event.event_type}</h3>
                   </div>
                 </div>
+
+                {/* Status Badges */}
+                <div className="flex items-center gap-1 flex-shrink-0">
+                  {genesis && (
+                    <span className="px-2 py-1 text-xs font-medium bg-primary/20 text-primary rounded-xs">
+                      Genesis
+                    </span>
+                  )}
+                  {tampered && (
+                    <span className="px-2 py-1 text-xs font-semibold bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 rounded-xs">
+                      Failed
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Details Section */}
+              <div className="px-3 py-2.5 space-y-2">
+                {/* Time Row */}
+                <div className="flex items-center gap-2 text-xs">
+                  <span className="font-medium text-muted-foreground shrink-0">Time:</span>
+                  <span className="text-muted-foreground">{new Date(event.event_time).toLocaleString()}</span>
+                </div>
+
+                {/* Event ID Row */}
+                <div className="flex items-center gap-2 text-xs">
+                  <span className="font-medium text-muted-foreground shrink-0">Event ID:</span>
+                  <code className="font-mono text-muted-foreground flex-1 break-all">{event.id.slice(0, 20)}…</code>
+                </div>
+
+                {/* Hash Information */}
+                {(event.previous_hash || event.expected_hash || event.actual_hash) && (
+                  <div className="space-y-2 mt-3 pt-2.5 border-t border-border/50">
+                    {!genesis && event.previous_hash && (
+                      <HashDisplay label="Previous Hash" hash={event.previous_hash} />
+                    )}
+
+                    {event.expected_hash && (
+                      <HashDisplay
+                        label={tampered ? 'Expected Hash' : 'Hash'}
+                        hash={event.expected_hash}
+                        isError={tampered}
+                      />
+                    )}
+
+                    {tampered && (
+                      <HashDisplay
+                        label="Actual Hash"
+                        hash={event.actual_hash}
+                        isError={true}
+                        isMissing={!event.actual_hash}
+                      />
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 

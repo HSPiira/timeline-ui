@@ -313,6 +313,15 @@ export const timelineApi = {
       }),
     create: (data: components['schemas']['EmailAccountCreate']) =>
       client.POST('/email-accounts/', { body: data }),
+    update: (id: string, data: components['schemas']['EmailAccountUpdate']) =>
+      client.PATCH('/email-accounts/{account_id}', {
+        params: { path: { account_id: id } },
+        body: data,
+      }),
+    delete: (id: string) =>
+      client.DELETE('/email-accounts/{account_id}', {
+        params: { path: { account_id: id } },
+      }),
     sync: (id: string, incremental: boolean = true) =>
       client.POST('/email-accounts/{account_id}/sync', {
         params: { path: { account_id: id } },

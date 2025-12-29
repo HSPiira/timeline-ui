@@ -1,7 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRequireAuth } from '@/hooks/useRequireAuth'
 import { timelineApi } from '@/lib/api-client'
+import { getApiErrorMessage } from '@/lib/api-utils'
 import { CheckCircle, AlertTriangle, AlertCircle, DownloadIcon } from 'lucide-react'
 import { ChainVisualization } from '@/components/verify/ChainVisualization'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
@@ -16,15 +17,6 @@ export const Route = createFileRoute('/verify/$subjectId')(
 )
 
 type ChainVerificationResponse = components['schemas']['ChainVerificationResponse']
-type EventVerificationResult = components['schemas']['EventVerificationResult']
-type EventResponse = components['schemas']['EventResponse']
-
-// Adapter to convert API response to ChainVisualization format
-interface VisualizationEvent extends EventResponse {
-  verified: boolean
-  expectedHash: string
-  actualHash: string
-}
 
 function VerifyPage() {
   const authState = useRequireAuth()
@@ -34,13 +26,7 @@ function VerifyPage() {
   const [error, setError] = useState<string | null>(null)
   const [verification, setVerification] = useState<ChainVerificationResponse | null>(null)
 
-  useEffect(() => {
-    if (authState.user) {
-      verifyChain()
-    }
-  }, [authState.user, subjectId])
-
-  const verifyChain = async () => {
+  const verifyChain = useCallback(async () => {
     setLoading(true)
     setError(null)
     try {
@@ -48,21 +34,19 @@ function VerifyPage() {
       const { data: verificationData, error: verifyError } = await timelineApi.events.verify(subjectId)
 
       if (verifyError) {
-        let errorMsg = 'Failed to verify chain'
+        const errorMsg = getApiErrorMessage(verifyError, 'Failed to verify chain')
+        const errorStr = errorMsg.toLowerCase()
 
-        // Check for permission errors
-        const errorObj = verifyError as any
-        const errorStr = (errorObj?.detail || errorObj?.message || String(verifyError)).toLowerCase()
+        let displayMsg = errorMsg
 
+        // Check for specific permission/auth errors to provide contextual messages
         if (errorStr.includes('403') || errorStr.includes('forbidden') || errorStr.includes('permission') || errorStr.includes('not allowed')) {
-          errorMsg = 'You do not have permission to verify this chain. Please contact your administrator if you believe this is an error.'
+          displayMsg = 'You do not have permission to verify this chain. Please contact your administrator if you believe this is an error.'
         } else if (errorStr.includes('401') || errorStr.includes('unauthorized')) {
-          errorMsg = 'Your session has expired. Please log in again to verify the chain.'
-        } else if (typeof verifyError === 'object' && 'message' in errorObj) {
-          errorMsg = errorObj.message
+          displayMsg = 'Your session has expired. Please log in again to verify the chain.'
         }
 
-        setError(errorMsg)
+        setError(displayMsg)
       } else if (verificationData) {
         setVerification(verificationData)
       }
@@ -72,7 +56,13 @@ function VerifyPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [subjectId])
+
+  useEffect(() => {
+    if (authState.user) {
+      verifyChain()
+    }
+  }, [authState.user, subjectId, verifyChain])
 
   const handleExportReport = () => {
     if (!verification) return
@@ -170,7 +160,7 @@ function VerifyPage() {
       <Breadcrumbs
         items={[
           { label: 'Subjects', href: '/subjects' },
-          { label: `Subject ${subjectId.slice(0, 8)}...`, href: `/subjects/${subjectId}` },
+          { label: `${subjectId.slice(0, 8)}...`, href: `/subjects/${subjectId}` },
           { label: 'Verify' },
         ]}
       />
@@ -225,89 +215,35 @@ function VerifyPage() {
             </p>
           </div>
 
-          {/* Event Chain Timeline */}
-          <div className="bg-card/80 rounded-xs border border-border/50 p-3 mb-3">
-            <h2 className="text-sm font-semibold text-foreground mb-2">Event Chain Timeline</h2>
-            {verification.event_results && verification.event_results.length > 0 ? (
-              <div className="space-y-2">
-                {verification.event_results.map((event, index) => (
-                  <div
-                    key={event.event_id}
-                    className={`p-3 rounded-xs border ${
-                      event.is_valid
-                        ? 'bg-green-50/50 dark:bg-green-900/10 border-green-200 dark:border-green-800'
-                        : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
-                    }`}
-                  >
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        {index === 0 && (
-                          <span className="text-xs px-1.5 py-0.5 bg-primary/20 text-primary rounded-xs font-medium">
-                            Genesis
-                          </span>
-                        )}
-                        <span className="text-xs font-mono text-muted-foreground">#{event.sequence.toString().padStart(3, '0')}</span>
-                        <span className="font-semibold text-sm text-foreground">{event.event_type}</span>
-                      </div>
-                      <div className={`flex items-center gap-1 px-1.5 py-0.5 rounded-xs text-xs font-medium ${
-                        event.is_valid
-                          ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
-                          : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
-                      }`}>
-                        {event.is_valid ? (
-                          <>
-                            <CheckCircle className="w-3 h-3" />
-                            Valid
-                          </>
-                        ) : (
-                          <>
-                            <AlertTriangle className="w-3 h-3" />
-                            Invalid
-                          </>
-                        )}
-                      </div>
-                    </div>
-
-                    <p className="text-xs text-muted-foreground mb-2">
-                      {new Date(event.event_time).toLocaleString()}
-                    </p>
-
-                    {/* Hash Details */}
-                    {(event.expected_hash || event.actual_hash) && (
-                      <div className="space-y-1 text-xs">
-                        {event.expected_hash && (
-                          <p className="text-muted-foreground">
-                            <span className="font-medium">Expected Hash:</span>
-                            <span className="font-mono block break-all text-muted-foreground/80 mt-0.5">{event.expected_hash.slice(0, 40)}...</span>
-                          </p>
-                        )}
-                        {event.actual_hash && (
-                          <p className="text-muted-foreground">
-                            <span className="font-medium">Actual Hash:</span>
-                            <span className={`font-mono block break-all mt-0.5 ${
-                              event.is_valid ? 'text-muted-foreground/80' : 'text-red-600 dark:text-red-400'
-                            }`}>{event.actual_hash.slice(0, 40)}...</span>
-                          </p>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Error Details */}
-                    {!event.is_valid && event.error_type && (
-                      <div className="mt-2 p-2 bg-red-100/50 dark:bg-red-900/30 rounded border border-red-200 dark:border-red-800">
-                        <p className="text-xs font-medium text-red-700 dark:text-red-400 mb-1">{event.error_type}</p>
-                        {event.error_message && (
-                          <p className="text-xs text-red-600 dark:text-red-300">{event.error_message}</p>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-xs text-muted-foreground">No events to display</p>
-            )}
-          </div>
+          {/* Chain Visualization */}
+          {verification.event_results && verification.event_results.length > 0 && (
+            <div className="bg-card/80 rounded-xs border border-border/50 p-3 mb-3">
+              <h2 className="text-sm font-semibold text-foreground mb-2">Visual Chain Overview</h2>
+              <ChainVisualization
+                events={verification.event_results?.map((event, index) => {
+                  const prevEvent = index > 0 ? verification.event_results?.[index - 1] : null
+                  return {
+                    id: event.event_id,
+                    tenant_id: verification.tenant_id,
+                    subject_id: verification.subject_id || subjectId,
+                    event_type: event.event_type,
+                    schema_version: 1,
+                    event_time: event.event_time,
+                    payload: {},
+                    hash: event.actual_hash || event.expected_hash || '',
+                    previous_hash: prevEvent ? (prevEvent.actual_hash || prevEvent.expected_hash || null) : null,
+                    created_at: event.event_time,
+                    verified: event.is_valid,
+                    expected_hash: event.expected_hash || '',
+                    actual_hash: event.actual_hash || '',
+                  }
+                }) || []}
+                tamperedIndices={verification.event_results
+                  ?.map((event, index) => (!event.is_valid ? index : -1))
+                  .filter((i) => i !== -1) || []}
+              />
+            </div>
+          )}
 
           {/* Invalid Events Summary */}
           {verification.invalid_events > 0 && (
@@ -316,7 +252,7 @@ function VerifyPage() {
                 Chain Integrity Issues ({verification.invalid_events} {verification.invalid_events === 1 ? 'issue' : 'issues'})
               </h2>
               <p className="text-xs text-red-800 dark:text-red-300 mb-2">
-                {verification.invalid_events} event{verification.invalid_events !== 1 ? 's' : ''} failed verification. See Event Chain Timeline above for details.
+                {verification.invalid_events} event{verification.invalid_events !== 1 ? 's' : ''} failed verification. See the Visual Chain Overview above for details.
               </p>
             </div>
           )}
